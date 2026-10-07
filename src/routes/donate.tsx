@@ -7,9 +7,9 @@ import { Heart } from "lucide-react";
 export const Route = createFileRoute("/donate")({
   head: () => ({
     meta: [
-      { title: "Support ClearCover — keep free Medicare guidance going" },
-      { name: "description", content: "ClearCover is free and ad-free, and donations support this women-owned business. If it helped you make sense of Medicare, a small gift keeps it running." },
-      { property: "og:title", content: "Support ClearCover — like what we do? Please keep it going!" },
+      { title: "Support MedicareChoice — keep free Medicare guidance going" },
+      { name: "description", content: "MedicareChoice is free and ad-free, and donations support this women-owned business. If it helped you make sense of Medicare, a small gift keeps it running." },
+      { property: "og:title", content: "Support MedicareChoice — like what we do? Please keep it going!" },
       { property: "og:description", content: "Free, ad-free Medicare guidance with no commissions from insurers. Donations support this women-owned business." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -54,7 +54,7 @@ function Donate() {
         </div>
 
         <p className="mt-6 text-xl text-muted-foreground">
-          ClearCover is free for everyone — no ads, no account, and no commissions from insurance companies.
+          MedicareChoice is free for everyone — no ads, no account, and no commissions from insurance companies.
           Everything we earn goes back into clearer plain-language Medicare guidance. If this saved you an hour of
           confusion, a small gift keeps this women-owned business going.
         </p>
@@ -121,7 +121,7 @@ function Donate() {
           </button>
 
           <p className="mt-3 rounded-xl border-2 border-dashed border-accent bg-secondary p-4 text-lg">
-            Secure checkout isn't connected yet, so no money changes hands today. Until it is, passing ClearCover to
+            Secure checkout isn't connected yet, so no money changes hands today. Until it is, passing MedicareChoice to
             someone who's still untangling Medicare helps just as much.
           </p>
 
@@ -130,7 +130,7 @@ function Donate() {
             onClick={share}
             className="mt-4 w-full rounded-xl border-2 border-primary px-6 py-3 text-lg font-bold text-primary transition hover:bg-primary/10"
           >
-            {copied ? "Link copied — thank you!" : "Copy a link to share ClearCover"}
+            {copied ? "Link copied — thank you!" : "Copy a link to share MedicareChoice"}
           </button>
         </div>
 

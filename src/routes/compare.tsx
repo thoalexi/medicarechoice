@@ -6,9 +6,9 @@ import { COUNTIES, DATA_SOURCE, plansFor, estimateAnnual, money, type Health, ty
 export const Route = createFileRoute("/compare")({
   head: () => ({
     meta: [
-      { title: "Compare Medicare plans side by side — ClearCover" },
+      { title: "Compare Medicare plans side by side — MedicareChoice" },
       { name: "description", content: "Filter and compare Medigap and Medicare Advantage plans by region, true yearly cost, network, and extras." },
-      { property: "og:title", content: "Compare Medicare plans side by side — ClearCover" },
+      { property: "og:title", content: "Compare Medicare plans side by side — MedicareChoice" },
       { property: "og:description", content: "An interactive Medicare plan comparison dashboard." },
     ],
   }),
