@@ -5,7 +5,7 @@ export function SiteHeader() {
   return (
     <header className="border-b bg-card">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <Link to="/" className="font-display text-2xl font-bold text-primary">ClearCover</Link>
+        <Link to="/" className="font-display text-2xl font-bold text-primary">MedicareChoice</Link>
         <nav className="flex items-center gap-6 text-base font-bold">
           <Link to="/guide" className="hover:text-primary">Guided questions</Link>
           <Link to="/compare" className="hover:text-primary">Compare plans</Link>
