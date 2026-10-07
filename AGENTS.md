@@ -9,4 +9,4 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Plan catalog comes from the bundled CMS Landscape extract in src/lib (regenerate from the yearly CMS ZIP); never hand-edit plan figures.
+- Plan catalog comes from the bundled CMS Landscape extract in src/lib, with dental/vision/hearing from the CMS PBP Benefits file via scripts/build-mi-extras.py (regenerate both from the yearly CMS ZIPs); never hand-edit plan figures.

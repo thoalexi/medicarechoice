@@ -44,7 +44,7 @@ export interface Plan {
   dental: boolean | null;
   vision: boolean | null;
   hearing: boolean | null;
-  extrasDetail?: { dental: string; vision: string; hearing: string };
+  extrasDetail?: { dental: string; vision: string; hearing: string } | undefined;
   starRating: number;
   hospitals: string[];
   summary: string;
