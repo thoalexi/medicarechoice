@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { SiteHeader, Disclaimer } from "@/components/SiteHeader";
-import { PLANS, REGION_LABELS, estimateAnnual, money, type Health, type PlanType, type Region } from "@/lib/plans";
+import { COUNTIES, DATA_SOURCE, plansFor, estimateAnnual, money, type Health, type PlanType, type Region } from "@/lib/plans";
 
 export const Route = createFileRoute("/compare")({
   head: () => ({
@@ -15,19 +15,21 @@ export const Route = createFileRoute("/compare")({
   component: Compare,
 });
 
-const TYPES: PlanType[] = ["Original + Medigap", "Advantage HMO", "Advantage PPO", "Original only"];
+const TYPES: PlanType[] = ["Original + Medigap", "Advantage HMO", "Advantage PPO", "Special Needs (SNP)", "Other Advantage", "Original only"];
+const DEFAULT_TYPES = TYPES.filter((t) => t !== "Special Needs (SNP)");
+const ext = (v: boolean | null) => (v === null ? "?" : v ? "✓" : "—");
 
 function Compare() {
-  const [region, setRegion] = useState<Region>("detroit");
+  const [region, setRegion] = useState<Region>("Ingham");
   const [health, setHealth] = useState<Health>("some");
   const [drugs, setDrugs] = useState(50);
-  const [types, setTypes] = useState<PlanType[]>(TYPES);
+  const [types, setTypes] = useState<PlanType[]>(DEFAULT_TYPES);
   const [needs, setNeeds] = useState({ dental: false, vision: false, hearing: false, noReferrals: false });
   const [sort, setSort] = useState<"total" | "premium" | "oop">("total");
   const [picked, setPicked] = useState<string[]>([]);
 
-  const rows = useMemo(() => PLANS.filter((p) => p.regions.includes(region) && types.includes(p.type)
-    && (!needs.dental || p.dental) && (!needs.vision || p.vision) && (!needs.hearing || p.hearing) && (!needs.noReferrals || !p.referralsNeeded))
+  const rows = useMemo(() => plansFor(region).filter((p) => types.includes(p.type)
+    && (!needs.dental || p.dental !== false) && (!needs.vision || p.vision !== false) && (!needs.hearing || p.hearing !== false) && (!needs.noReferrals || !p.referralsNeeded))
     .map((p) => ({ p, c: estimateAnnual(p, health, drugs) }))
     .sort((a, b) => sort === "total" ? a.c.total - b.c.total : sort === "premium" ? a.p.monthlyPremium - b.p.monthlyPremium : (a.p.oopMax ?? 1e9) - (b.p.oopMax ?? 1e9)),
     [region, types, needs, health, drugs, sort]);
@@ -41,8 +43,8 @@ function Compare() {
       <main className="mx-auto grid max-w-6xl gap-8 px-6 py-10 lg:grid-cols-[280px_1fr]">
         <aside className="h-fit space-y-5 rounded-2xl border bg-card p-5 lg:sticky lg:top-4">
           <h2 className="text-2xl font-bold">Filters</h2>
-          <label className="block font-bold">Region<select className={sel} value={region} onChange={(e) => setRegion(e.target.value as Region)}>
-            {Object.entries(REGION_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></label>
+          <label className="block font-bold">Michigan county<select className={sel} value={region} onChange={(e) => setRegion(e.target.value)}>
+            {COUNTIES.map((c) => <option key={c} value={c}>{c}</option>)}</select></label>
           <label className="block font-bold">Expected health use<select className={sel} value={health} onChange={(e) => setHealth(e.target.value as Health)}>
             <option value="healthy">Low (healthy)</option><option value="some">Medium</option><option value="chronic">High (chronic)</option></select></label>
           <label className="block font-bold">Monthly drug costs: {money(drugs)}<input type="range" min={0} max={2000} step={25} value={drugs} onChange={(e) => setDrugs(+e.target.value)} className="mt-2 w-full accent-primary" /></label>
@@ -54,7 +56,7 @@ function Compare() {
 
         <section>
           <div className="flex flex-wrap items-end justify-between gap-4">
-            <div><h1 className="text-4xl font-bold">Compare plans</h1><p className="text-muted-foreground">{rows.length} plans · tick up to 3 to compare side by side</p></div>
+            <div><h1 className="text-4xl font-bold">Compare plans</h1><p className="text-muted-foreground">{rows.length} plans · tick up to 3 to compare side by side</p><p className="text-sm text-muted-foreground">Source: {DATA_SOURCE}. Dental/vision/hearing aren’t in the CMS file — “?” means check the plan’s Summary of Benefits.</p></div>
             <label className="font-bold">Sort by <select className="ml-2 rounded-lg border-2 border-input bg-card p-2" value={sort} onChange={(e) => setSort(e.target.value as typeof sort)}>
               <option value="total">True yearly cost</option><option value="premium">Monthly premium</option><option value="oop">Worst-case limit</option></select></label>
           </div>
@@ -71,8 +73,9 @@ function Compare() {
                   ["Drugs included", (r) => r.p.drugCoverage ? "Yes" : `Separate Part D (${money(r.p.drugPremium)}/mo)`],
                   ["Doctors", (r) => r.p.networkSize],
                   ["Referrals", (r) => r.p.referralsNeeded ? "Required" : "Not needed"],
-                  ["Dental / Vision / Hearing", (r) => [r.p.dental, r.p.vision, r.p.hearing].map((x) => x ? "✓" : "—").join(" / ")],
-                  ["Hospitals", (r) => r.p.hospitals.join(", ")],
+                  ["Dental / Vision / Hearing", (r) => [r.p.dental, r.p.vision, r.p.hearing].map(ext).join(" / ")],
+                  ["CMS plan type", (r) => r.p.cmsType ?? "—"],
+                  ["CMS plan ID", (r) => r.p.real ? r.p.id : "—"],
                 ] as [string, (r: (typeof cmp)[number]) => string][]).map(([l, f]) => (
                   <tr key={l} className="border-t"><td className="p-2 font-bold">{l}</td>{cmp.map((r) => <td key={r.p.id} className="p-2">{f(r)}</td>)}</tr>))}
               </tbody></table>

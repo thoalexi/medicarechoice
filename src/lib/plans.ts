@@ -1,70 +1,97 @@
-export type PlanType = "Original + Medigap" | "Advantage HMO" | "Advantage PPO" | "Original only";
-export type Region = "detroit" | "grandrapids" | "lansing" | "up" | "other";
+import cms from "./cms2027-mi.json";
+import zipCounty from "./mi-zip-county.json";
 
-export const REGION_LABELS: Record<Region, string> = {
-  detroit: "Detroit Metro (Wayne, Oakland, Macomb)",
-  grandrapids: "West Michigan (Kent, Ottawa)",
-  lansing: "Mid-Michigan (Ingham, Eaton, Clinton)",
-  up: "Upper Peninsula",
-  other: "Other area (national averages)",
-};
+// Official CMS CY2027 Landscape (file 202609.1) — every Medicare Advantage plan sold in Michigan.
+// Premiums, out-of-pocket limits, star ratings and county availability are real CMS figures.
+// Medical spending, coinsurance and drug spending are still ClearCover estimates.
+export const DATA_SOURCE = "CMS CY2027 Medicare Advantage & Part D Landscape (Sept 2026)";
+
+export type PlanType = "Original + Medigap" | "Advantage HMO" | "Advantage PPO" | "Special Needs (SNP)" | "Other Advantage" | "Original only";
+/** A Michigan county name, or "" when the ZIP is outside Michigan / unknown. */
+export type Region = string;
+
+const ZIPS = zipCounty as Record<string, string>;
+export const COUNTIES: string[] = Array.from(new Set(cms.plans.flatMap((p) => p.counties))).sort();
+export const REGION_LABELS: Record<string, string> = Object.fromEntries(COUNTIES.map((c) => [c, `${c} County`]));
 
 export function regionFromZip(zip: string): Region {
-  const p = parseInt(zip.slice(0, 3), 10);
-  if (p >= 480 && p <= 483) return "detroit";
-  if (p >= 493 && p <= 495) return "grandrapids";
-  if (p >= 488 && p <= 489) return "lansing";
-  if (p >= 498 && p <= 499) return "up";
-  return "other";
+  return ZIPS[zip] ?? "";
 }
+export const regionLabel = (r: Region) => (r ? `${r} County, Michigan` : "Outside Michigan — showing Original Medicare & Medigap only");
 
-export const PART_B_MONTHLY = 202.9;
+export const PART_B_MONTHLY = 202.9; // 2026 figure; update when CMS announces 2027 Part B
 export const PART_D_OOP_CAP = 2100;
+const PDP_PREMIUM = Math.round(cms.pdpMedian); // median 2027 Michigan stand-alone Part D premium
 
 export interface Plan {
   id: string;
   name: string;
   carrier: string;
   type: PlanType;
-  regions: Region[];
-  monthlyPremium: number; // plan premium, on top of Part B
+  cmsType?: string;
+  regions: Region[] | "all";
+  monthlyPremium: number;
   deductible: number;
-  oopMax: number | null; // null = no cap (Original only)
-  coinsurance: number; // share of medical costs paid until OOP max
+  oopMax: number | null;
+  coinsurance: number;
   drugCoverage: boolean;
-  drugPremium: number; // standalone Part D monthly if needed
-  networkSize: "Any Medicare doctor" | "Large" | "Medium" | "Small";
+  drugPremium: number;
+  networkSize: "Any Medicare doctor" | "Plan network" | "Network + out-of-network";
   referralsNeeded: boolean;
-  dental: boolean;
-  vision: boolean;
-  hearing: boolean;
+  /** null = not reported in the CMS file; check the plan's Summary of Benefits */
+  dental: boolean | null;
+  vision: boolean | null;
+  hearing: boolean | null;
   starRating: number;
   hospitals: string[];
   summary: string;
+  real: boolean;
 }
 
-const MI_HOSP = {
-  detroit: ["Henry Ford Health", "Corewell Health East", "Trinity Health", "Detroit Medical Center", "Michigan Medicine"],
-  grandrapids: ["Corewell Health West", "Trinity Health Grand Rapids", "University of Michigan Health-West"],
-  lansing: ["Sparrow (UM Health)", "McLaren Greater Lansing"],
-  up: ["UP Health System", "Aspirus", "War Memorial Hospital"],
-  other: ["Most Medicare-accepting hospitals"],
-};
-const all = (rs: Region[]) => rs.flatMap((r) => MI_HOSP[r]);
-const ALL: Region[] = ["detroit", "grandrapids", "lansing", "up", "other"];
+function mapType(t: string, snp: boolean): PlanType {
+  if (snp) return "Special Needs (SNP)";
+  if (t.startsWith("HMO")) return "Advantage HMO";
+  if (t.includes("PPO")) return "Advantage PPO";
+  return "Other Advantage";
+}
 
-export const PLANS: Plan[] = [
-  { id: "orig", name: "Original Medicare (A + B) only", carrier: "Medicare", type: "Original only", regions: ALL, monthlyPremium: 0, deductible: 283, oopMax: null, coinsurance: 0.2, drugCoverage: false, drugPremium: 38, networkSize: "Any Medicare doctor", referralsNeeded: false, dental: false, vision: false, hearing: false, starRating: 0, hospitals: all(ALL), summary: "Go to any doctor that takes Medicare, but you pay 20% with no yearly limit. Risky without extra coverage." },
-  { id: "medigap-g", name: "Medigap Plan G + Part D", carrier: "Lakeshore Mutual", type: "Original + Medigap", regions: ALL, monthlyPremium: 168, deductible: 283, oopMax: 283, coinsurance: 0, drugCoverage: false, drugPremium: 38, networkSize: "Any Medicare doctor", referralsNeeded: false, dental: false, vision: false, hearing: false, starRating: 0, hospitals: all(ALL), summary: "Highest peace of mind. After the small Part B deductible, nearly everything is covered. Higher monthly cost." },
-  { id: "medigap-n", name: "Medigap Plan N + Part D", carrier: "Great Lakes Assurance", type: "Original + Medigap", regions: ALL, monthlyPremium: 122, deductible: 283, oopMax: 900, coinsurance: 0.03, drugCoverage: false, drugPremium: 38, networkSize: "Any Medicare doctor", referralsNeeded: false, dental: false, vision: false, hearing: false, starRating: 0, hospitals: all(ALL), summary: "Cheaper than Plan G, with small copays ($20 office / $50 ER). Still use any Medicare doctor." },
-  { id: "hmo-detroit", name: "Motor City Advantage HMO", carrier: "Wolverine Health", type: "Advantage HMO", regions: ["detroit"], monthlyPremium: 0, deductible: 0, oopMax: 5900, coinsurance: 0.12, drugCoverage: true, drugPremium: 0, networkSize: "Medium", referralsNeeded: true, dental: true, vision: true, hearing: true, starRating: 4, hospitals: ["Henry Ford Health", "Detroit Medical Center"], summary: "$0 premium with dental, vision and hearing. Must use network doctors and get referrals." },
-  { id: "ppo-detroit", name: "Metro Choice PPO", carrier: "Peninsula Care", type: "Advantage PPO", regions: ["detroit", "lansing"], monthlyPremium: 49, deductible: 250, oopMax: 7400, coinsurance: 0.15, drugCoverage: true, drugPremium: 0, networkSize: "Large", referralsNeeded: false, dental: true, vision: true, hearing: false, starRating: 4.5, hospitals: ["Corewell Health East", "Michigan Medicine", "Trinity Health", "Sparrow (UM Health)"], summary: "Low premium, large network, can see out-of-network doctors at higher cost. No referrals." },
-  { id: "hmo-gr", name: "West Shore Advantage HMO", carrier: "Wolverine Health", type: "Advantage HMO", regions: ["grandrapids"], monthlyPremium: 0, deductible: 0, oopMax: 4900, coinsurance: 0.1, drugCoverage: true, drugPremium: 0, networkSize: "Medium", referralsNeeded: true, dental: true, vision: true, hearing: true, starRating: 4.5, hospitals: ["Corewell Health West"], summary: "Highly rated $0 plan tied to Corewell Health West. Referrals required." },
-  { id: "ppo-gr", name: "Lakeshore Flex PPO", carrier: "Peninsula Care", type: "Advantage PPO", regions: ["grandrapids", "lansing"], monthlyPremium: 35, deductible: 0, oopMax: 6700, coinsurance: 0.14, drugCoverage: true, drugPremium: 0, networkSize: "Large", referralsNeeded: false, dental: true, vision: false, hearing: false, starRating: 4, hospitals: ["Corewell Health West", "Trinity Health Grand Rapids", "University of Michigan Health-West", "McLaren Greater Lansing"], summary: "Flexible network across West and Mid-Michigan. Dental included, no vision." },
-  { id: "hmo-lansing", name: "Capital Area HMO", carrier: "Spartan Senior Plans", type: "Advantage HMO", regions: ["lansing"], monthlyPremium: 0, deductible: 0, oopMax: 5500, coinsurance: 0.12, drugCoverage: true, drugPremium: 0, networkSize: "Small", referralsNeeded: true, dental: true, vision: true, hearing: false, starRating: 3.5, hospitals: ["Sparrow (UM Health)"], summary: "$0 premium, small network centered on Sparrow. Good if your doctors are there." },
-  { id: "ppo-up", name: "Yooper Rural PPO", carrier: "Northwoods Health", type: "Advantage PPO", regions: ["up"], monthlyPremium: 29, deductible: 0, oopMax: 6200, coinsurance: 0.13, drugCoverage: true, drugPremium: 0, networkSize: "Medium", referralsNeeded: false, dental: true, vision: true, hearing: true, starRating: 4, hospitals: ["UP Health System", "Aspirus", "War Memorial Hospital"], summary: "Built for the U.P.—covers travel distances with out-of-network coverage." },
-  { id: "ppo-national", name: "National Select PPO", carrier: "Heartland Benefits", type: "Advantage PPO", regions: ["other", "up"], monthlyPremium: 19, deductible: 300, oopMax: 8300, coinsurance: 0.16, drugCoverage: true, drugPremium: 0, networkSize: "Large", referralsNeeded: false, dental: true, vision: true, hearing: false, starRating: 3.5, hospitals: ["Most Medicare-accepting hospitals"], summary: "Widely available PPO with low premium but high out-of-pocket maximum." },
+const cmsPlans: Plan[] = cms.plans.map((p) => {
+  const type = mapType(p.cmsType, p.snp);
+  const hmo = p.cmsType.startsWith("HMO");
+  const pos = p.cmsType.includes("POS");
+  const snpNote = p.snp ? " Special Needs Plan — only for people who qualify (e.g. Medicare + Medicaid, certain chronic conditions, or nursing-home care)." : "";
+  const net = hmo ? (pos ? "HMO with some out-of-network coverage (POS)." : "Must use network doctors, except emergencies.") : "PPO: see out-of-network doctors at higher cost.";
+  return {
+    id: p.id,
+    name: p.name,
+    carrier: p.carrier,
+    type,
+    cmsType: p.cmsType,
+    regions: p.counties,
+    monthlyPremium: p.premium,
+    deductible: 0,
+    oopMax: p.moop ?? 9250,
+    coinsurance: hmo ? 0.12 : 0.15,
+    drugCoverage: p.rx,
+    drugPremium: p.rx ? 0 : PDP_PREMIUM,
+    networkSize: hmo && !pos ? "Plan network" : "Network + out-of-network",
+    referralsNeeded: hmo && !pos,
+    dental: null, vision: null, hearing: null,
+    starRating: p.stars,
+    hospitals: [],
+    summary: `${net}${p.rx ? "" : " Does not include drug coverage."}${snpNote}`,
+    real: true,
+  };
+});
+
+const originalPlans: Plan[] = [
+  { id: "orig", name: "Original Medicare (A + B) + Part D", carrier: "Medicare", type: "Original only", regions: "all", monthlyPremium: 0, deductible: 283, oopMax: null, coinsurance: 0.2, drugCoverage: false, drugPremium: PDP_PREMIUM, networkSize: "Any Medicare doctor", referralsNeeded: false, dental: false, vision: false, hearing: false, starRating: 0, hospitals: [], summary: "Go to any doctor that takes Medicare, but you pay 20% with no yearly limit. Risky without extra coverage.", real: false },
+  { id: "medigap-g", name: "Medigap Plan G + Part D", carrier: "Various insurers (typical price)", type: "Original + Medigap", regions: "all", monthlyPremium: 168, deductible: 283, oopMax: 283, coinsurance: 0, drugCoverage: false, drugPremium: PDP_PREMIUM, networkSize: "Any Medicare doctor", referralsNeeded: false, dental: false, vision: false, hearing: false, starRating: 0, hospitals: [], summary: "Highest peace of mind. After the small Part B deductible, nearly everything is covered. Price shown is a typical estimate.", real: false },
+  { id: "medigap-n", name: "Medigap Plan N + Part D", carrier: "Various insurers (typical price)", type: "Original + Medigap", regions: "all", monthlyPremium: 122, deductible: 283, oopMax: 900, coinsurance: 0.03, drugCoverage: false, drugPremium: PDP_PREMIUM, networkSize: "Any Medicare doctor", referralsNeeded: false, dental: false, vision: false, hearing: false, starRating: 0, hospitals: [], summary: "Cheaper than Plan G, with small copays ($20 office / $50 ER). Still use any Medicare doctor. Price shown is a typical estimate.", real: false },
 ];
+
+export const PLANS: Plan[] = [...originalPlans, ...cmsPlans];
+export const plansFor = (r: Region) => PLANS.filter((p) => p.regions === "all" || (r !== "" && p.regions.includes(r)));
 
 export type Health = "healthy" | "some" | "chronic";
 export const MEDICAL_SPEND: Record<Health, number> = { healthy: 1500, some: 8000, chronic: 30000 };
@@ -103,15 +130,17 @@ export function scorePlan(plan: Plan, a: Answers) {
     else if (plan.type === "Advantage HMO") { score -= 2500; cautions.push("You'd need to use network doctors only."); }
   }
   if (a.hospital && a.hospital !== "none") {
-    if (plan.hospitals.includes(a.hospital) || plan.networkSize === "Any Medicare doctor") reasons.push(`Includes ${a.hospital}.`);
-    else { score -= 3000; cautions.push(`${a.hospital} may be out of network.`); }
+    if (plan.networkSize === "Any Medicare doctor") reasons.push(`Includes ${a.hospital}.`);
+    else if (plan.referralsNeeded) { score -= 1500; cautions.push(`Confirm ${a.hospital} is in this plan's network before enrolling.`); }
+    else cautions.push(`Check that ${a.hospital} is in network (out-of-network costs more).`);
   }
   if (a.priority === "peace" && plan.oopMax !== null && plan.oopMax < 1000) { score += 3000; reasons.push("Very predictable costs—almost no surprise bills."); }
   if (a.priority === "low-premium" && plan.monthlyPremium === 0) { score += 1500; reasons.push("$0 plan premium."); }
+  if (plan.type === "Special Needs (SNP)") { score -= 4000; cautions.push("Only for people who qualify for this Special Needs Plan."); }
   if (a.travels && plan.type === "Advantage HMO") { score -= 1500; cautions.push("Limited coverage when traveling outside the area."); }
   if (a.travels && plan.networkSize === "Any Medicare doctor") reasons.push("Works anywhere in the U.S.");
   (["dental", "vision", "hearing"] as const).forEach((x) => {
-    if (a.extras[x]) { if (plan[x]) { score += 400; reasons.push(`Includes ${x}.`); } else cautions.push(`No ${x} coverage—you'd buy it separately.`); }
+    if (a.extras[x]) { if (plan[x] === null) cautions.push(`Check the plan's Summary of Benefits for ${x} coverage.`); else if (plan[x]) { score += 400; reasons.push(`Includes ${x}.`); } else cautions.push(`No ${x} coverage—you'd buy it separately.`); }
   });
   if (plan.referralsNeeded) cautions.push("Referrals needed to see specialists.");
   if (plan.oopMax && plan.oopMax > 6000) cautions.push(`In a bad year you could pay up to $${plan.oopMax.toLocaleString()} for medical care.`);
