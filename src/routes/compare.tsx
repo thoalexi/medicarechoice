@@ -1,0 +1,109 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
+import { SiteHeader, Disclaimer } from "@/components/SiteHeader";
+import { PLANS, REGION_LABELS, estimateAnnual, money, type Health, type PlanType, type Region } from "@/lib/plans";
+
+export const Route = createFileRoute("/compare")({
+  head: () => ({
+    meta: [
+      { title: "Compare Medicare plans side by side — ClearCover" },
+      { name: "description", content: "Filter and compare Medigap and Medicare Advantage plans by region, true yearly cost, network, and extras." },
+      { property: "og:title", content: "Compare Medicare plans side by side — ClearCover" },
+      { property: "og:description", content: "An interactive Medicare plan comparison dashboard." },
+    ],
+  }),
+  component: Compare,
+});
+
+const TYPES: PlanType[] = ["Original + Medigap", "Advantage HMO", "Advantage PPO", "Original only"];
+
+function Compare() {
+  const [region, setRegion] = useState<Region>("detroit");
+  const [health, setHealth] = useState<Health>("some");
+  const [drugs, setDrugs] = useState(50);
+  const [types, setTypes] = useState<PlanType[]>(TYPES);
+  const [needs, setNeeds] = useState({ dental: false, vision: false, hearing: false, noReferrals: false });
+  const [sort, setSort] = useState<"total" | "premium" | "oop">("total");
+  const [picked, setPicked] = useState<string[]>([]);
+
+  const rows = useMemo(() => PLANS.filter((p) => p.regions.includes(region) && types.includes(p.type)
+    && (!needs.dental || p.dental) && (!needs.vision || p.vision) && (!needs.hearing || p.hearing) && (!needs.noReferrals || !p.referralsNeeded))
+    .map((p) => ({ p, c: estimateAnnual(p, health, drugs) }))
+    .sort((a, b) => sort === "total" ? a.c.total - b.c.total : sort === "premium" ? a.p.monthlyPremium - b.p.monthlyPremium : (a.p.oopMax ?? 1e9) - (b.p.oopMax ?? 1e9)),
+    [region, types, needs, health, drugs, sort]);
+
+  const toggle = (id: string) => setPicked((x) => x.includes(id) ? x.filter((y) => y !== id) : x.length < 3 ? [...x, id] : x);
+  const cmp = rows.filter((r) => picked.includes(r.p.id));
+  const sel = "mt-1 block w-full rounded-lg border-2 border-input bg-card p-2";
+
+  return (
+    <div className="min-h-screen"><SiteHeader />
+      <main className="mx-auto grid max-w-6xl gap-8 px-6 py-10 lg:grid-cols-[280px_1fr]">
+        <aside className="h-fit space-y-5 rounded-2xl border bg-card p-5 lg:sticky lg:top-4">
+          <h2 className="text-2xl font-bold">Filters</h2>
+          <label className="block font-bold">Region<select className={sel} value={region} onChange={(e) => setRegion(e.target.value as Region)}>
+            {Object.entries(REGION_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></label>
+          <label className="block font-bold">Expected health use<select className={sel} value={health} onChange={(e) => setHealth(e.target.value as Health)}>
+            <option value="healthy">Low (healthy)</option><option value="some">Medium</option><option value="chronic">High (chronic)</option></select></label>
+          <label className="block font-bold">Monthly drug costs: {money(drugs)}<input type="range" min={0} max={2000} step={25} value={drugs} onChange={(e) => setDrugs(+e.target.value)} className="mt-2 w-full accent-primary" /></label>
+          <fieldset><legend className="font-bold">Plan types</legend>
+            {TYPES.map((t) => <label key={t} className="mt-1 flex items-center gap-2"><input type="checkbox" className="size-5" checked={types.includes(t)} onChange={() => setTypes((x) => x.includes(t) ? x.filter((y) => y !== t) : [...x, t])} />{t}</label>)}</fieldset>
+          <fieldset><legend className="font-bold">Must include</legend>
+            {(["dental", "vision", "hearing", "noReferrals"] as const).map((k) => <label key={k} className="mt-1 flex items-center gap-2"><input type="checkbox" className="size-5" checked={needs[k]} onChange={() => setNeeds({ ...needs, [k]: !needs[k] })} />{k === "noReferrals" ? "No referrals" : k.charAt(0).toUpperCase() + k.slice(1)}</label>)}</fieldset>
+        </aside>
+
+        <section>
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div><h1 className="text-4xl font-bold">Compare plans</h1><p className="text-muted-foreground">{rows.length} plans · tick up to 3 to compare side by side</p></div>
+            <label className="font-bold">Sort by <select className="ml-2 rounded-lg border-2 border-input bg-card p-2" value={sort} onChange={(e) => setSort(e.target.value as typeof sort)}>
+              <option value="total">True yearly cost</option><option value="premium">Monthly premium</option><option value="oop">Worst-case limit</option></select></label>
+          </div>
+
+          {cmp.length > 1 && (
+            <div className="mt-6 overflow-x-auto rounded-2xl border-2 border-primary bg-card p-4">
+              <table className="w-full text-left"><tbody>
+                <tr><th className="p-2"></th>{cmp.map(({ p }) => <th key={p.id} className="p-2 font-display text-lg">{p.name}</th>)}</tr>
+                {([
+                  ["True yearly cost", (r) => money(r.c.total)],
+                  ["Monthly plan premium", (r) => money(r.p.monthlyPremium)],
+                  ["Deductible", (r) => money(r.p.deductible)],
+                  ["Medical out-of-pocket limit", (r) => r.p.oopMax === null ? "No limit" : money(r.p.oopMax)],
+                  ["Drugs included", (r) => r.p.drugCoverage ? "Yes" : `Separate Part D (${money(r.p.drugPremium)}/mo)`],
+                  ["Doctors", (r) => r.p.networkSize],
+                  ["Referrals", (r) => r.p.referralsNeeded ? "Required" : "Not needed"],
+                  ["Dental / Vision / Hearing", (r) => [r.p.dental, r.p.vision, r.p.hearing].map((x) => x ? "✓" : "—").join(" / ")],
+                  ["Hospitals", (r) => r.p.hospitals.join(", ")],
+                ] as [string, (r: (typeof cmp)[number]) => string][]).map(([l, f]) => (
+                  <tr key={l} className="border-t"><td className="p-2 font-bold">{l}</td>{cmp.map((r) => <td key={r.p.id} className="p-2">{f(r)}</td>)}</tr>))}
+              </tbody></table>
+            </div>
+          )}
+
+          <div className="mt-6 space-y-4">
+            {rows.map(({ p, c }) => (
+              <div key={p.id} className={`grid gap-4 rounded-2xl border-2 bg-card p-5 md:grid-cols-[auto_1fr_auto] ${picked.includes(p.id) ? "border-primary" : ""}`}>
+                <input type="checkbox" aria-label={`Compare ${p.name}`} className="mt-1 size-6" checked={picked.includes(p.id)} onChange={() => toggle(p.id)} />
+                <div>
+                  <h3 className="text-xl font-bold">{p.name}</h3>
+                  <div className="text-muted-foreground">{p.type} · {p.carrier}{p.starRating ? ` · ${p.starRating}★` : ""}</div>
+                  <p className="mt-2">{p.summary}</p>
+                  <div className="mt-2 flex flex-wrap gap-2 text-sm">
+                    <span className="rounded-full bg-muted px-3 py-1">Premium {money(p.monthlyPremium)}/mo</span>
+                    <span className="rounded-full bg-muted px-3 py-1">Max {p.oopMax === null ? "no limit" : money(p.oopMax)}</span>
+                    {p.dental && <span className="rounded-full bg-secondary px-3 py-1">Dental</span>}
+                    {p.vision && <span className="rounded-full bg-secondary px-3 py-1">Vision</span>}
+                    {p.hearing && <span className="rounded-full bg-secondary px-3 py-1">Hearing</span>}
+                  </div>
+                </div>
+                <div className="text-right"><div className="text-sm text-muted-foreground">True yearly cost</div><div className="font-display text-3xl font-bold text-primary">{money(c.total)}</div>
+                  <div className="text-sm text-muted-foreground">Worst case {c.worstCase ? money(c.worstCase) : "unlimited"}</div></div>
+              </div>
+            ))}
+            {rows.length === 0 && <p className="rounded-xl bg-muted p-6 text-lg">No plans match these filters. Try unchecking a requirement.</p>}
+          </div>
+        </section>
+      </main>
+      <Disclaimer />
+    </div>
+  );
+}
