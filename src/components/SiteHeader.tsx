@@ -9,6 +9,10 @@ export function SiteHeader() {
         <nav className="flex items-center gap-6 text-base font-bold">
           <Link to="/guide" className="hover:text-primary">Guided questions</Link>
           <Link to="/compare" className="hover:text-primary">Compare plans</Link>
+          <Link to="/feedback" className="inline-flex items-center gap-2 hover:text-primary">
+            <MessageSquareHeart className="size-4" aria-hidden />
+            Feedback
+          </Link>
           <Link
             to="/donate"
             className="inline-flex items-center gap-2 rounded-full border-2 border-primary px-4 py-1.5 text-primary transition hover:bg-primary/10"
