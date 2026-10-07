@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Plan catalog comes from the bundled CMS Landscape extract in src/lib (regenerate from the yearly CMS ZIP); never hand-edit plan figures.
