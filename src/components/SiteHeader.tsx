@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { Heart } from "lucide-react";
 
 export function SiteHeader() {
   return (
