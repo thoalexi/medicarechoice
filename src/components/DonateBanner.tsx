@@ -32,7 +32,8 @@ export function DonateBanner() {
           <div>
             <p className="text-xl font-bold">Like what we do? Please keep it going!</p>
             <p className="mt-1 text-base text-muted-foreground">
-              ClearCover is free, has no ads, and takes no commissions from insurers. Reader donations keep it running.
+              ClearCover is free, has no ads, and takes no commissions from insurers. Reader donations keep it running
+              — and support this women-owned business.
             </p>
           </div>
         </div>
