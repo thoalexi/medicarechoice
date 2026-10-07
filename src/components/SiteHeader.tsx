@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Heart } from "lucide-react";
+import { Heart, MessageSquareHeart } from "lucide-react";
 
 export function SiteHeader() {
   return (
