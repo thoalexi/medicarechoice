@@ -6,9 +6,9 @@ import { plansFor, regionLabel, regionFromZip, scorePlan, money, type Answers } 
 export const Route = createFileRoute("/guide")({
   head: () => ({
     meta: [
-      { title: "Guided Medicare questions — ClearCover" },
+      { title: "Guided Medicare questions — MedicareChoice" },
       { name: "description", content: "Seven plain-language questions that lead to clear Medicare plan recommendations with true yearly costs." },
-      { property: "og:title", content: "Guided Medicare questions — ClearCover" },
+      { property: "og:title", content: "Guided Medicare questions — MedicareChoice" },
       { property: "og:description", content: "Find your best-fit Medicare plan in about 3 minutes." },
     ],
   }),

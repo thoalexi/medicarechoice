@@ -4,9 +4,9 @@ import { SiteHeader, Disclaimer } from "@/components/SiteHeader";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "ClearCover — Plain-language Medicare plan guide" },
+      { title: "MedicareChoice — Plain-language Medicare plan guide" },
       { name: "description", content: "Answer a few simple questions and see which Medicare plan fits your health, doctors, and budget—with true yearly costs." },
-      { property: "og:title", content: "ClearCover — Plain-language Medicare plan guide" },
+      { property: "og:title", content: "MedicareChoice — Plain-language Medicare plan guide" },
       { property: "og:description", content: "Transparent Medicare recommendations with true yearly costs and trade-offs." },
     ],
   }),

@@ -23,7 +23,7 @@ export function DonateBanner() {
   if (!mounted || dismissed) return null;
 
   return (
-    <aside aria-label="Support ClearCover" className="border-b border-primary/25 bg-secondary">
+    <aside aria-label="Support MedicareChoice" className="border-b border-primary/25 bg-secondary">
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-4 sm:flex-row sm:items-center">
         <div className="flex items-start gap-4">
           <span className="grid size-12 shrink-0 place-items-center rounded-full bg-primary/12 text-primary">
@@ -32,7 +32,7 @@ export function DonateBanner() {
           <div>
             <p className="text-xl font-bold">Like what we do? Please keep it going!</p>
             <p className="mt-1 text-base text-muted-foreground">
-              ClearCover is free, has no ads, and takes no commissions from insurers. Reader donations keep it running
+              MedicareChoice is free, has no ads, and takes no commissions from insurers. Reader donations keep it running
               — and support this women-owned business.
             </p>
           </div>
