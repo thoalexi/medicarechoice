@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, type ReactNode } from "react";
 import { SiteHeader, Disclaimer } from "@/components/SiteHeader";
-import { PLANS, REGION_LABELS, regionFromZip, scorePlan, money, type Answers } from "@/lib/plans";
+import { plansFor, regionLabel, regionFromZip, scorePlan, money, type Answers } from "@/lib/plans";
 
 export const Route = createFileRoute("/guide")({
   head: () => ({
@@ -35,7 +35,7 @@ function Guide() {
   const steps: { q: string; help: string; body: ReactNode; valid?: boolean }[] = [
     { q: "What's your ZIP code?", help: "Plans and prices change by county.", valid: /^\d{5}$/.test(a.zip),
       body: <div><input inputMode="numeric" maxLength={5} value={a.zip} onChange={(e) => set({ zip: e.target.value.replace(/\D/g, "") })} placeholder="e.g. 48201" className="w-48 rounded-xl border-2 border-input bg-card px-4 py-4 text-2xl" />
-        {a.zip.length === 5 && <p className="mt-3 text-lg">📍 {REGION_LABELS[regionFromZip(a.zip)]}</p>}</div> },
+        {a.zip.length === 5 && <p className="mt-3 text-lg">📍 {regionLabel(regionFromZip(a.zip))}</p>}</div> },
     { q: "How would you describe your health?", help: "This helps us estimate what a typical year of care costs you.",
       body: <div className="grid gap-3">
         <Choice selected={a.health === "healthy"} onClick={() => set({ health: "healthy" })} title="Pretty healthy" desc="A checkup or two a year." />
@@ -92,12 +92,12 @@ function Guide() {
 
 function Results({ a, onEdit }: { a: Answers; onEdit: () => void }) {
   const region = regionFromZip(a.zip);
-  const ranked = PLANS.filter((p) => p.regions.includes(region)).map((p) => scorePlan(p, a)).sort((x, y) => y.score - x.score);
+  const ranked = plansFor(region).map((p) => scorePlan(p, a)).sort((x, y) => y.score - x.score);
   return (
     <div className="min-h-screen"><SiteHeader />
       <main className="mx-auto max-w-4xl px-6 py-12">
         <h1 className="text-4xl font-bold">Your best-fit plans</h1>
-        <p className="mt-2 text-lg text-muted-foreground">For {REGION_LABELS[region]}. Costs include your Part B premium and are estimated for a typical year given your answers.</p>
+        <p className="mt-2 text-lg text-muted-foreground">For {regionLabel(region)}. Plans and premiums from the official CMS 2027 list. Costs include your Part B premium and are estimated for a typical year given your answers.</p>
         <button onClick={onEdit} className="mt-3 text-primary underline">Change my answers</button>
         <div className="mt-8 space-y-6">
           {ranked.slice(0, 4).map(({ plan, cost, reasons, cautions }, i) => (
