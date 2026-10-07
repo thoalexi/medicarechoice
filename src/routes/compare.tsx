@@ -87,7 +87,7 @@ function Compare() {
               <div key={p.id} className={`grid gap-4 rounded-2xl border-2 bg-card p-5 md:grid-cols-[auto_1fr_auto] ${picked.includes(p.id) ? "border-primary" : ""}`}>
                 <input type="checkbox" aria-label={`Compare ${p.name}`} className="mt-1 size-6" checked={picked.includes(p.id)} onChange={() => toggle(p.id)} />
                 <div>
-                  <h3 className="text-xl font-bold">{p.name}</h3>
+                  <h2 className="text-xl font-bold">{p.name}</h2>
                   <div className="text-muted-foreground">{p.type} · {p.carrier}{p.starRating ? ` · ${p.starRating}★` : ""}</div>
                   <p className="mt-2">{p.summary}</p>
                   <div className="mt-2 flex flex-wrap gap-2 text-sm">
