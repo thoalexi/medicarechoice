@@ -49,7 +49,7 @@ function Compare() {
           <fieldset><legend className="font-bold">Plan types</legend>
             {TYPES.map((t) => <label key={t} className="mt-1 flex items-center gap-2"><input type="checkbox" className="size-5" checked={types.includes(t)} onChange={() => setTypes((x) => x.includes(t) ? x.filter((y) => y !== t) : [...x, t])} />{t}</label>)}</fieldset>
           <fieldset><legend className="font-bold">Must include</legend>
-            {(["dental", "vision", "hearing", "noReferrals"] as const).map((k) => <label key={k} className="mt-1 flex items-center gap-2"><input type="checkbox" className="size-5" checked={needs[k]} onChange={() => setNeeds({ ...needs, [k]: !needs[k] })} />{k === "noReferrals" ? "No referrals" : k[0].toUpperCase() + k.slice(1)}</label>)}</fieldset>
+            {(["dental", "vision", "hearing", "noReferrals"] as const).map((k) => <label key={k} className="mt-1 flex items-center gap-2"><input type="checkbox" className="size-5" checked={needs[k]} onChange={() => setNeeds({ ...needs, [k]: !needs[k] })} />{k === "noReferrals" ? "No referrals" : k.charAt(0).toUpperCase() + k.slice(1)}</label>)}</fieldset>
         </aside>
 
         <section>

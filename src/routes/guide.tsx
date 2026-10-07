@@ -66,12 +66,12 @@ function Guide() {
     { q: "Do you want dental, vision, or hearing extras?", help: "Original Medicare doesn't cover these. Many Advantage plans do.",
       body: <div className="grid gap-3 sm:grid-cols-3">
         {(["dental", "vision", "hearing"] as const).map((x) =>
-          <Choice key={x} selected={a.extras[x]} onClick={() => set({ extras: { ...a.extras, [x]: !a.extras[x] } })} title={x[0].toUpperCase() + x.slice(1)} />)}
+          <Choice key={x} selected={a.extras[x]} onClick={() => set({ extras: { ...a.extras, [x]: !a.extras[x] } })} title={x.charAt(0).toUpperCase() + x.slice(1)} />)}
       </div> },
   ];
 
   if (step >= steps.length) return <Results a={a} onEdit={() => setStep(0)} />;
-  const s = steps[step];
+  const s = steps[step]!;
   return (
     <div className="min-h-screen"><SiteHeader />
       <main className="mx-auto max-w-2xl px-6 py-12">
