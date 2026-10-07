@@ -1,10 +1,12 @@
 import cms from "./cms2027-mi.json";
+import extrasData from "./cms2027-mi-extras.json";
 import zipCounty from "./mi-zip-county.json";
 
 // Official CMS CY2027 Landscape (file 202609.1) — every Medicare Advantage plan sold in Michigan.
 // Premiums, out-of-pocket limits, star ratings and county availability are real CMS figures.
-// Medical spending, coinsurance and drug spending are still ClearCover estimates.
-export const DATA_SOURCE = "CMS CY2027 Medicare Advantage & Part D Landscape (Sept 2026)";
+// Dental/vision/hearing come from the CMS CY2027 PBP Benefits file (scripts/build-mi-extras.py).
+// Medical spending, coinsurance and drug spending are still estimates.
+export const DATA_SOURCE = "CMS CY2027 Medicare Advantage Landscape & Plan Benefit Package files";
 
 export type PlanType = "Original + Medigap" | "Advantage HMO" | "Advantage PPO" | "Special Needs (SNP)" | "Other Advantage" | "Original only";
 /** A Michigan county name, or "" when the ZIP is outside Michigan / unknown. */
@@ -38,10 +40,11 @@ export interface Plan {
   drugPremium: number;
   networkSize: "Any Medicare doctor" | "Plan network" | "Network + out-of-network";
   referralsNeeded: boolean;
-  /** null = not reported in the CMS file; check the plan's Summary of Benefits */
+  /** From CMS Plan Benefit Package data; null = not reported */
   dental: boolean | null;
   vision: boolean | null;
   hearing: boolean | null;
+  extrasDetail?: { dental: string; vision: string; hearing: string };
   starRating: number;
   hospitals: string[];
   summary: string;
@@ -55,10 +58,24 @@ function mapType(t: string, snp: boolean): PlanType {
   return "Other Advantage";
 }
 
+type Extra = { dental: boolean; dentalComprehensive?: boolean; dentalMax?: number | null; dentalOptional?: boolean; vision: boolean; visionExam?: boolean; eyewear?: boolean; eyewearMax?: number | null; hearing: boolean; hearingExam?: boolean; hearingAids?: boolean; hearingAidMax?: number | null };
+const EXTRAS = extrasData as Record<string, Extra>;
+const usd = (n: number) => "$" + n.toLocaleString();
+
+function extrasDetail(e: Extra | undefined): Plan["extrasDetail"] {
+  if (!e) return undefined;
+  return {
+    dental: e.dental ? `${e.dentalComprehensive ? "Cleanings + fillings/crowns" : "Cleanings & X-rays"}${e.dentalMax ? `, up to ${usd(e.dentalMax)}/yr` : ""}` : e.dentalOptional ? "Optional add-on (extra cost)" : "Not covered",
+    vision: e.vision ? `${e.visionExam ? "Eye exam" : ""}${e.visionExam && e.eyewear ? " + " : ""}${e.eyewear ? `glasses/contacts${e.eyewearMax ? ` up to ${usd(e.eyewearMax)}/yr` : ""}` : ""}` : "Not covered",
+    hearing: e.hearing ? `${e.hearingExam ? "Hearing exam" : ""}${e.hearingExam && e.hearingAids ? " + " : ""}${e.hearingAids ? `hearing aids${e.hearingAidMax ? ` up to ${usd(e.hearingAidMax)}` : " (copay)"}` : ""}` : "Not covered",
+  };
+}
+
 const cmsPlans: Plan[] = cms.plans.map((p) => {
   const type = mapType(p.cmsType, p.snp);
   const hmo = p.cmsType.startsWith("HMO");
   const pos = p.cmsType.includes("POS");
+  const x = EXTRAS[p.id];
   const snpNote = p.snp ? " Special Needs Plan — only for people who qualify (e.g. Medicare + Medicaid, certain chronic conditions, or nursing-home care)." : "";
   const net = hmo ? (pos ? "HMO with some out-of-network coverage (POS)." : "Must use network doctors, except emergencies.") : "PPO: see out-of-network doctors at higher cost.";
   return {
@@ -76,7 +93,8 @@ const cmsPlans: Plan[] = cms.plans.map((p) => {
     drugPremium: p.rx ? 0 : PDP_PREMIUM,
     networkSize: hmo && !pos ? "Plan network" : "Network + out-of-network",
     referralsNeeded: hmo && !pos,
-    dental: null, vision: null, hearing: null,
+    dental: x ? x.dental : null, vision: x ? x.vision : null, hearing: x ? x.hearing : null,
+    extrasDetail: extrasDetail(x),
     starRating: p.stars,
     hospitals: [],
     summary: `${net}${p.rx ? "" : " Does not include drug coverage."}${snpNote}`,
