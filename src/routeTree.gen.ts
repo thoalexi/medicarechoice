@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CompareRouteImport } from './routes/compare'
 import { Route as DonateRouteImport } from './routes/donate'
+import { Route as FeedbackRouteImport } from './routes/feedback'
 import { Route as GuideRouteImport } from './routes/guide'
 
 const IndexRoute = IndexRouteImport.update({
@@ -29,6 +30,11 @@ const DonateRoute = DonateRouteImport.update({
   path: '/donate',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FeedbackRoute = FeedbackRouteImport.update({
+  id: '/feedback',
+  path: '/feedback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GuideRoute = GuideRouteImport.update({
   id: '/guide',
   path: '/guide',
@@ -39,12 +45,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/compare': typeof CompareRoute
   '/donate': typeof DonateRoute
+  '/feedback': typeof FeedbackRoute
   '/guide': typeof GuideRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/compare': typeof CompareRoute
   '/donate': typeof DonateRoute
+  '/feedback': typeof FeedbackRoute
   '/guide': typeof GuideRoute
 }
 export interface FileRoutesById {
@@ -52,20 +60,22 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/compare': typeof CompareRoute
   '/donate': typeof DonateRoute
+  '/feedback': typeof FeedbackRoute
   '/guide': typeof GuideRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/compare' | '/donate' | '/guide'
+  fullPaths: '/' | '/compare' | '/donate' | '/feedback' | '/guide'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/compare' | '/donate' | '/guide'
-  id: '__root__' | '/' | '/compare' | '/donate' | '/guide'
+  to: '/' | '/compare' | '/donate' | '/feedback' | '/guide'
+  id: '__root__' | '/' | '/compare' | '/donate' | '/feedback' | '/guide'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CompareRoute: typeof CompareRoute
   DonateRoute: typeof DonateRoute
+  FeedbackRoute: typeof FeedbackRoute
   GuideRoute: typeof GuideRoute
 }
 
@@ -92,6 +102,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DonateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/feedback': {
+      id: '/feedback'
+      path: '/feedback'
+      fullPath: '/feedback'
+      preLoaderRoute: typeof FeedbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/guide': {
       id: '/guide'
       path: '/guide'
@@ -106,6 +123,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CompareRoute: CompareRoute,
   DonateRoute: DonateRoute,
+  FeedbackRoute: FeedbackRoute,
   GuideRoute: GuideRoute,
 }
 export const routeTree = rootRouteImport
