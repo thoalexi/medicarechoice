@@ -34,7 +34,7 @@ function Guide() {
 
   const steps: { q: string; help: string; body: ReactNode; valid?: boolean }[] = [
     { q: "What's your ZIP code?", help: "Plans and prices change by county.", valid: /^\d{5}$/.test(a.zip),
-      body: <div><input inputMode="numeric" maxLength={5} value={a.zip} onChange={(e) => set({ zip: e.target.value.replace(/\D/g, "") })} placeholder="e.g. 48201" className="w-48 rounded-xl border-2 border-input bg-card px-4 py-4 text-2xl" />
+      body: <div><input aria-label="ZIP code" inputMode="numeric" maxLength={5} value={a.zip} onChange={(e) => set({ zip: e.target.value.replace(/\D/g, "") })} placeholder="e.g. 48201" className="w-48 rounded-xl border-2 border-input bg-card px-4 py-4 text-2xl" />
         {a.zip.length === 5 && <p className="mt-3 text-lg">📍 {regionLabel(regionFromZip(a.zip))}</p>}</div> },
     { q: "How would you describe your health?", help: "This helps us estimate what a typical year of care costs you.",
       body: <div className="grid gap-3">

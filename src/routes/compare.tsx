@@ -42,7 +42,7 @@ function Compare() {
     <div className="min-h-screen"><SiteHeader />
       <main className="mx-auto grid max-w-6xl gap-8 px-6 py-10 lg:grid-cols-[280px_1fr]">
         <aside className="h-fit space-y-5 rounded-2xl border bg-card p-5 lg:sticky lg:top-4">
-          <h2 className="text-2xl font-bold">Filters</h2>
+          <p className="text-2xl font-bold">Filters</p>
           <label className="block font-bold">Michigan county<select className={sel} value={region} onChange={(e) => setRegion(e.target.value)}>
             {COUNTIES.map((c) => <option key={c} value={c}>{c}</option>)}</select></label>
           <label className="block font-bold">Expected health use<select className={sel} value={health} onChange={(e) => setHealth(e.target.value as Health)}>
