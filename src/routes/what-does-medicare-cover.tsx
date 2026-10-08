@@ -1,13 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
+import { money, PART_D_OOP_CAP } from "@/lib/plans";
 
 export const Route = createFileRoute("/what-does-medicare-cover")({
   head: () => ({
     meta: [
       { title: "What Does Medicare Cover? Dental, Vision, Hearing & More — MedicareChoice" },
-      { name: "description", content: "Plain-language answers: does Medicare cover dental, vision, hearing aids, and cataract surgery? What Original Medicare, Medigap, and Medicare Advantage each cover — and how to compare plans in your county." },
+      { name: "description", content: "Plain-language answers: does Medicare cover dental, vision, hearing aids, cataract surgery, and prescriptions? What Original Medicare, Part D, Medigap, and Medicare Advantage each cover — and how to compare plans in your county." },
       { property: "og:title", content: "What Does Medicare Cover? — MedicareChoice" },
-      { property: "og:description", content: "Plain-language answers on dental, vision, hearing aids, and cataract surgery under Original Medicare, Medigap, and Medicare Advantage." },
+      { property: "og:description", content: "Plain-language answers on dental, vision, hearing aids, cataract surgery, and prescription drugs under Original Medicare, Part D, Medigap, and Medicare Advantage." },
       { property: "og:type", content: "article" },
       { property: "og:url", content: "https://medicarechoice.app/what-does-medicare-cover" },
       { name: "twitter:card", content: "summary" },
@@ -57,16 +58,19 @@ function WhatDoesMedicareCover() {
       <h1 className="mt-4 font-display text-4xl font-bold">What does Medicare cover?</h1>
       <p className="mt-4 text-lg text-muted-foreground">
         The honest answer is: it depends on which kind of Medicare you have. Here's what Original Medicare,
-        Medigap, and Medicare Advantage each cover for the four things people ask about most — in plain language.
+        Part D, Medigap, and Medicare Advantage each cover for the things people ask about most — including
+        prescriptions — in plain language.
       </p>
       <JumpPills />
 
       <section id="basics" className="mt-12 scroll-mt-24">
-        <h2 className="font-display text-2xl font-bold">The basics: three kinds of coverage</h2>
+        <h2 className="font-display text-2xl font-bold">The basics: the four parts, and one add-on</h2>
+        <p className="mt-4 text-lg">Medicare comes in four parts — A, B, C and D — plus one optional add-on policy, Medigap. Here's how they fit together:</p>
         <ul className="mt-4 list-disc space-y-3 pl-6 text-lg">
-          <li><strong>Original Medicare (Parts A & B)</strong> covers hospital stays and medical care like doctor visits. It does <em>not</em> cover most dental, routine vision, or hearing aids.</li>
-          <li><strong>Medigap</strong> is add-on insurance that helps pay Original Medicare's deductibles and copays. It doesn't add new benefits like dental or vision.</li>
-          <li><strong>Medicare Advantage (Part C)</strong> plans are run by private insurers. They must cover everything Original Medicare does, and most add extras like dental, vision, and hearing — but the details vary plan by plan and county by county.</li>
+          <li><strong>Original Medicare (Parts A & B)</strong> covers hospital stays and medical care like doctor visits. It does <em>not</em> cover most dental, routine vision, hearing aids, or prescriptions.</li>
+          <li><strong>Part D (prescription drugs)</strong> is a separate plan sold by private insurers. Your yearly drug costs are capped ({money(PART_D_OOP_CAP)} in 2027) — but only for drugs on that plan's own list. <Link to="/formulary-check" className="font-bold text-primary underline">Check your medications here</Link>.</li>
+          <li><strong>Medicare Advantage (Part C)</strong> plans are run by private insurers. They must cover everything Original Medicare does, most include Part D drug coverage, and many add extras like dental, vision, and hearing — but the details vary plan by plan and county by county.</li>
+          <li><strong>Medigap</strong> is add-on insurance that helps pay what Original Medicare leaves behind. It doesn't add benefits like dental, vision, or drug coverage, and it can't be used with a Medicare Advantage plan.</li>
         </ul>
       </section>
 
@@ -111,6 +115,7 @@ function WhatDoesMedicareCover() {
               </tr>
             </thead>
             <tbody className="divide-y">
+              <tr><th className="p-3 font-bold">Prescriptions</th><td className="p-3">No — needs a separate Part D plan</td><td className="p-3">No</td><td className="p-3">Usually included</td></tr>
               <tr><th className="p-3 font-bold">Routine dental</th><td className="p-3">No</td><td className="p-3">No</td><td className="p-3">Often — varies by plan</td></tr>
               <tr><th className="p-3 font-bold">Eye exams & glasses</th><td className="p-3">No</td><td className="p-3">No</td><td className="p-3">Often — varies by plan</td></tr>
               <tr><th className="p-3 font-bold">Hearing aids</th><td className="p-3">No</td><td className="p-3">No</td><td className="p-3">Sometimes — varies by plan</td></tr>
