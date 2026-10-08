@@ -15,7 +15,7 @@ export const Route = createFileRoute("/guide")({
   component: Guide,
 });
 
-import HOSPITALS from "@/lib/mi-hospitals.json";
+import { HospitalPicker } from "@/components/HospitalPicker";
 
 function Choice({ selected, onClick, title, desc }: { selected: boolean; onClick: () => void; title: string; desc?: string }) {
   return (
@@ -46,12 +46,12 @@ function Guide() {
       body: <div className="grid gap-3">
         <Choice selected={a.doctorsFlex === "any"} onClick={() => set({ doctorsFlex: "any" })} title="Very—I don't want to switch" />
         <Choice selected={a.doctorsFlex === "network-ok"} onClick={() => set({ doctorsFlex: "network-ok" })} title="I'm open to a network if it saves money" />
-        <label className="mt-4 block text-lg font-bold">Preferred hospital (optional)
-          <span className="block text-base font-normal text-muted-foreground">Start typing a name or city, like "McLaren Flint" or "Marquette". Any Michigan hospital works, or type your own.</span>
-          <input list="mi-hospitals" value={a.hospital === "none" ? "" : a.hospital} maxLength={120}
-            onChange={(e) => set({ hospital: e.target.value.trim() ? e.target.value : "none" })}
-            placeholder="No preference" className="mt-2 block w-full rounded-xl border-2 border-input bg-card p-4 text-lg" />
-          <datalist id="mi-hospitals">{HOSPITALS.map((h) => <option key={h.name + h.city} value={h.name}>{h.city}, {h.county} County</option>)}</datalist></label>
+        <div className="mt-4">
+          <label className="block text-lg font-bold" htmlFor="hospital-input">Preferred hospital (optional)
+            <span className="block text-base font-normal text-muted-foreground">Start typing a name or city, like "McLaren Flint" or "Marquette". Pick one from the list, or type your own.</span>
+          </label>
+          <HospitalPicker value={a.hospital} onChange={(v) => set({ hospital: v })} />
+        </div>
         <label className="mt-2 flex items-center gap-3 text-lg"><input type="checkbox" className="size-6" checked={a.travels} onChange={(e) => set({ travels: e.target.checked })} /> I spend part of the year out of state (e.g. Florida winters)</label>
       </div> },
     { q: "About how much do your prescriptions cost per month?", help: "Use the full pharmacy price if you know it. Rough is fine.",
