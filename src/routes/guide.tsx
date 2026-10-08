@@ -74,10 +74,10 @@ function Guide() {
   const s = steps[step]!;
   return (
     <div className="min-h-screen"><SiteHeader />
-      <main className="mx-auto max-w-2xl px-6 py-12">
+      <main className="mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-12">
         <div className="mb-2 text-muted-foreground">Question {step + 1} of {steps.length}</div>
         <div className="mb-8 h-3 rounded-full bg-muted"><div className="h-3 rounded-full bg-primary transition-all" style={{ width: `${((step + 1) / steps.length) * 100}%` }} /></div>
-        <h1 className="text-4xl font-bold">{s.q}</h1>
+        <h1 className="text-3xl font-bold sm:text-4xl">{s.q}</h1>
         <p className="mb-8 mt-2 text-lg text-muted-foreground">{s.help}</p>
         {s.body}
         <div className="mt-10 flex justify-between">
@@ -95,7 +95,7 @@ function Results({ a, onEdit }: { a: Answers; onEdit: () => void }) {
   const ranked = plansFor(region).map((p) => scorePlan(p, a)).sort((x, y) => y.score - x.score);
   return (
     <div className="min-h-screen"><SiteHeader />
-      <main className="mx-auto max-w-4xl px-6 py-12">
+      <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
         <h1 className="text-4xl font-bold">Your best-fit plans</h1>
         <p className="mt-2 text-lg text-muted-foreground">For {regionLabel(region)}. Plans and premiums from the official CMS 2027 list. Costs include your Part B premium and are estimated for a typical year given your answers. Prescription estimates assume your drugs are on the plan’s formulary (its list of covered drugs).</p>
         <button onClick={onEdit} className="mt-3 text-primary underline">Change my answers</button>

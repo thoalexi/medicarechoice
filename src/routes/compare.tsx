@@ -75,7 +75,7 @@ function Compare() {
 
         <section>
           <div className="flex flex-wrap items-end justify-between gap-4">
-            <div id="compare-plans"><div className="flex items-center gap-2"><h2 className="text-4xl font-bold">Compare plans</h2><HelpPopover label="What do the cost terms mean?">
+            <div id="compare-plans"><div className="flex items-center gap-2"><h2 className="text-3xl font-bold sm:text-4xl">Compare plans</h2><HelpPopover label="What do the cost terms mean?">
               <h2 className="text-lg font-bold">Understanding plan costs</h2>
               <dl className="mt-3 space-y-3 text-sm">
                 <div><dt className="font-bold">True yearly cost</dt><dd>Our estimate of the standard Part B premium, plan premiums, medical spending, prescription spending, and a separate Part D premium when needed.</dd></div>
@@ -99,7 +99,7 @@ function Compare() {
           </div>
 
           {cmp.length > 1 && (
-            <div className="mt-6 overflow-x-auto rounded-2xl border-2 border-primary bg-card p-4">
+            <div className="mt-6 overflow-x-auto rounded-2xl border-2 border-primary bg-card p-2 sm:p-4"><p className="mb-2 text-sm text-muted-foreground sm:hidden">Swipe sideways to see each plan →</p>
               <table className="w-full text-left"><tbody>
                 <tr><th className="p-2"></th>{cmp.map(({ p }) => <th key={p.id} className="p-2 font-display text-lg">{p.name}</th>)}</tr>
                 {([
@@ -121,7 +121,7 @@ function Compare() {
                   ["CMS plan type", (r) => r.p.cmsType ?? "—"],
                   ["CMS plan ID", (r) => r.p.real ? r.p.id : "—"],
                 ] as [string, (r: (typeof cmp)[number]) => string][]).map(([l, f]) => (
-                  <tr key={l} className="border-t"><td className="p-2 font-bold">{l}</td>{cmp.map((r) => <td key={r.p.id} className="p-2">{f(r)}</td>)}</tr>))}
+                  <tr key={l} className="border-t"><td className="sticky left-0 min-w-32 bg-card p-2 font-bold">{l}</td>{cmp.map((r) => <td key={r.p.id} className="min-w-40 p-2">{f(r)}</td>)}</tr>))}
               </tbody></table>
             </div>
           )}
