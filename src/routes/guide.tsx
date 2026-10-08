@@ -97,7 +97,7 @@ function Results({ a, onEdit }: { a: Answers; onEdit: () => void }) {
     <div className="min-h-screen"><SiteHeader />
       <main className="mx-auto max-w-4xl px-6 py-12">
         <h1 className="text-4xl font-bold">Your best-fit plans</h1>
-        <p className="mt-2 text-lg text-muted-foreground">For {regionLabel(region)}. Plans and premiums from the official CMS 2027 list. Costs include your Part B premium and are estimated for a typical year given your answers.</p>
+        <p className="mt-2 text-lg text-muted-foreground">For {regionLabel(region)}. Plans and premiums from the official CMS 2027 list. Costs include your Part B premium and are estimated for a typical year given your answers. Prescription estimates assume your drugs are on the plan’s formulary (its list of covered drugs).</p>
         <button onClick={onEdit} className="mt-3 text-primary underline">Change my answers</button>
         <div className="mt-8 space-y-6">
           {ranked.slice(0, 4).map(({ plan, cost, reasons, cautions }, i) => (
