@@ -41,6 +41,27 @@ export type Database = {
         }
         Relationships: []
       }
+      formulary_documents: {
+        Row: {
+          fetched_at: string
+          plan_id: string
+          title: string | null
+          url: string
+        }
+        Insert: {
+          fetched_at?: string
+          plan_id: string
+          title?: string | null
+          url: string
+        }
+        Update: {
+          fetched_at?: string
+          plan_id?: string
+          title?: string | null
+          url?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

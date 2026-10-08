@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Pill, Plus, Trash2, FileText, CheckCircle2, AlertTriangle, HelpCircle, Loader2, ExternalLink } from "lucide-react";
 import { SiteHeader, Disclaimer } from "@/components/SiteHeader";
-import { checkFormulary } from "@/lib/formulary.functions";
+import { checkFormulary, type FormularySource } from "@/lib/formulary.functions";
 import type { FormularyReport } from "@/lib/ai/formulary.server";
 import { PLANS } from "@/lib/plans";
 import { CARRIER_FORMULARY_URLS, MEDICARE_PLAN_FINDER_URL } from "@/lib/formulary-links";
@@ -43,6 +43,7 @@ function FormularyCheck() {
   const [error, setError] = useState<string | null>(null);
   const [report, setReport] = useState<FormularyReport | null>(null);
   const [showLookup, setShowLookup] = useState(false);
+  const [source, setSource] = useState<FormularySource>(null);
   const planNames = useMemo(() => Array.from(new Set(PLANS.map((p) => p.name))).sort(), []);
   const selectedPlan = PLANS.find((p) => p.name === planName);
   const carrierLookup = selectedPlan ? CARRIER_FORMULARY_URLS[selectedPlan.carrier] : undefined;
@@ -55,27 +56,24 @@ function FormularyCheck() {
     setError(null);
     if (!drugs.length) return setError("Please add at least one medication.");
     setShowLookup(false);
-    if (!file) {
-      if (!selectedPlan) return setError("Please choose a plan so we can send you to its official drug lookup.");
-      setReport(null);
-      setShowLookup(true);
-      return;
-    }
-    if (file.type !== "application/pdf") return setError("The formulary must be a PDF file.");
-    if (file.size > MAX_BYTES) return setError("That file is larger than 20 MB. Try the plan's shorter 'abridged' drug list, or check by phone.");
+    if (!file && !selectedPlan) return setError("Please choose your plan so we can find its drug list, or upload the PDF.");
+    if (file && file.type !== "application/pdf") return setError("The formulary must be a PDF file.");
+    if (file && file.size > MAX_BYTES) return setError("That file is larger than 20 MB. Try the plan's shorter 'abridged' drug list, or check by phone.");
     setBusy(true);
     setReport(null);
+    setSource(null);
     try {
       const res = await run({
         data: {
           drugs: drugs.map((d) => ({ name: d.name.trim(), dose: d.dose.trim() || null })),
           planName: planName.trim() || null,
-          fileName: file.name.slice(0, 200),
-          pdfBase64: await toBase64(file),
+          planId: selectedPlan?.id ?? null,
+          fileName: file ? file.name.slice(0, 200) : null,
+          pdfBase64: file ? await toBase64(file) : null,
         },
       });
-      if (res.ok) setReport(res.report);
-      else setError(res.error);
+      if (res.ok) { setReport(res.report); setSource(res.source); }
+      else { setError(res.error); if (res.notFound) setShowLookup(true); }
     } catch {
       setError("Something went wrong sending your request. Please try again.");
     } finally {
@@ -89,7 +87,7 @@ function FormularyCheck() {
       <main className="mx-auto max-w-3xl px-6 py-10">
         <h1 className="font-display text-4xl font-bold">Check my drugs</h1>
         <p className="mt-3 text-lg text-muted-foreground">
-          Every plan that covers prescriptions has its own <strong>formulary</strong> — its list of covered drugs. List your medications and choose a plan. Upload its formulary for an AI-powered document review, or continue without a PDF to use the plan’s official drug lookup.
+          Every plan that covers prescriptions has its own <strong>formulary</strong> — its list of covered drugs. List your medications and choose your plan. We'll find that plan's official 2027 drug list and check each medicine for you. You can also upload the PDF yourself.
         </p>
 
         <form onSubmit={submit} className="mt-8 space-y-8">
@@ -113,7 +111,7 @@ function FormularyCheck() {
 
           <section className="rounded-2xl border-2 bg-card p-6">
             <h2 className="flex items-center gap-2 text-xl font-bold"><FileText className="size-5 text-primary" aria-hidden /> 2. The plan's formulary</h2>
-            <label className="mt-4 block text-lg font-bold">Plan name {file ? "(optional)" : "(needed without a PDF)"}
+            <label className="mt-4 block text-lg font-bold">Your plan {file ? "(optional)" : ""}
               <select value={planName} onChange={(e) => { setPlanName(e.target.value); setShowLookup(false); }} className="mt-2 block w-full rounded-xl border-2 border-input bg-background p-3 text-lg font-normal">
                 <option value="">Choose a plan</option>
                 {planNames.map((n) => <option key={n} value={n}>{n}</option>)}
@@ -122,13 +120,13 @@ function FormularyCheck() {
             <label className="mt-4 block text-lg font-bold">Formulary PDF (optional, up to 20 MB)
               <input type="file" accept="application/pdf" onChange={(e) => { setFile(e.target.files?.[0] ?? null); setShowLookup(false); }} className="mt-2 block w-full rounded-xl border-2 border-dashed border-input bg-background p-4 text-base font-normal" />
             </label>
-            <p className="mt-3 text-sm text-muted-foreground">For a detailed AI review, upload the plan’s official “Drug List,” “Formulary,” or “Covered Drugs” PDF for 2027. Please don’t upload documents with your personal information. Nothing you send is saved.</p>
+            <p className="mt-3 text-sm text-muted-foreground">Already have the plan’s 2027 “Drug List” or “Formulary” PDF? Upload it and we’ll use that instead of looking it up. Please don’t upload documents with your personal information. Nothing you send is saved.</p>
           </section>
 
           {error && <p role="alert" className="rounded-xl border-2 border-destructive/40 bg-destructive/10 p-4 text-lg text-destructive">{error}</p>}
 
           <button type="submit" disabled={busy} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-8 py-4 text-xl font-bold text-primary-foreground disabled:opacity-60 sm:w-auto">
-            {busy ? <><Loader2 className="size-5 animate-spin" aria-hidden /> Reading the formulary… this can take a minute</> : file ? "Review this formulary" : "Find the official drug lookup"}
+            {busy ? <><Loader2 className="size-5 animate-spin" aria-hidden /> {file ? "Reading the formulary…" : "Finding and reading your plan's drug list…"} this can take a minute or two</> : "Check my drugs"}
           </button>
         </form>
 
@@ -140,10 +138,13 @@ function FormularyCheck() {
               {carrierLookup && <a href={carrierLookup} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-3 font-bold text-primary-foreground">Open {selectedPlan.carrier} drug lookup <ExternalLink className="size-4" aria-hidden /></a>}
               <a href={MEDICARE_PLAN_FINDER_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg border-2 border-primary bg-background px-5 py-3 font-bold text-primary">Open Medicare Plan Finder <ExternalLink className="size-4" aria-hidden /></a>
             </div>
-            <p className="mt-4 text-sm text-muted-foreground">MedicareChoice has not checked your medications in this path. Confirm every drug and cost in the plan’s official formulary before enrolling.</p>
+            <p className="mt-4 text-sm text-muted-foreground">We couldn't confirm the right document, so we didn't check your medications. Confirm every drug and cost in the plan’s official formulary before enrolling.</p>
           </section>
         )}
 
+        {report && source && (
+          <p className="mt-8 rounded-xl border-2 bg-card p-4">We used this official document: <a href={source.url} target="_blank" rel="noreferrer" className="font-bold text-primary underline">{source.title} <ExternalLink className="inline size-4" aria-hidden /></a>. Please confirm it matches your plan.</p>
+        )}
         {report && <Report report={report} />}
       </main>
       <Disclaimer />

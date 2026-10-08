@@ -18,3 +18,6 @@
 - [x] Formulary checker page (/formulary-check) — AI reads a plan's formulary PDF against the user's drug list (2026-10-08)
 - [x] Show 2026 CMS star ratings as a labeled fallback until 2027 ratings publish (2026-10-08)
 - [ ] Swap to 2027 star ratings when CMS releases them (blocked on CMS)
+- [x] Every Michigan hospital (CMS list) in the guide's searchable hospital box (2026-10-08)
+- [x] Drug checker finds the plan's 2027 formulary online automatically (2026-10-08)
+- [x] AI plan search refuses off-topic requests (2026-10-08)
