@@ -19,8 +19,8 @@ export const submitFeedback = createServerFn({ method: "POST" })
   .inputValidator((data) => feedbackSchema.parse(data))
   .handler(async ({ data }) => {
     const supabase = createClient(
-      process.env["VITE_SUPABASE_URL"]!,
-      process.env["VITE_SUPABASE_PUBLISHABLE_KEY"]!,
+      process.env["SUPABASE_URL"]!,
+      process.env["SUPABASE_PUBLISHABLE_KEY"]!,
       { auth: { persistSession: false } },
     );
     const { error } = await supabase.from("feedback").insert({
