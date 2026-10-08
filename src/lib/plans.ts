@@ -55,9 +55,9 @@ export interface Plan {
   preventiveZero: boolean | null;
   starRating: number;
   /** Real in-network cost sharing from CMS PBP data: $ per visit, or { pct } coinsurance. stay = cost of a 5-day hospital stay. */
-  copays?: { pcp?: Share; spec?: Share; er?: Share; stay?: Share; medDed?: number } | undefined;
+  copays?: { pcp?: Share | undefined; spec?: Share | undefined; er?: Share | undefined; stay?: Share | undefined; medDed?: number | undefined } | undefined;
   /** Yearly prescription deductible (CMS Landscape), when the plan includes drugs */
-  rxDeductible?: number;
+  rxDeductible?: number | undefined;
   /** Year the star rating comes from (2026 = last year's rating shown until CMS publishes 2027), null if none */
   starYear?: number | null;
   hospitals: string[];
