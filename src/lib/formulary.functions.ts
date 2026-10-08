@@ -12,7 +12,7 @@ const inputSchema = z.object({
 });
 
 export const checkFormulary = createServerFn({ method: "POST" })
-  .inputValidator((d) => inputSchema.parse(d))
+  .validator((d) => inputSchema.parse(d))
   .handler(async ({ data }) => {
     const { analyzeFormulary, GatewayError } = await import("./ai/formulary.server");
     try {
