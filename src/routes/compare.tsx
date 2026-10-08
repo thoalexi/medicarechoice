@@ -17,7 +17,7 @@ export const Route = createFileRoute("/compare")({
     ],
   }),
   validateSearch: (s: Record<string, unknown>): { county?: string } =>
-    typeof s.county === "string" && s.county ? { county: s.county } : {},
+    typeof s["county"] === "string" && s["county"] ? { county: s["county"] } : {},
   component: Compare,
 });
 
