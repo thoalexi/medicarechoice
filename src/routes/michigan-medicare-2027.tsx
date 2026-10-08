@@ -139,7 +139,7 @@ function MichiganGuide() {
         <div className="mt-12 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <Link to="/compare" className="rounded-xl bg-primary px-6 py-4 text-center text-lg font-bold text-primary-foreground hover:opacity-90">Compare 2027 Michigan plans →</Link>
           <Link to="/formulary-check" className="rounded-xl border-2 border-primary px-6 py-4 text-center text-lg font-bold text-primary hover:bg-primary/10">Check my prescriptions</Link>
-          <Link to="/guide" className="rounded-xl border-2 border-primary px-6 py-4 text-center text-lg font-bold text-primary hover:bg-primary/10">Take the 3-minute questions</Link>
+          <Link to="/guide" className="rounded-xl border-2 border-primary px-6 py-4 text-center text-lg font-bold text-primary hover:bg-primary/10">Take the 3-minute questionnaire</Link>
         </div>
       </main>
       <Disclaimer />
