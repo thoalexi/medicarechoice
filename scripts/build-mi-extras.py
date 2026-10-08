@@ -55,9 +55,33 @@ for pid, r in rows("pbp_b18_hearing_exams_aids"):
     m = amt(r.get("pbp_b18b_maxplan_amt")) if r.get("pbp_b18b_maxplan_yn") == "1" else None
     out[pid].update(hearing=exam or aids, hearingExam=exam, hearingAids=aids, hearingAidMax=m if aids else None)
 
+PER = {"7": "mo", "5": "quarter", "4": "6 months", "3": "yr", "2": "2 yrs", "1": "3 yrs"}
+
+for pid, r in rows("pbp_b13_other_services"):
+    otc = r.get("pbp_b13b_bendesc_otc") == "1" and r.get("pbp_b13b_bendesc_amo") in ("2", "4")
+    m = amt(r.get("pbp_b13b_maxplan_amt")) if r.get("pbp_b13b_maxplan_yn") == "1" else None
+    per = PER.get(r.get("pbp_b13b_otc_maxplan_per") or "", None)
+    out[pid].update(otc=otc, otcMax=m if otc else None, otcPer=per if (otc and m) else None)
+
+for pid, r in rows("pbp_b14_preventive"):
+    ehc = r.get("pbp_b14c_bendesc_ehc") or ""
+    fitness = "14c4" in ehc and r.get("pbp_b14c_bendesc_amo_mhc") in ("2", "4")
+    prev = r.get("pbp_b14b_bendesc_yn") == "1"
+    copay_min = amt(r.get("pbp_b14b_copay_amt_rpe_min"))
+    coins_min = amt(r.get("pbp_b14b_coins_pct_rpe_min"))
+    prev_zero = prev and (copay_min == 0 or coins_min == 0 or (r.get("pbp_b14b_copay_yn") == "2" and r.get("pbp_b14b_coins_yn") == "2"))
+    out[pid].update(fitness=fitness, preventiveZero=prev_zero)
+
+for pid, r in rows("pbp_Section_D"):
+    giveback = amt(r.get("pbp_d_mco_pay_reduct_amt")) if r.get("pbp_d_mco_pay_reduct_yn") == "1" else None
+    if giveback:
+        out[pid].update(partBGiveback=giveback)
+
 for pid, v in out.items():
-    for k in ("dental", "vision", "hearing"):
+    for k in ("dental", "vision", "hearing", "fitness", "otc", "preventiveZero"):
         v.setdefault(k, False)
 
 json.dump(out, open("src/lib/cms2027-mi-extras.json", "w"), separators=(",", ":"))
-print(len(out), "plans;", sum(v["dental"] for v in out.values()), "dental,", sum(v["vision"] for v in out.values()), "vision,", sum(v["hearing"] for v in out.values()), "hearing")
+print(len(out), "plans;", sum(v["dental"] for v in out.values()), "dental,", sum(v["vision"] for v in out.values()), "vision,", sum(v["hearing"] for v in out.values()), "hearing,",
+      sum(v["fitness"] for v in out.values()), "fitness,", sum(v["otc"] for v in out.values()), "otc,",
+      sum(1 for v in out.values() if v.get("partBGiveback")), "partB giveback,", sum(v["preventiveZero"] for v in out.values()), "$0 preventive")
