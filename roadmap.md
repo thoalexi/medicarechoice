@@ -5,6 +5,9 @@
 - [x] Load official CMS 2027 Michigan plan list (all 83 counties, ZIP lookup)
 - [x] Wire Stripe checkout on the donate page (done 2026-10-08; going live waits on Stripe onboarding)
 - [x] Feedback button + /feedback page storing submissions in Lovable Cloud (done 2026-10-07)
+- [ ] Make formulary PDF optional with official lookup links
+- [ ] Clarify compare filters and cost terms
+- [ ] Add home-page trust section and founder story page
 
 ## Done 2026-10-08
 - Fixed feedback submit on published site (server now uses SUPABASE_URL/SUPABASE_PUBLISHABLE_KEY)

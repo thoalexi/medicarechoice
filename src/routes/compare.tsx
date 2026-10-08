@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { SiteHeader, Disclaimer } from "@/components/SiteHeader";
 import { PlanSearch } from "@/components/PlanSearch";
+import { HelpPopover } from "@/components/HelpPopover";
 import { COUNTIES, DATA_SOURCE, PART_B_MONTHLY, PART_D_OOP_CAP, plansFor, estimateAnnual, money, type Health, type PlanType, type Region } from "@/lib/plans";
 
 export const Route = createFileRoute("/compare")({
@@ -11,17 +12,19 @@ export const Route = createFileRoute("/compare")({
       { name: "description", content: "Filter and compare Medigap and Medicare Advantage plans by region, true yearly cost, network, and extras." },
       { property: "og:title", content: "Compare Medicare plans side by side — MedicareChoice" },
       { property: "og:description", content: "An interactive Medicare plan comparison dashboard." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Compare,
 });
 
-const TYPES: PlanType[] = ["Original + Medigap", "Advantage HMO", "Advantage PPO", "Special Needs (SNP)", "Other Advantage", "Original only"];
+const TYPES: PlanType[] = ["Original + Medigap", "Advantage HMO", "Advantage PPO", "Other Advantage", "Original only", "Special Needs (SNP)"];
 const DEFAULT_TYPES = TYPES.filter((t) => t !== "Special Needs (SNP)");
 const ext = (v: boolean | null) => (v === null ? "?" : v ? "✓" : "—");
 
 function Compare() {
-  const [region, setRegion] = useState<Region>("Ingham");
+  const [region, setRegion] = useState<Region>(() => COUNTIES[0] ?? "");
   const [health, setHealth] = useState<Health>("some");
   const [drugs, setDrugs] = useState(50);
   const [types, setTypes] = useState<PlanType[]>(DEFAULT_TYPES);
@@ -50,7 +53,17 @@ function Compare() {
           <label className="block font-bold">Expected health use<select className={sel} value={health} onChange={(e) => setHealth(e.target.value as Health)}>
             <option value="healthy">Low (healthy)</option><option value="some">Medium</option><option value="chronic">High (chronic)</option></select></label>
           <label className="block font-bold">Monthly drug costs: {money(drugs)}<input type="range" min={0} max={2000} step={25} value={drugs} onChange={(e) => setDrugs(+e.target.value)} className="mt-2 w-full accent-primary" /></label>
-          <fieldset><legend className="font-bold">Plan types</legend>
+          <fieldset><legend className="flex items-center gap-1 font-bold">Plan types <HelpPopover label="What do these plan types mean?">
+            <h2 className="text-lg font-bold">Medicare plan types</h2>
+            <dl className="mt-3 space-y-3 text-sm">
+              <div><dt className="font-bold">Original Medicare + Medigap</dt><dd>Original Medicare plus private supplemental coverage for many costs Parts A and B leave behind. A separate Part D plan covers prescriptions.</dd></div>
+              <div><dt className="font-bold">Medicare Advantage HMO</dt><dd>A private plan replacing Parts A and B. You usually use its network and may need referrals.</dd></div>
+              <div><dt className="font-bold">Medicare Advantage PPO</dt><dd>A private plan replacing Parts A and B. It has a network, but you can usually pay more to go outside it.</dd></div>
+              <div><dt className="font-bold">Other Medicare Advantage</dt><dd>Private Medicare plans with a different network or payment structure, such as PFFS plans.</dd></div>
+              <div><dt className="font-bold">Original Medicare only</dt><dd>Federal Parts A and B without Medigap. It has no yearly medical spending limit. Prescriptions need a separate Part D plan.</dd></div>
+              <div><dt className="font-bold">Special Needs Plan (SNP)</dt><dd>A Medicare Advantage plan for people who meet specific eligibility rules, such as having Medicaid, certain chronic conditions, or institutional care needs.</dd></div>
+            </dl>
+          </HelpPopover></legend>
             {TYPES.map((t) => <label key={t} className="mt-1 flex items-center gap-2"><input type="checkbox" className="size-5" checked={types.includes(t)} onChange={() => setTypes((x) => x.includes(t) ? x.filter((y) => y !== t) : [...x, t])} />{t}</label>)}</fieldset>
           <fieldset><legend className="font-bold">Must include</legend>
             {(["dental", "vision", "hearing", "noReferrals"] as const).map((k) => <label key={k} className="mt-1 flex items-center gap-2"><input type="checkbox" className="size-5" checked={needs[k]} onChange={() => setNeeds({ ...needs, [k]: !needs[k] })} />{k === "noReferrals" ? "No referrals" : k.charAt(0).toUpperCase() + k.slice(1)}</label>)}</fieldset>
@@ -58,7 +71,14 @@ function Compare() {
 
         <section>
           <div className="flex flex-wrap items-end justify-between gap-4">
-            <div id="compare-plans"><h2 className="text-4xl font-bold">Compare plans</h2><p className="text-muted-foreground">{rows.length} plans · select up to 3 to compare side by side</p><p className="text-sm text-muted-foreground">True yearly cost includes the standard Part B premium ({money(PART_B_MONTHLY)}/mo). Source: {DATA_SOURCE}. Extra benefits show what’s included in the premium; confirm details in the plan’s Summary of Benefits.</p>
+            <div id="compare-plans"><div className="flex items-center gap-2"><h2 className="text-4xl font-bold">Compare plans</h2><HelpPopover label="What do the cost terms mean?">
+              <h2 className="text-lg font-bold">Understanding plan costs</h2>
+              <dl className="mt-3 space-y-3 text-sm">
+                <div><dt className="font-bold">True yearly cost</dt><dd>Our estimate of the standard Part B premium, plan premiums, medical spending, prescription spending, and a separate Part D premium when needed.</dd></div>
+                <div><dt className="font-bold">Monthly premium</dt><dd>What the plan charges each month. The standard Part B premium is usually separate, even when a plan says its premium is $0.</dd></div>
+                <div><dt className="font-bold">Worst-case limit</dt><dd>Our estimated bad-year total: annual premiums, the medical out-of-pocket limit, and the Part D drug cap. Original Medicare alone has no medical limit. Drugs outside a plan’s formulary can cost more.</dd></div>
+              </dl>
+            </HelpPopover></div><p className="text-muted-foreground">{rows.length} plans · select up to 3 to compare side by side</p><p className="text-sm text-muted-foreground">True yearly cost includes the standard Part B premium ({money(PART_B_MONTHLY)}/mo). Source: {DATA_SOURCE}. Extra benefits show what’s included in the premium; confirm details in the plan’s Summary of Benefits.</p>
               <div className="mt-3 rounded-xl border-2 border-primary bg-primary/5 p-4 text-sm">
                 <p>💊 Every plan that covers prescriptions has its own <strong>formulary</strong> — the list of drugs it covers. Before you enroll, look up your medications in the plan’s formulary to make sure they’re covered and see what you’d pay. <Link to="/formulary-check" className="font-bold text-primary underline">Check my drugs against a formulary →</Link></p>
                 <p className="mt-2">Our worst-case figure includes the Part D drug out-of-pocket cap ({money(PART_D_OOP_CAP)} in 2027) — but only if your drugs are on the plan’s formulary. If you take an expensive drug that isn’t covered, your true cost could be higher.</p>
