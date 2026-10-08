@@ -26,6 +26,7 @@ def share(r, p):
     if c is not None: return round(c)
     pct = num(r.get(f"pbp_{p}_coins_pct_mc_min"))
     if pct is not None: return {"pct": round(pct)}
+    if r.get(f"pbp_{p}_copay_yn") == "2" and r.get(f"pbp_{p}_coins_yn") == "2": return 0
     return None
 
 for pid, r in rows("pbp_b7_health_prof"):
@@ -52,6 +53,8 @@ for pid, r in rows("pbp_b1a_inpat_hosp"):
         out[pid]["stay"] = round(num(r.get("pbp_b1a_copay_mcs_amt_t1")))
     elif num(r.get("pbp_b1a_coins_mcs_pct_t1")) is not None:
         out[pid]["stay"] = {"pct": round(num(r.get("pbp_b1a_coins_mcs_pct_t1")))}
+    elif r.get("pbp_b1a_copay_yn") == "2" and r.get("pbp_b1a_coins_yn") == "2":
+        out[pid]["stay"] = 0
 
 for pid, r in rows("pbp_Section_D"):
     if r.get("pbp_d_ann_deduct_yn") == "1":
