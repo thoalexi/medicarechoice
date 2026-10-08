@@ -15,6 +15,13 @@
       "when": 1791427900947,
       "tag": "0001_tighten_feedback_insert_policy",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791487140413,
+      "tag": "0002_formulary_documents_cache",
+      "breakpoints": true
     }
   ]
 }
