@@ -36,14 +36,14 @@ async function gatherCandidates(planName: string, carrierUrl: string | undefined
   const tasks: Promise<void>[] = [];
   tasks.push(
     firecrawl("/search", { query: `"${planName}" 2027 formulary pdf${host ? ` site:${host}` : ""}`, limit: 8 }).then((r) => {
-      const web = ((r?.data as { web?: Candidate[] })?.web ?? []);
+      const web = ((r?.["data"] as { web?: Candidate[] })?.web ?? []);
       for (const w of web) out.set(w.url, { url: w.url, title: w.title ?? "", description: w.description ?? "" });
     }),
   );
   if (carrierUrl) {
     tasks.push(
       firecrawl("/scrape", { url: carrierUrl, formats: ["links"], onlyMainContent: false }).then((r) => {
-        const links = ((r?.data as { links?: string[] })?.links ?? (r?.["links"] as string[] | undefined) ?? []);
+        const links = ((r?.["data"] as { links?: string[] })?.links ?? (r?.["links"] as string[] | undefined) ?? []);
         for (const l of links) if (/\.pdf($|\?)/i.test(l) && !out.has(l)) out.set(l, { url: l, title: decodeURIComponent(l.split("/").pop() ?? ""), description: "" });
       }),
     );
