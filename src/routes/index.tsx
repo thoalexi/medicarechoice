@@ -35,7 +35,7 @@ function Index() {
             <span className="text-muted-foreground">About 3 minutes · 7 questions</span>
           </div>
           <div className="mt-8 rounded-xl border-2 border-dashed border-accent bg-card p-5 text-lg">
-            Don't have time or want to answer all of these questions?{" "}
+            Don't want to answer questions?{" "}
             <Link to="/compare" className="font-bold text-primary underline underline-offset-4">Click here for the comparison dashboard</Link>.
           </div>
         </section>
