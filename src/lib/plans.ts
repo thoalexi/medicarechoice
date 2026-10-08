@@ -1,6 +1,8 @@
 import cms from "./cms2027-mi.json";
 import extrasData from "./cms2027-mi-extras.json";
 import zipCounty from "./mi-zip-county.json";
+import stars2026 from "./cms2026-stars.json";
+const STARS_2026 = stars2026 as Record<string, number>;
 
 // Official CMS CY2027 Landscape (file 202609.1) — every Medicare Advantage plan sold in Michigan.
 // Premiums, out-of-pocket limits, star ratings and county availability are real CMS figures.
@@ -52,6 +54,8 @@ export interface Plan {
   /** Medicare-covered preventive care (yearly checkup, mammograms, screenings) at $0 copay */
   preventiveZero: boolean | null;
   starRating: number;
+  /** Year the star rating comes from (2026 = last year's rating shown until CMS publishes 2027), null if none */
+  starYear?: number | null;
   hospitals: string[];
   summary: string;
   real: boolean;
@@ -106,7 +110,8 @@ const cmsPlans: Plan[] = cms.plans.map((p) => {
     partBGiveback: x?.partBGiveback ?? null,
     preventiveZero: x ? (x.preventiveZero ?? null) : null,
     extrasDetail: extrasDetail(x),
-    starRating: p.stars,
+    starRating: p.stars || STARS_2026[p.id.split("-")[0]] || 0,
+    starYear: p.stars ? 2027 : STARS_2026[p.id.split("-")[0]] ? 2026 : null,
     hospitals: [],
     summary: `${net}${p.rx ? "" : " Does not include drug coverage."}${snpNote}`,
     real: true,
