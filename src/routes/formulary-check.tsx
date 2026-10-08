@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Pill, Plus, Trash2, FileText, CheckCircle2, AlertTriangle, HelpCircle, Loader2 } from "lucide-react";
+import { Pill, Plus, Trash2, FileText, CheckCircle2, AlertTriangle, HelpCircle, Loader2, ExternalLink } from "lucide-react";
 import { SiteHeader, Disclaimer } from "@/components/SiteHeader";
 import { checkFormulary } from "@/lib/formulary.functions";
 import type { FormularyReport } from "@/lib/ai/formulary.server";
 import { PLANS } from "@/lib/plans";
+import { CARRIER_FORMULARY_URLS, MEDICARE_PLAN_FINDER_URL } from "@/lib/formulary-links";
 
 export const Route = createFileRoute("/formulary-check")({
   head: () => ({
@@ -41,7 +42,10 @@ function FormularyCheck() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [report, setReport] = useState<FormularyReport | null>(null);
+  const [showLookup, setShowLookup] = useState(false);
   const planNames = useMemo(() => Array.from(new Set(PLANS.map((p) => p.name))).sort(), []);
+  const selectedPlan = PLANS.find((p) => p.name === planName);
+  const carrierLookup = selectedPlan ? CARRIER_FORMULARY_URLS[selectedPlan.carrier] : undefined;
 
   const update = (i: number, patch: Partial<Row>) => setRows((r) => r.map((x, j) => (j === i ? { ...x, ...patch } : x)));
   const drugs = rows.filter((r) => r.name.trim());
@@ -50,7 +54,13 @@ function FormularyCheck() {
     e.preventDefault();
     setError(null);
     if (!drugs.length) return setError("Please add at least one medication.");
-    if (!file) return setError("Please upload the plan's formulary PDF.");
+    setShowLookup(false);
+    if (!file) {
+      if (!selectedPlan) return setError("Please choose a plan so we can send you to its official drug lookup.");
+      setReport(null);
+      setShowLookup(true);
+      return;
+    }
     if (file.type !== "application/pdf") return setError("The formulary must be a PDF file.");
     if (file.size > MAX_BYTES) return setError("That file is larger than 20 MB. Try the plan's shorter 'abridged' drug list, or check by phone.");
     setBusy(true);
@@ -79,7 +89,7 @@ function FormularyCheck() {
       <main className="mx-auto max-w-3xl px-6 py-10">
         <h1 className="font-display text-4xl font-bold">Check my drugs</h1>
         <p className="mt-3 text-lg text-muted-foreground">
-          Every plan that covers prescriptions has its own <strong>formulary</strong> — its list of covered drugs. List your medications, upload the plan's formulary, and our AI-powered reader will tell you what it finds and what to double-check.
+          Every plan that covers prescriptions has its own <strong>formulary</strong> — its list of covered drugs. List your medications and choose a plan. Upload its formulary for an AI-powered document review, or continue without a PDF to use the plan’s official drug lookup.
         </p>
 
         <form onSubmit={submit} className="mt-8 space-y-8">
@@ -103,22 +113,36 @@ function FormularyCheck() {
 
           <section className="rounded-2xl border-2 bg-card p-6">
             <h2 className="flex items-center gap-2 text-xl font-bold"><FileText className="size-5 text-primary" aria-hidden /> 2. The plan's formulary</h2>
-            <label className="mt-4 block text-lg font-bold">Plan name (optional)
-              <input list="plan-names" value={planName} maxLength={200} onChange={(e) => setPlanName(e.target.value)} placeholder="Start typing a plan name" className="mt-2 block w-full rounded-xl border-2 border-input bg-background p-3 text-lg font-normal" />
-              <datalist id="plan-names">{planNames.map((n) => <option key={n} value={n} />)}</datalist>
+            <label className="mt-4 block text-lg font-bold">Plan name {file ? "(optional)" : "(needed without a PDF)"}
+              <select value={planName} onChange={(e) => { setPlanName(e.target.value); setShowLookup(false); }} className="mt-2 block w-full rounded-xl border-2 border-input bg-background p-3 text-lg font-normal">
+                <option value="">Choose a plan</option>
+                {planNames.map((n) => <option key={n} value={n}>{n}</option>)}
+              </select>
             </label>
-            <label className="mt-4 block text-lg font-bold">Formulary PDF (up to 20 MB)
-              <input type="file" accept="application/pdf" onChange={(e) => setFile(e.target.files?.[0] ?? null)} className="mt-2 block w-full rounded-xl border-2 border-dashed border-input bg-background p-4 text-base font-normal" />
+            <label className="mt-4 block text-lg font-bold">Formulary PDF (optional, up to 20 MB)
+              <input type="file" accept="application/pdf" onChange={(e) => { setFile(e.target.files?.[0] ?? null); setShowLookup(false); }} className="mt-2 block w-full rounded-xl border-2 border-dashed border-input bg-background p-4 text-base font-normal" />
             </label>
-            <p className="mt-3 text-sm text-muted-foreground">Where to find it: on the plan's website look for "Drug List", "Formulary" or "Covered Drugs" for 2027, or call the plan and ask them to email it. Please don't upload documents with your personal information. Nothing you send is saved.</p>
+            <p className="mt-3 text-sm text-muted-foreground">For a detailed AI review, upload the plan’s official “Drug List,” “Formulary,” or “Covered Drugs” PDF for 2027. Please don’t upload documents with your personal information. Nothing you send is saved.</p>
           </section>
 
           {error && <p role="alert" className="rounded-xl border-2 border-destructive/40 bg-destructive/10 p-4 text-lg text-destructive">{error}</p>}
 
           <button type="submit" disabled={busy} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-8 py-4 text-xl font-bold text-primary-foreground disabled:opacity-60 sm:w-auto">
-            {busy ? <><Loader2 className="size-5 animate-spin" aria-hidden /> Reading the formulary… this can take a minute</> : "Check my drugs"}
+            {busy ? <><Loader2 className="size-5 animate-spin" aria-hidden /> Reading the formulary… this can take a minute</> : file ? "Review this formulary" : "Find the official drug lookup"}
           </button>
         </form>
+
+        {showLookup && selectedPlan && (
+          <section className="mt-8 border-l-4 border-primary bg-secondary p-6" aria-live="polite">
+            <h2 className="text-2xl font-bold">Check your drugs with {selectedPlan.carrier}</h2>
+            <p className="mt-3">Have your medication names, strengths, and how often you take them ready. The official lookup is the best place to confirm whether each drug is covered, its tier, restrictions, and what you may pay.</p>
+            <div className="mt-5 flex flex-wrap gap-3">
+              {carrierLookup && <a href={carrierLookup} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-3 font-bold text-primary-foreground">Open {selectedPlan.carrier} drug lookup <ExternalLink className="size-4" aria-hidden /></a>}
+              <a href={MEDICARE_PLAN_FINDER_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg border-2 border-primary bg-background px-5 py-3 font-bold text-primary">Open Medicare Plan Finder <ExternalLink className="size-4" aria-hidden /></a>
+            </div>
+            <p className="mt-4 text-sm text-muted-foreground">MedicareChoice has not checked your medications in this path. Confirm every drug and cost in the plan’s official formulary before enrolling.</p>
+          </section>
+        )}
 
         {report && <Report report={report} />}
       </main>
