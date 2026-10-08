@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Pill, Plus, Trash2, FileText, CheckCircle2, AlertTriangle, HelpCircle, Loader2, ExternalLink, FlaskConical, MessageSquareHeart } from "lucide-react";
