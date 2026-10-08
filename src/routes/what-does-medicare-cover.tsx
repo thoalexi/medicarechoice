@@ -23,6 +23,7 @@ const SECTIONS = [
   { id: "dental", label: "Dental" },
   { id: "vision", label: "Vision" },
   { id: "hearing", label: "Hearing aids" },
+  { id: "preventive", label: "Preventive care" },
   { id: "cataract", label: "Cataract surgery" },
   { id: "summary", label: "Quick summary" },
 ];
@@ -95,6 +96,20 @@ function WhatDoesMedicareCover() {
         <CompareCta>Hearing benefits differ more than almost any other extra — worth comparing closely.</CompareCta>
       </section>
 
+      <section id="preventive" className="mt-12 scroll-mt-24">
+        <h2 className="font-display text-2xl font-bold">Does Medicare cover preventive care like mammograms?</h2>
+        <p className="mt-4 text-lg"><strong>Yes — usually at $0.</strong> Original Medicare (Part B) covers many preventive services with no deductible and no copay, as long as your provider accepts Medicare. Medicare Advantage plans must cover them at $0 too when you use an in-network provider.</p>
+        <ul className="mt-4 list-disc space-y-2 pl-6 text-lg">
+          <li><strong>Screening mammograms</strong> once every 12 months for women 40 and older</li>
+          <li><strong>Colorectal cancer screenings</strong>, including colonoscopies</li>
+          <li><strong>Yearly "Wellness" visit</strong> to make a prevention plan with your doctor</li>
+          <li><strong>Flu, COVID-19, pneumonia and hepatitis B shots</strong> (shingles and some others are covered under Part D)</li>
+          <li><strong>Other screenings</strong> such as bone density, diabetes, heart disease, depression, and lung cancer for people who qualify</li>
+        </ul>
+        <p className="mt-4 rounded-xl border-2 border-accent bg-accent/10 p-4 text-lg"><strong>Watch for this surprise bill:</strong> a test is free when it's a routine <em>screening</em>. If it's <em>diagnostic</em> — checking a lump, a symptom, or an earlier abnormal result — your normal deductible and 20% share (or plan copay) can apply. The same goes if a polyp is removed during a screening colonoscopy, or if you bring up a new health problem during your free Wellness visit. When in doubt, ask the office before your appointment: "Will this be billed as preventive?"</p>
+        <CompareCta>Preventive care is covered no matter which kind of Medicare you choose.</CompareCta>
+      </section>
+
       <section id="cataract" className="mt-12 scroll-mt-24">
         <h2 className="font-display text-2xl font-bold">Does Medicare cover cataract surgery?</h2>
         <p className="mt-4 text-lg"><strong>Yes — this one is covered.</strong> Cataract surgery is medical care, not routine vision, so Original Medicare Part B covers it (you pay the Part B deductible and typically 20% of the approved amount). Medicare even covers one pair of glasses or contact lenses after the surgery.</p>
@@ -120,6 +135,7 @@ function WhatDoesMedicareCover() {
               <tr><th className="p-3 font-bold">Eye exams & glasses</th><td className="p-3">No</td><td className="p-3">No</td><td className="p-3">Often — varies by plan</td></tr>
               <tr><th className="p-3 font-bold">Hearing aids</th><td className="p-3">No</td><td className="p-3">No</td><td className="p-3">Sometimes — varies by plan</td></tr>
               <tr><th className="p-3 font-bold">Cataract surgery</th><td className="p-3">Yes (Part B)</td><td className="p-3">Helps pay your share</td><td className="p-3">Yes — plan copay applies</td></tr>
+              <tr><th className="p-3 font-bold">Preventive screenings (mammograms, etc.)</th><td className="p-3">Yes — $0 when routine</td><td className="p-3">Not needed — already $0</td><td className="p-3">Yes — $0 in-network</td></tr>
             </tbody>
           </table>
         </div>
