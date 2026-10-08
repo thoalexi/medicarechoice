@@ -18,12 +18,12 @@ export function SiteHeader() {
         <Link to="/" className="shrink-0 whitespace-nowrap font-display text-2xl font-bold text-primary">MedicareChoice</Link>
         <nav className="hidden items-center gap-4 whitespace-nowrap text-base font-bold lg:flex xl:gap-7">
           {LINKS.map((l) => <Link key={l.to} to={l.to} className="whitespace-nowrap hover:text-primary">{l.label}</Link>)}
-          <Link to="/feedback" className="inline-flex items-center gap-2 hover:text-primary">
-            <MessageSquareHeart className="size-4" aria-hidden />
+          <Link to="/feedback" className="inline-flex items-center gap-2 whitespace-nowrap hover:text-primary">
+            <MessageSquareHeart className="size-4 shrink-0" aria-hidden />
             Feedback
           </Link>
-          <Link to="/donate" className="inline-flex items-center gap-2 rounded-full border-2 border-primary px-4 py-1.5 text-primary transition hover:bg-primary/10">
-            <Heart className="size-4" aria-hidden />
+          <Link to="/donate" className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border-2 border-primary px-4 py-1.5 text-primary transition hover:bg-primary/10">
+            <Heart className="size-4 shrink-0" aria-hidden />
             Donate
           </Link>
         </nav>
