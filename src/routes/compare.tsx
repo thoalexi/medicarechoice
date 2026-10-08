@@ -77,7 +77,7 @@ function Compare() {
                   ["Vision", (r) => r.p.extrasDetail?.vision ?? ext(r.p.vision)],
                   ["Hearing", (r) => r.p.extrasDetail?.hearing ?? ext(r.p.hearing)],
                   ["Fitness", (r) => r.p.extrasDetail?.fitness ?? ext(r.p.fitness)],
-                  ["Health-items allowance", (r) => r.p.extrasDetail?.otc ?? ext(r.p.otc)],
+                  ["Health-items allowance", (r) => r.p.extrasDetail?.otc ?? "—"],
                   ["Part B giveback", (r) => r.p.partBGiveback ? `${money(r.p.partBGiveback)}/mo off your Part B premium` : "—"],
                   ["CMS star rating", (r) => r.p.starRating ? `${r.p.starRating} out of 5 stars` : "—"],
                   ["Preventive care at $0", (r) => r.p.preventiveZero === null ? "?" : r.p.preventiveZero ? "Yearly checkups, mammograms & screenings at $0" : "May have copays"],
