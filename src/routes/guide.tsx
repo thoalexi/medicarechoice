@@ -124,7 +124,7 @@ function Results({ a, onEdit }: { a: Answers; onEdit: () => void }) {
             </article>
           ))}
         </div>
-        <Link to="/compare" className="mt-10 inline-block rounded-xl border-2 border-primary px-6 py-3 text-lg font-bold text-primary">Compare all plans side by side →</Link>
+        <Link to="/compare" search={region ? { county: region } : {}} className="mt-10 inline-block rounded-xl border-2 border-primary px-6 py-3 text-lg font-bold text-primary">Compare all plans side by side →</Link>
       </main>
       <Disclaimer />
     </div>
