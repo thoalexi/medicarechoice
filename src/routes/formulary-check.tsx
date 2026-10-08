@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Pill, Plus, Trash2, FileText, CheckCircle2, AlertTriangle, HelpCircle, Loader2, ExternalLink, FlaskConical } from "lucide-react";
+import { Pill, Plus, Trash2, FileText, CheckCircle2, AlertTriangle, HelpCircle, Loader2, ExternalLink, FlaskConical, MessageSquareHeart } from "lucide-react";
 import { SiteHeader, Disclaimer } from "@/components/SiteHeader";
 import { checkFormulary, type FormularySource } from "@/lib/formulary.functions";
 import type { FormularyReport } from "@/lib/ai/formulary.server";
@@ -161,6 +161,19 @@ function FormularyCheck() {
           <p className="mt-8 rounded-xl border-2 bg-card p-4">We used this official document: <a href={source.url} target="_blank" rel="noreferrer" className="font-bold text-primary underline">{source.title} <ExternalLink className="inline size-4" aria-hidden /></a>. Please confirm it matches your plan.</p>
         )}
         {report && <Report report={report} />}
+
+        <section className="mt-10 rounded-2xl border-2 border-primary/40 bg-secondary p-6" aria-labelledby="tool-feedback-heading">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+            <span className="grid size-14 shrink-0 place-items-center rounded-full bg-primary/12 text-primary"><MessageSquareHeart className="size-7" aria-hidden /></span>
+            <div className="flex-1">
+              <h2 id="tool-feedback-heading" className="text-2xl font-bold">Did this tool get something wrong?</h2>
+              <p className="mt-2 text-lg text-muted-foreground">It's still in testing. Tell us which drug or detail looked off — your note makes it better for the next person.</p>
+            </div>
+            <Link to="/feedback" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-primary px-7 py-4 text-lg font-bold text-primary-foreground shadow-md transition hover:opacity-90">
+              <MessageSquareHeart className="size-5" aria-hidden /> Send feedback
+            </Link>
+          </div>
+        </section>
       </main>
       <Disclaimer />
     </div>
