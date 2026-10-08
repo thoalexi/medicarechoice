@@ -16,6 +16,7 @@ import { Route as DonateRouteImport } from './routes/donate'
 import { Route as FeedbackRouteImport } from './routes/feedback'
 import { Route as FormularyCheckRouteImport } from './routes/formulary-check'
 import { Route as GuideRouteImport } from './routes/guide'
+import { Route as WhatDoesMedicareCoverRouteImport } from './routes/what-does-medicare-cover'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout/return'
 
 const IndexRoute = IndexRouteImport.update({
@@ -53,6 +54,11 @@ const GuideRoute = GuideRouteImport.update({
   path: '/guide',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WhatDoesMedicareCoverRoute = WhatDoesMedicareCoverRouteImport.update({
+  id: '/what-does-medicare-cover',
+  path: '/what-does-medicare-cover',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
   id: '/checkout/return',
   path: '/checkout/return',
@@ -67,6 +73,7 @@ export interface FileRoutesByFullPath {
   '/feedback': typeof FeedbackRoute
   '/formulary-check': typeof FormularyCheckRoute
   '/guide': typeof GuideRoute
+  '/what-does-medicare-cover': typeof WhatDoesMedicareCoverRoute
   '/checkout/return': typeof CheckoutReturnRoute
 }
 export interface FileRoutesByTo {
@@ -77,6 +84,7 @@ export interface FileRoutesByTo {
   '/feedback': typeof FeedbackRoute
   '/formulary-check': typeof FormularyCheckRoute
   '/guide': typeof GuideRoute
+  '/what-does-medicare-cover': typeof WhatDoesMedicareCoverRoute
   '/checkout/return': typeof CheckoutReturnRoute
 }
 export interface FileRoutesById {
@@ -88,6 +96,7 @@ export interface FileRoutesById {
   '/feedback': typeof FeedbackRoute
   '/formulary-check': typeof FormularyCheckRoute
   '/guide': typeof GuideRoute
+  '/what-does-medicare-cover': typeof WhatDoesMedicareCoverRoute
   '/checkout/return': typeof CheckoutReturnRoute
 }
 export interface FileRouteTypes {
@@ -100,6 +109,7 @@ export interface FileRouteTypes {
     | '/feedback'
     | '/formulary-check'
     | '/guide'
+    | '/what-does-medicare-cover'
     | '/checkout/return'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -110,6 +120,7 @@ export interface FileRouteTypes {
     | '/feedback'
     | '/formulary-check'
     | '/guide'
+    | '/what-does-medicare-cover'
     | '/checkout/return'
   id:
     | '__root__'
@@ -120,6 +131,7 @@ export interface FileRouteTypes {
     | '/feedback'
     | '/formulary-check'
     | '/guide'
+    | '/what-does-medicare-cover'
     | '/checkout/return'
   fileRoutesById: FileRoutesById
 }
@@ -131,6 +143,7 @@ export interface RootRouteChildren {
   FeedbackRoute: typeof FeedbackRoute
   FormularyCheckRoute: typeof FormularyCheckRoute
   GuideRoute: typeof GuideRoute
+  WhatDoesMedicareCoverRoute: typeof WhatDoesMedicareCoverRoute
   CheckoutReturnRoute: typeof CheckoutReturnRoute
 }
 
@@ -185,6 +198,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuideRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/what-does-medicare-cover': {
+      id: '/what-does-medicare-cover'
+      path: '/what-does-medicare-cover'
+      fullPath: '/what-does-medicare-cover'
+      preLoaderRoute: typeof WhatDoesMedicareCoverRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/checkout/return': {
       id: '/checkout/return'
       path: '/checkout/return'
@@ -203,6 +223,7 @@ const rootRouteChildren: RootRouteChildren = {
   FeedbackRoute: FeedbackRoute,
   FormularyCheckRoute: FormularyCheckRoute,
   GuideRoute: GuideRoute,
+  WhatDoesMedicareCoverRoute: WhatDoesMedicareCoverRoute,
   CheckoutReturnRoute: CheckoutReturnRoute,
 }
 export const routeTree = rootRouteImport
