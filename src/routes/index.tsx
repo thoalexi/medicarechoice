@@ -27,13 +27,13 @@ function Index() {
   return (
     <div className="min-h-screen">
       <SiteHeader />
-      <main className="mx-auto max-w-6xl px-6">
-        <section className="py-16 md:py-24">
-          <p className="mb-4 font-bold uppercase tracking-widest text-accent-foreground/70">For seniors & the families helping them</p>
-          <h1 className="max-w-3xl text-5xl font-bold leading-tight md:text-6xl">Pick the right Medicare plan—without the fine print headache.</h1>
-          <p className="mt-6 max-w-2xl text-xl text-muted-foreground">Tell us about your doctors, medicines, and budget. We'll show you which plans fit, what you'll really pay in a year, and what you give up with each.</p>
-          <div className="mt-10 flex flex-wrap items-center gap-4">
-            <Link to="/guide" className="rounded-xl bg-primary px-8 py-5 text-xl font-bold text-primary-foreground shadow-md hover:opacity-90">Start the guided questions →</Link>
+      <main className="mx-auto max-w-6xl px-4 sm:px-6">
+        <section className="py-10 md:py-24">
+          <p className="mb-4 text-sm font-bold uppercase tracking-widest text-accent-foreground/70 sm:text-base">For seniors & the families helping them</p>
+          <h1 className="max-w-3xl text-4xl font-bold leading-tight sm:text-5xl md:text-6xl">Pick the right Medicare plan—without the fine print headache.</h1>
+          <p className="mt-5 max-w-2xl text-lg text-muted-foreground sm:text-xl">Tell us about your doctors, medicines, and budget. We'll show you which plans fit, what you'll really pay in a year, and what you give up with each.</p>
+          <div className="mt-8 flex flex-col gap-3 sm:mt-10 sm:flex-row sm:items-center sm:gap-4">
+            <Link to="/guide" className="rounded-xl bg-primary px-8 py-5 text-center text-xl font-bold text-primary-foreground shadow-md hover:opacity-90">Start the guided questions →</Link>
             <span className="text-muted-foreground">About 3 minutes · 7 questions</span>
           </div>
           <section className="mt-12 border-y py-10" aria-labelledby="why-heading">
