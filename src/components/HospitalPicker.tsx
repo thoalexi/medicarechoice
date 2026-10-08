@@ -74,8 +74,11 @@ export function HospitalPicker({ value, onChange }: { value: string; onChange: (
             setOpen(true);
             setActive((i) => (e.key === "ArrowDown" ? Math.min(i + 1, results.length - 1) : Math.max(i - 1, 0)));
           } else if (e.key === "Enter" && open) {
-            e.preventDefault();
-            pick(results[active].name);
+            const chosen = results[active];
+            if (chosen) {
+              e.preventDefault();
+              pick(chosen.name);
+            }
           }
         }}
         className="mt-2 block w-full rounded-xl border-2 border-input bg-card p-4 text-lg"
