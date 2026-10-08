@@ -31,7 +31,7 @@ function Compare() {
   const rows = useMemo(() => plansFor(region).filter((p) => types.includes(p.type)
     && (!needs.dental || p.dental !== false) && (!needs.vision || p.vision !== false) && (!needs.hearing || p.hearing !== false) && (!needs.noReferrals || !p.referralsNeeded))
     .map((p) => ({ p, c: estimateAnnual(p, health, drugs) }))
-    .sort((a, b) => sort === "total" ? a.c.total - b.c.total : sort === "premium" ? a.p.monthlyPremium - b.p.monthlyPremium : (a.p.oopMax ?? 1e9) - (b.p.oopMax ?? 1e9)),
+    .sort((a, b) => sort === "total" ? a.c.total - b.c.total : sort === "premium" ? a.p.monthlyPremium - b.p.monthlyPremium : (a.c.worstCase ?? 1e9) - (b.c.worstCase ?? 1e9)),
     [region, types, needs, health, drugs, sort]);
 
   const toggle = (id: string) => setPicked((x) => x.includes(id) ? x.filter((y) => y !== id) : x.length < 3 ? [...x, id] : x);
@@ -56,7 +56,7 @@ function Compare() {
 
         <section>
           <div className="flex flex-wrap items-end justify-between gap-4">
-            <div><h1 className="text-4xl font-bold">Compare plans</h1><p className="text-muted-foreground">{rows.length} plans · tick up to 3 to compare side by side</p><p className="text-sm text-muted-foreground">Source: {DATA_SOURCE}. Dental, vision and hearing show what’s included in the premium; confirm details in the plan’s Summary of Benefits.</p></div>
+            <div><h1 className="text-4xl font-bold">Compare plans</h1><p className="text-muted-foreground">{rows.length} plans · tick up to 3 to compare side by side</p><p className="text-sm text-muted-foreground">True yearly cost includes the standard Part B premium ({money(PART_B_MONTHLY)}/mo). Source: {DATA_SOURCE}. Extra benefits show what’s included in the premium; confirm details in the plan’s Summary of Benefits.</p></div>
             <label className="font-bold">Sort by <select className="ml-2 rounded-lg border-2 border-input bg-card p-2" value={sort} onChange={(e) => setSort(e.target.value as typeof sort)}>
               <option value="total">True yearly cost</option><option value="premium">Monthly premium</option><option value="oop">Worst-case limit</option></select></label>
           </div>
