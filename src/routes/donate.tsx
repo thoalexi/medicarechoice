@@ -1,7 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SiteHeader, Disclaimer } from "@/components/SiteHeader";
 import { Heart } from "lucide-react";
+import { DonationCheckout } from "@/components/DonationCheckout";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
+import { paymentsConfigured } from "@/lib/stripe";
 
 
 export const Route = createFileRoute("/donate")({
@@ -25,6 +28,9 @@ function Donate() {
   const [amount, setAmount] = useState(15);
   const [custom, setCustom] = useState("");
   const [copied, setCopied] = useState(false);
+  const [checkout, setCheckout] = useState<{ cents: number; freq: "once" | "monthly" } | null>(null);
+  const [ready, setReady] = useState(false);
+  useEffect(() => setReady(paymentsConfigured()), []);
 
   const gift = custom ? Math.max(0, Math.round(Number(custom) || 0)) : amount;
 
@@ -39,6 +45,7 @@ function Donate() {
 
   return (
     <div className="min-h-screen">
+      <PaymentTestModeBanner />
       <SiteHeader />
       <main className="mx-auto max-w-3xl px-6 py-12">
         <div className="flex items-start gap-4">
@@ -112,18 +119,30 @@ function Donate() {
             <span className="text-muted-foreground">{freq === "monthly" ? "each month" : "one time"}</span>
           </p>
 
-          <button
-            type="button"
-            disabled
-            className="mt-4 w-full cursor-not-allowed rounded-xl bg-primary/40 px-6 py-4 text-xl font-bold text-primary-foreground"
-          >
-            Donate ${gift || 0} {freq === "monthly" ? "monthly" : "now"}
-          </button>
-
-          <p className="mt-3 rounded-xl border-2 border-dashed border-accent bg-secondary p-4 text-lg">
-            Secure checkout isn't connected yet, so no money changes hands today. Until it is, passing MedicareChoice to
-            someone who's still untangling Medicare helps just as much.
-          </p>
+          {checkout ? (
+            <>
+              <DonationCheckout key={`${checkout.freq}-${checkout.cents}`} amountInCents={checkout.cents} frequency={checkout.freq} />
+              <button type="button" onClick={() => setCheckout(null)} className="mt-3 text-lg font-bold text-primary underline">
+                Change amount
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                disabled={!ready || gift < 1}
+                onClick={() => setCheckout({ cents: gift * 100, freq })}
+                className="mt-4 w-full rounded-xl bg-primary px-6 py-4 text-xl font-bold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Donate ${gift || 0} {freq === "monthly" ? "monthly" : "now"}
+              </button>
+              <p className="mt-3 text-base text-muted-foreground">
+                {ready
+                  ? "Secure checkout by Stripe. You'll get an email receipt. Monthly gifts can be cancelled any time."
+                  : "Secure checkout is being switched on — please check back soon. Sharing MedicareChoice helps just as much!"}
+              </p>
+            </>
+          )}
 
           <button
             type="button"
