@@ -104,7 +104,7 @@ function Results({ a, onEdit }: { a: Answers; onEdit: () => void }) {
             <article key={plan.id} className={`rounded-2xl border-2 bg-card p-6 ${i === 0 ? "border-primary shadow-lg" : ""}`}>
               {i === 0 && <div className="mb-2 inline-block rounded-full bg-accent px-3 py-1 text-sm font-bold text-accent-foreground">Best match</div>}
               <div className="flex flex-wrap items-start justify-between gap-4">
-                <div><h2 className="text-2xl font-bold">{plan.name}</h2><div className="text-muted-foreground">{plan.type} · {plan.carrier}{plan.starRating ? ` · ${plan.starRating}★` : ""}</div></div>
+                <div><h2 className="text-2xl font-bold">{plan.name}</h2><div className="text-muted-foreground">{plan.type} · {plan.carrier}{plan.starRating ? ` · ${plan.starRating}★${plan.starYear === 2026 ? " (2026 rating)" : ""}` : ""}</div></div>
                 <div className="text-right"><div className="text-sm text-muted-foreground">Estimated true yearly cost</div><div className="font-display text-4xl font-bold text-primary">{money(cost.total)}</div></div>
               </div>
               <p className="mt-3 text-lg">{plan.summary}</p>
@@ -114,7 +114,7 @@ function Results({ a, onEdit }: { a: Answers; onEdit: () => void }) {
                 <div><div className="text-sm text-muted-foreground">Prescriptions</div><div className="text-xl font-bold">{money(cost.drugs)}</div></div>
               </div>
               <p className="mt-2 text-sm text-muted-foreground">Worst-case year: {cost.worstCase ? money(cost.worstCase) : "no limit"}</p>
-              <p className="mt-1 text-sm text-muted-foreground">This worst case includes drug costs up to the Part D cap ({money(PART_D_OOP_CAP)}) — something most plan ads leave out. Check the plan’s formulary to confirm your exact medications are covered.</p>
+              <p className="mt-1 text-sm text-muted-foreground">This worst case includes drug costs up to the Part D cap ({money(PART_D_OOP_CAP)}) — something most plan ads leave out. Check the plan’s formulary to confirm your exact medications are covered — <Link to="/formulary-check" className="font-bold text-primary underline">check my drugs</Link>.</p>
               <div className="mt-4 grid gap-4 md:grid-cols-2">
                 <ul className="space-y-1">{reasons.map((r) => <li key={r} className="text-success">✓ <span className="text-foreground">{r}</span></li>)}</ul>
                 <ul className="space-y-1">{cautions.map((r) => <li key={r} className="text-warning">⚠ <span className="text-foreground">{r}</span></li>)}</ul>

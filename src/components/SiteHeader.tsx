@@ -9,6 +9,7 @@ export function SiteHeader() {
         <nav className="flex items-center gap-6 text-base font-bold">
           <Link to="/guide" className="hover:text-primary">Guided questions</Link>
           <Link to="/compare" className="hover:text-primary">Compare plans</Link>
+          <Link to="/formulary-check" className="hover:text-primary">Check my drugs</Link>
           <Link to="/feedback" className="inline-flex items-center gap-2 hover:text-primary">
             <MessageSquareHeart className="size-4" aria-hidden />
             Feedback

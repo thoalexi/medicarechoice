@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { SiteHeader, Disclaimer } from "@/components/SiteHeader";
 import { COUNTIES, DATA_SOURCE, PART_B_MONTHLY, PART_D_OOP_CAP, plansFor, estimateAnnual, money, type Health, type PlanType, type Region } from "@/lib/plans";
@@ -58,7 +58,7 @@ function Compare() {
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div><h1 className="text-4xl font-bold">Compare plans</h1><p className="text-muted-foreground">{rows.length} plans · tick up to 3 to compare side by side</p><p className="text-sm text-muted-foreground">True yearly cost includes the standard Part B premium ({money(PART_B_MONTHLY)}/mo). Source: {DATA_SOURCE}. Extra benefits show what’s included in the premium; confirm details in the plan’s Summary of Benefits.</p>
               <div className="mt-3 rounded-xl border-2 border-primary bg-primary/5 p-4 text-sm">
-                <p>💊 Every plan that covers prescriptions has its own <strong>formulary</strong> — the list of drugs it covers. Before you enroll, look up your medications in the plan’s formulary to make sure they’re covered and see what you’d pay.</p>
+                <p>💊 Every plan that covers prescriptions has its own <strong>formulary</strong> — the list of drugs it covers. Before you enroll, look up your medications in the plan’s formulary to make sure they’re covered and see what you’d pay. <Link to="/formulary-check" className="font-bold text-primary underline">Check my drugs against a formulary →</Link></p>
                 <p className="mt-2">Our worst-case figure includes the Part D drug out-of-pocket cap ({money(PART_D_OOP_CAP)} in 2027) — but only if your drugs are on the plan’s formulary. If you take an expensive drug that isn’t covered, your true cost could be higher.</p>
               </div></div>
             <label className="font-bold">Sort by <select className="ml-2 rounded-lg border-2 border-input bg-card p-2" value={sort} onChange={(e) => setSort(e.target.value as typeof sort)}>
@@ -83,7 +83,7 @@ function Compare() {
                   ["Fitness", (r) => r.p.extrasDetail?.fitness ?? ext(r.p.fitness)],
                   ["Health-items allowance", (r) => r.p.extrasDetail?.otc ?? "—"],
                   ["Part B giveback", (r) => r.p.partBGiveback ? `${money(r.p.partBGiveback)}/mo off your Part B premium` : "—"],
-                  ["CMS star rating", (r) => r.p.starRating ? `${r.p.starRating} out of 5 stars` : "—"],
+                  ["CMS star rating", (r) => r.p.starRating ? `${r.p.starRating} out of 5 stars${r.p.starYear === 2026 ? " (2026 rating — 2027 not yet released)" : ""}` : r.p.real ? "New — no rating yet" : "—"],
                   ["Preventive care at $0", (r) => r.p.preventiveZero === null ? "?" : r.p.preventiveZero ? "Yearly checkups, mammograms & screenings at $0" : "May have copays"],
                   ["CMS plan type", (r) => r.p.cmsType ?? "—"],
                   ["CMS plan ID", (r) => r.p.real ? r.p.id : "—"],
@@ -99,7 +99,7 @@ function Compare() {
                 <input type="checkbox" aria-label={`Compare ${p.name}`} className="mt-1 size-6" checked={picked.includes(p.id)} onChange={() => toggle(p.id)} />
                 <div>
                   <h2 className="text-xl font-bold">{p.name}</h2>
-                  <div className="text-muted-foreground">{p.type} · {p.carrier}{p.starRating ? ` · ${p.starRating}★` : ""}</div>
+                  <div className="text-muted-foreground">{p.type} · {p.carrier}{p.starRating ? ` · ${p.starRating}★${p.starYear === 2026 ? " (2026)" : ""}` : ""}</div>
                   <p className="mt-2">{p.summary}</p>
                   <div className="mt-2 flex flex-wrap gap-2 text-sm">
                     <span className="rounded-full bg-muted px-3 py-1">Premium {money(p.monthlyPremium)}/mo</span>
