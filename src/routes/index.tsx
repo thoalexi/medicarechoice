@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { MessageSquareHeart } from "lucide-react";
 import { SiteHeader, Disclaimer } from "@/components/SiteHeader";
 
 export const Route = createFileRoute("/")({
@@ -67,6 +68,18 @@ function Index() {
           <div className="mt-8 grid gap-4 md:grid-cols-2">
             <div className="rounded-xl bg-secondary p-6"><h3 className="text-2xl font-bold">Original Medicare + Medigap</h3><p className="mt-2">Higher monthly cost, but see any doctor in the U.S. and almost no surprise bills.</p></div>
             <div className="rounded-xl bg-secondary p-6"><h3 className="text-2xl font-bold">Medicare Advantage (HMO / PPO)</h3><p className="mt-2">Low or $0 monthly cost and often dental/vision, but networks, referrals, and higher costs in a bad year.</p></div>
+          </div>
+        </section>
+        <section className="mb-16 rounded-2xl border-2 border-primary/40 bg-secondary p-6 sm:p-8" aria-labelledby="feedback-heading">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+            <span className="grid size-14 shrink-0 place-items-center rounded-full bg-primary/12 text-primary"><MessageSquareHeart className="size-7" aria-hidden /></span>
+            <div className="flex-1">
+              <h2 id="feedback-heading" className="text-2xl font-bold sm:text-3xl">Spotted something wrong or confusing?</h2>
+              <p className="mt-2 text-lg text-muted-foreground">This site is new and still being tested. Tell us what didn't work — we read every note, and it's how the site gets better.</p>
+            </div>
+            <Link to="/feedback" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-primary px-7 py-4 text-lg font-bold text-primary-foreground shadow-md transition hover:opacity-90">
+              <MessageSquareHeart className="size-5" aria-hidden /> Send feedback
+            </Link>
           </div>
         </section>
       </main>
