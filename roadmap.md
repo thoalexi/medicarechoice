@@ -23,4 +23,4 @@
 - [x] AI plan search refuses off-topic requests (2026-10-08)
 - [x] "In testing" (beta) notice on the Check my drugs page (2026-10-08)
 - [x] Emphasize the feedback button on the home page and the Check my drugs page (2026-10-08)
-- [ ] Hospital question: show a real dropdown of matching hospitals as the person types
+- [x] Hospital question: dropdown of matching hospitals as the person types (2026-10-08)
