@@ -31,6 +31,7 @@ function Compare() {
   const [needs, setNeeds] = useState({ dental: false, vision: false, hearing: false, noReferrals: false });
   const [sort, setSort] = useState<"total" | "premium" | "oop">("total");
   const [picked, setPicked] = useState<string[]>([]);
+  const [showFilters, setShowFilters] = useState(false);
 
   const rows = useMemo(() => plansFor(region).filter((p) => types.includes(p.type)
     && (!needs.dental || p.dental !== false) && (!needs.vision || p.vision !== false) && (!needs.hearing || p.hearing !== false) && (!needs.noReferrals || !p.referralsNeeded))
@@ -45,9 +46,12 @@ function Compare() {
   return (
     <div className="min-h-screen"><SiteHeader />
       <PlanSearch onResults={(c, ids) => { if (c) setRegion(c); setTypes(TYPES); setPicked(ids); setTimeout(() => document.getElementById("compare-plans")?.scrollIntoView({ behavior: "smooth" }), 50); }} />
-      <main className="mx-auto grid max-w-6xl gap-8 px-6 py-10 lg:grid-cols-[280px_1fr]">
-        <aside className="h-fit space-y-5 rounded-2xl border bg-card p-5 lg:sticky lg:top-4">
-          <p className="text-2xl font-bold">Filters</p>
+      <main className="mx-auto grid max-w-6xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8 lg:py-10">
+        <button type="button" onClick={() => setShowFilters((s) => !s)} aria-expanded={showFilters} className="flex min-h-14 items-center justify-between rounded-2xl border-2 bg-card px-5 text-lg font-bold lg:hidden">
+          <span>Filters · {region} County</span><span aria-hidden>{showFilters ? "▲ Hide" : "▼ Show"}</span>
+        </button>
+        <aside className={`h-fit space-y-5 rounded-2xl border bg-card p-5 lg:sticky lg:top-4 lg:block ${showFilters ? "" : "hidden"}`}>
+          <p className="hidden text-2xl font-bold lg:block">Filters</p>
           <label className="block font-bold">Michigan county<select className={sel} value={region} onChange={(e) => setRegion(e.target.value)}>
             {COUNTIES.map((c) => <option key={c} value={c}>{c}</option>)}</select></label>
           <label className="block font-bold">Expected health use<select className={sel} value={health} onChange={(e) => setHealth(e.target.value as Health)}>
@@ -124,10 +128,11 @@ function Compare() {
 
           <div className="mt-6 space-y-4">
             {rows.map(({ p, c }) => (
-              <div key={p.id} className={`grid gap-4 rounded-2xl border-2 bg-card p-5 md:grid-cols-[auto_1fr_auto] ${picked.includes(p.id) ? "border-primary" : ""}`}>
-                <input type="checkbox" aria-label={`Compare ${p.name}`} className="mt-1 size-6" checked={picked.includes(p.id)} onChange={() => toggle(p.id)} />
-                <div>
+              <div key={p.id} className={`grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-3 rounded-2xl border-2 bg-card p-4 sm:p-5 md:grid-cols-[auto_minmax(0,1fr)_auto] md:gap-4 ${picked.includes(p.id) ? "border-primary" : ""}`}>
+                <label className="-m-2 flex size-10 items-start justify-center p-2"><input type="checkbox" aria-label={`Compare ${p.name}`} className="size-6" checked={picked.includes(p.id)} onChange={() => toggle(p.id)} /></label>
+                <div className="min-w-0">
                   <h2 className="text-xl font-bold">{p.name}</h2>
+                  <div className="mt-1 md:hidden"><span className="font-display text-2xl font-bold text-primary">{money(c.total)}</span> <span className="text-sm text-muted-foreground">true yearly cost · worst case {c.worstCase ? money(c.worstCase) : "unlimited"}</span></div>
                   <div className="text-muted-foreground">{p.type} · {p.carrier}{p.starRating ? ` · ${p.starRating}★${p.starYear === 2026 ? " (2026)" : ""}` : ""}</div>
                   <p className="mt-2">{p.summary}</p>
                   <div className="mt-2 flex flex-wrap gap-2 text-sm">
@@ -141,7 +146,7 @@ function Compare() {
                     {p.preventiveZero ? <span className="rounded-full bg-secondary px-3 py-1">$0 checkups & screenings</span> : null}
                   </div>
                 </div>
-                <div className="text-right"><div className="text-sm text-muted-foreground">True yearly cost</div><div className="font-display text-3xl font-bold text-primary">{money(c.total)}</div>
+                <div className="hidden text-right md:block"><div className="text-sm text-muted-foreground">True yearly cost</div><div className="font-display text-3xl font-bold text-primary">{money(c.total)}</div>
                   <div className="text-sm text-muted-foreground">Worst case {c.worstCase ? money(c.worstCase) : "unlimited"}</div></div>
               </div>
             ))}
