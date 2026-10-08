@@ -101,6 +101,9 @@ function Results({ a, onEdit }: { a: Answers; onEdit: () => void }) {
         <h1 className="text-4xl font-bold">Your best-fit plans</h1>
         <p className="mt-2 text-lg text-muted-foreground">For {regionLabel(region)}. Plans and premiums from the official CMS 2027 list. Costs include your Part B premium and are estimated for a typical year given your answers. Prescription estimates assume your drugs are on the plan’s formulary (its list of covered drugs).</p>
         <button onClick={onEdit} className="mt-3 text-primary underline">Change my answers</button>
+        {ranked.length > 1 && Math.abs(ranked[0]!.cost.total - ranked[1]!.cost.total) < 250 && (
+          <p className="mt-6 rounded-xl border-2 border-primary bg-primary/5 p-4 text-lg">These top plans cost about the same in a normal year. Compare their worst-case year, doctor and hospital copays, and extras to choose between them.</p>
+        )}
         <div className="mt-8 space-y-6">
           {ranked.slice(0, 4).map(({ plan, cost, reasons, cautions }, i) => (
             <article key={plan.id} className={`rounded-2xl border-2 bg-card p-6 ${i === 0 ? "border-primary shadow-lg" : ""}`}>
