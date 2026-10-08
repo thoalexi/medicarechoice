@@ -34,7 +34,7 @@ export const createDonationCheckout = createServerFn({ method: "POST" })
         mode: monthly ? "subscription" : "payment",
         ui_mode: "embedded_page",
         return_url: data.returnUrl,
-        submit_type: monthly ? undefined : "donate",
+        ...(!monthly && { submit_type: "donate" as const }),
         ...(!monthly && { payment_intent_data: { description: name } }),
         metadata: { kind: "donation", frequency: data.frequency },
       });
