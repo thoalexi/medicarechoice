@@ -10,6 +10,7 @@ export function PlanSearch({ onResults }: { onResults: (county: string | null, i
   const [error, setError] = useState<string | null>(null);
   const [followUp, setFollowUp] = useState<string | null>(null);
   const [matches, setMatches] = useState<PlanMatch[]>([]);
+  const [county, setCounty] = useState<string | null>(null);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -19,7 +20,7 @@ export function PlanSearch({ onResults }: { onResults: (county: string | null, i
       const r = await run({ data: { query: q.trim() } });
       if (!r.ok) setError(r.error);
       else if (r.followUp) setFollowUp(r.followUp);
-      else { setMatches(r.matches); if (r.matches.length === 0) setError("No plans matched everything you asked for. Try loosening a requirement."); }
+      else { setMatches(r.matches); setCounty(r.county); if (r.matches.length === 0) setError("No plans matched everything you asked for. Try loosening a requirement."); }
     } catch { setError("Something went wrong. Please try again."); }
     setLoading(false);
   }
@@ -56,7 +57,7 @@ export function PlanSearch({ onResults }: { onResults: (county: string | null, i
                 </div>
               ))}
             </div>
-            <button onClick={() => onResults(null, matches.map((m) => m.id))} className="mt-4 rounded-lg border-2 border-primary px-5 py-2 font-bold text-primary">
+            <button onClick={() => onResults(county, matches.map((m) => m.id))} className="mt-4 rounded-lg border-2 border-primary px-5 py-2 font-bold text-primary">
               Compare these {matches.length} side by side
             </button>
             <p className="mt-3 text-sm text-muted-foreground">Estimates only, using official CMS 2027 plan data. Check each plan's formulary for your drugs and confirm with Medicare.gov or Michigan MMAP (1-800-803-7174) before enrolling.</p>
