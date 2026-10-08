@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Pill, Plus, Trash2, FileText, CheckCircle2, AlertTriangle, HelpCircle, Loader2, ExternalLink } from "lucide-react";
+import { Pill, Plus, Trash2, FileText, CheckCircle2, AlertTriangle, HelpCircle, Loader2, ExternalLink, FlaskConical } from "lucide-react";
 import { SiteHeader, Disclaimer } from "@/components/SiteHeader";
 import { checkFormulary, type FormularySource } from "@/lib/formulary.functions";
 import type { FormularyReport } from "@/lib/ai/formulary.server";
@@ -85,10 +85,25 @@ function FormularyCheck() {
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <main className="mx-auto max-w-3xl px-6 py-10">
-        <h1 className="font-display text-4xl font-bold">Check my drugs</h1>
+        <h1 className="font-display text-4xl font-bold">
+          Check my drugs
+          <span className="ml-3 inline-block rounded-full border-2 border-warning/60 px-3 py-1 align-middle text-sm font-bold text-warning">Beta</span>
+        </h1>
         <p className="mt-3 text-lg text-muted-foreground">
           Every plan that covers prescriptions has its own <strong>formulary</strong> — its list of covered drugs. List your medications and choose your plan. We'll find that plan's official 2027 drug list and check each medicine for you. You can also upload the PDF yourself.
         </p>
+
+        <section role="note" aria-label="This tool is in testing" className="mt-6 flex items-start gap-4 rounded-2xl border-2 border-warning/50 bg-warning/10 p-5">
+          <span className="grid size-11 shrink-0 place-items-center rounded-full bg-warning/15 text-warning"><FlaskConical className="size-6" aria-hidden /></span>
+          <div>
+            <h2 className="text-xl font-bold text-warning">This tool is in testing</h2>
+            <p className="mt-1 text-base">
+              We're still improving it. It reads a plan's official drug list with AI, so it can miss a medicine or read
+              a rule wrong. Use the results as a starting point — and confirm each drug and cost with the plan before you enroll.
+            </p>
+          </div>
+        </section>
+
 
         <form onSubmit={submit} className="mt-8 space-y-8">
           <section className="rounded-2xl border-2 bg-card p-6">
