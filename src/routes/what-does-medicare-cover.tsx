@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowLeft } from "lucide-react";
 
 export const Route = createFileRoute("/what-does-medicare-cover")({
   head: () => ({
@@ -49,7 +50,11 @@ function CompareCta({ children }: { children: React.ReactNode }) {
 function WhatDoesMedicareCover() {
   return (
     <main className="mx-auto max-w-3xl px-6 py-12">
-      <h1 className="font-display text-4xl font-bold">What does Medicare cover?</h1>
+      <Link to="/" className="inline-flex items-center gap-2 text-base font-bold text-primary hover:underline">
+        <ArrowLeft className="size-4" aria-hidden />
+        Back to home
+      </Link>
+      <h1 className="mt-4 font-display text-4xl font-bold">What does Medicare cover?</h1>
       <p className="mt-4 text-lg text-muted-foreground">
         The honest answer is: it depends on which kind of Medicare you have. Here's what Original Medicare,
         Medigap, and Medicare Advantage each cover for the four things people ask about most — in plain language.
@@ -120,6 +125,10 @@ function WhatDoesMedicareCover() {
         <div className="mt-6 flex flex-wrap gap-4">
           <Link to="/compare" className="rounded-full bg-primary px-6 py-3 text-lg font-bold text-primary-foreground transition hover:opacity-90">Compare plans in your county</Link>
           <Link to="/guide" className="rounded-full border-2 border-primary px-6 py-3 text-lg font-bold text-primary transition hover:bg-primary/10">Answer a few questions instead</Link>
+          <Link to="/" className="inline-flex items-center gap-2 rounded-full border-2 border-input px-6 py-3 text-lg font-bold text-muted-foreground transition hover:border-primary hover:text-primary">
+            <ArrowLeft className="size-4" aria-hidden />
+            Back to home
+          </Link>
         </div>
       </section>
     </main>
