@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { SiteHeader, Disclaimer } from "@/components/SiteHeader";
-import { COUNTIES, DATA_SOURCE, plansFor, estimateAnnual, money, type Health, type PlanType, type Region } from "@/lib/plans";
+import { COUNTIES, DATA_SOURCE, PART_B_MONTHLY, plansFor, estimateAnnual, money, type Health, type PlanType, type Region } from "@/lib/plans";
 
 export const Route = createFileRoute("/compare")({
   head: () => ({
@@ -76,6 +76,11 @@ function Compare() {
                   ["Dental", (r) => r.p.extrasDetail?.dental ?? ext(r.p.dental)],
                   ["Vision", (r) => r.p.extrasDetail?.vision ?? ext(r.p.vision)],
                   ["Hearing", (r) => r.p.extrasDetail?.hearing ?? ext(r.p.hearing)],
+                  ["Fitness", (r) => r.p.extrasDetail?.fitness ?? ext(r.p.fitness)],
+                  ["Health-items allowance", (r) => r.p.extrasDetail?.otc ?? ext(r.p.otc)],
+                  ["Part B giveback", (r) => r.p.partBGiveback ? `${money(r.p.partBGiveback)}/mo off your Part B premium` : "—"],
+                  ["CMS star rating", (r) => r.p.starRating ? `${r.p.starRating} out of 5 stars` : "—"],
+                  ["Preventive care at $0", (r) => r.p.preventiveZero === null ? "?" : r.p.preventiveZero ? "Yearly checkups, mammograms & screenings at $0" : "May have copays"],
                   ["CMS plan type", (r) => r.p.cmsType ?? "—"],
                   ["CMS plan ID", (r) => r.p.real ? r.p.id : "—"],
                 ] as [string, (r: (typeof cmp)[number]) => string][]).map(([l, f]) => (
@@ -95,10 +100,12 @@ function Compare() {
                   <div className="mt-2 flex flex-wrap gap-2 text-sm">
                     <span className="rounded-full bg-muted px-3 py-1">Premium {money(p.monthlyPremium)}/mo</span>
                     <span className="rounded-full bg-muted px-3 py-1">Max {p.oopMax === null ? "no limit" : money(p.oopMax)}</span>
-                    {(["dental", "vision", "hearing"] as const).map((k) => p[k] && (
-                      <span key={k} className="rounded-full bg-secondary px-3 py-1" title={p.extrasDetail?.[k]}>
-                        {k.charAt(0).toUpperCase() + k.slice(1)}{p.extrasDetail?.[k] ? `: ${p.extrasDetail[k]}` : ""}
+                    {(["dental", "vision", "hearing", "fitness", "otc"] as const).map((k) => p[k === "otc" ? "hearing" : k] !== false && p.extrasDetail?.[k] && p.extrasDetail[k] !== "Not covered" && (
+                      <span key={k} className="rounded-full bg-secondary px-3 py-1" title={p.extrasDetail[k]}>
+                        {k === "otc" ? "Allowance" : k.charAt(0).toUpperCase() + k.slice(1)}{`: ${p.extrasDetail[k]}`}
                       </span>))}
+                    {p.partBGiveback ? <span className="rounded-full bg-secondary px-3 py-1">Part B giveback: {money(p.partBGiveback)}/mo</span> : null}
+                    {p.preventiveZero ? <span className="rounded-full bg-secondary px-3 py-1">$0 checkups & screenings</span> : null}
                   </div>
                 </div>
                 <div className="text-right"><div className="text-sm text-muted-foreground">True yearly cost</div><div className="font-display text-3xl font-bold text-primary">{money(c.total)}</div>
