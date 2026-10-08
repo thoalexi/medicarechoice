@@ -10,9 +10,12 @@ export const searchPlans = createServerFn({ method: "POST" })
     const { extractPrefs, GatewayError } = await import("./ai/planSearch.server");
     try {
       const p = await extractPrefs(data.query);
+      if (!p.onTopic) {
+        return { ok: false as const, error: "This search only helps you find Medicare plans. Try describing your doctors, medicines, budget, or the extras you want." };
+      }
       const county = p.county && COUNTIES.includes(p.county) ? p.county : "";
       if (!county && !p.outsideMichigan) {
-        return { ok: true as const, followUp: p.followUpQuestion ?? "Which Michigan county or ZIP code do you live in?", county: null, matches: [] as PlanMatch[] };
+        return { ok: true as const, followUp: "Which Michigan county, city, or ZIP code do you live in?", county: null, matches: [] as PlanMatch[] };
       }
       const answers = {
         zip: "", health: p.health, doctorsFlex: p.keepAnyDoctor ? "any" : "network-ok", hospital: p.hospital ?? "",
