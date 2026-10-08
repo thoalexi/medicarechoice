@@ -2,8 +2,9 @@
 
 ## 1. McLaren Flint in the hospital list
 The "Preferred hospital system" dropdown in the guided questions uses a short fixed list of 10 systems, and only McLaren Greater Lansing is on it.
-- Swap in a fuller Michigan list, grouped by system: all major McLaren hospitals (Flint, Greater Lansing, Macomb, Oakland, Bay Region, Northern Michigan, Port Huron, Lapeer, Caro, Central Michigan), plus other common Flint-area choices (Hurley Medical Center, Ascension Genesys), Ascension Michigan, Bronson, Munson, MyMichigan Health, and the existing systems.
-- Add a "Something else (type it)" option so nobody gets stuck.
+- Replace it with every Michigan hospital, taken from Medicare's official hospital list (CMS Hospital General Information), not typed in by hand. That covers about 170 hospitals, including McLaren Flint, Hurley, and the small rural and Upper Peninsula hospitals.
+- Make the box searchable: type "Flint" or "McLaren" to narrow it down, with each hospital showing its city and health system.
+- Keep a "Something else (type it)" option so nobody gets stuck.
 - Note: the CMS data doesn't list which hospitals each plan uses, so the site still says "Check that this hospital is in network" instead of promising it.
 
 ## 2. Look up the formulary for the shopper
@@ -20,7 +21,9 @@ Right now, without a PDF upload, the drug checker only gives a link to the insur
 Turning on Firecrawl, a web-reading service, is required for step 2. A connect card will appear. Each lookup uses a few Firecrawl credits.
 
 ## Technical details
-- `guide.tsx`: expand HOSPITALS into grouped `<optgroup>`s plus a free-text "Other" input; same values feed `scorePlan` and the AI search prompt.
+- New `scripts/build-mi-hospitals.py` downloads the CMS Hospital General Information file, keeps State = MI (all hospital types), and writes `src/lib/mi-hospitals.json` (name, city, county, system). Regenerate yearly, same as the plan data; record in AGENTS.md.
+- `guide.tsx`: searchable combobox over that list plus a free-text "Other" input; the chosen name feeds `scorePlan` and the AI search prompt.
+- Add the hospital-list and formulary-lookup tasks to roadmap.md.
 - Connect Firecrawl and check `uses_connector_gateway`, then call its endpoints server-side only.
 - New `src/lib/ai/formularyFetch.server.ts`: from `CARRIER_FORMULARY_URLS[carrier]`, use Firecrawl map/scrape (links) plus search for `"<plan name>" 2027 formulary pdf` restricted to the carrier domain. Pick candidates with a small AI call that matches plan name, contract ID (H-number), and year 2027. Download the PDF with fetch (20 MB cap, check content-type), then base64 it into the existing `analyzeFormulary`.
 - `formulary.functions.ts`: make `pdfBase64`/`fileName` optional; add `planId`; when no file is given, auto-fetch it; return `source: { url, title }` or a `notFound` result.
