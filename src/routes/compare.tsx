@@ -100,7 +100,7 @@ function Compare() {
                   <div className="mt-2 flex flex-wrap gap-2 text-sm">
                     <span className="rounded-full bg-muted px-3 py-1">Premium {money(p.monthlyPremium)}/mo</span>
                     <span className="rounded-full bg-muted px-3 py-1">Max {p.oopMax === null ? "no limit" : money(p.oopMax)}</span>
-                    {(["dental", "vision", "hearing", "fitness", "otc"] as const).map((k) => p[k === "otc" ? "hearing" : k] !== false && p.extrasDetail?.[k] && p.extrasDetail[k] !== "Not covered" && (
+                    {(["dental", "vision", "hearing", "fitness", "otc"] as const).map((k) => p.extrasDetail?.[k] && p.extrasDetail[k] !== "Not covered" && (
                       <span key={k} className="rounded-full bg-secondary px-3 py-1" title={p.extrasDetail[k]}>
                         {k === "otc" ? "Allowance" : k.charAt(0).toUpperCase() + k.slice(1)}{`: ${p.extrasDetail[k]}`}
                       </span>))}
