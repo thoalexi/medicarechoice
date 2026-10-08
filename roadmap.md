@@ -14,3 +14,6 @@
 ## Open
 - CMS 2027 star ratings not yet published (blank in the Sept 2026 landscape file) — re-extract when CMS releases them; display code already in place
 - Stripe checkout wiring on /donate
+- [x] Formulary checker page (/formulary-check) — AI reads a plan's formulary PDF against the user's drug list (2026-10-08)
+- [x] Show 2026 CMS star ratings as a labeled fallback until 2027 ratings publish (2026-10-08)
+- [ ] Swap to 2027 star ratings when CMS releases them (blocked on CMS)
