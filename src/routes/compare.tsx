@@ -83,8 +83,15 @@ function Compare() {
                 <p>💊 Every plan that covers prescriptions has its own <strong>formulary</strong> — the list of drugs it covers. Before you enroll, look up your medications in the plan’s formulary to make sure they’re covered and see what you’d pay. <Link to="/formulary-check" className="font-bold text-primary underline">Check my drugs against a formulary →</Link></p>
                 <p className="mt-2">Our worst-case figure includes the Part D drug out-of-pocket cap ({money(PART_D_OOP_CAP)} in 2027) — but only if your drugs are on the plan’s formulary. If you take an expensive drug that isn’t covered, your true cost could be higher.</p>
               </div></div>
-            <label className="font-bold">Sort by <select className="ml-2 rounded-lg border-2 border-input bg-card p-2" value={sort} onChange={(e) => setSort(e.target.value as typeof sort)}>
-              <option value="total">True yearly cost</option><option value="premium">Monthly premium</option><option value="oop">Worst-case limit</option></select></label>
+            <div className="flex items-center gap-1 font-bold">Sort by <select className="ml-2 rounded-lg border-2 border-input bg-card p-2" value={sort} onChange={(e) => setSort(e.target.value as typeof sort)}>
+              <option value="total">True yearly cost</option><option value="premium">Monthly premium</option><option value="oop">Worst-case limit</option></select>
+              <HelpPopover label="What do these sort options mean?">
+                <dl className="space-y-3 text-sm">
+                  <div><dt className="font-bold">True yearly cost</dt><dd>Our estimate of everything you'd pay in a typical year: the standard Part B premium, plan premiums, medical spending, prescription spending, and a separate Part D premium when needed.</dd></div>
+                  <div><dt className="font-bold">Monthly premium</dt><dd>What the plan charges each month. The standard Part B premium is usually separate, even when a plan says its premium is $0.</dd></div>
+                  <div><dt className="font-bold">Worst-case limit</dt><dd>Our estimated bad-year total: annual premiums plus the plan's medical out-of-pocket limit and the Part D drug cap. Original Medicare alone has no medical limit, and drugs outside a plan's formulary can cost more.</dd></div>
+                </dl>
+              </HelpPopover></div>
           </div>
 
           {cmp.length > 1 && (
