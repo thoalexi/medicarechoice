@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { SiteHeader, Disclaimer } from "@/components/SiteHeader";
-import { COUNTIES, DATA_SOURCE, PART_B_MONTHLY, plansFor, estimateAnnual, money, type Health, type PlanType, type Region } from "@/lib/plans";
+import { COUNTIES, DATA_SOURCE, PART_B_MONTHLY, PART_D_OOP_CAP, plansFor, estimateAnnual, money, type Health, type PlanType, type Region } from "@/lib/plans";
 
 export const Route = createFileRoute("/compare")({
   head: () => ({
@@ -56,7 +56,11 @@ function Compare() {
 
         <section>
           <div className="flex flex-wrap items-end justify-between gap-4">
-            <div><h1 className="text-4xl font-bold">Compare plans</h1><p className="text-muted-foreground">{rows.length} plans · tick up to 3 to compare side by side</p><p className="text-sm text-muted-foreground">True yearly cost includes the standard Part B premium ({money(PART_B_MONTHLY)}/mo). Source: {DATA_SOURCE}. Extra benefits show what’s included in the premium; confirm details in the plan’s Summary of Benefits.</p></div>
+            <div><h1 className="text-4xl font-bold">Compare plans</h1><p className="text-muted-foreground">{rows.length} plans · tick up to 3 to compare side by side</p><p className="text-sm text-muted-foreground">True yearly cost includes the standard Part B premium ({money(PART_B_MONTHLY)}/mo). Source: {DATA_SOURCE}. Extra benefits show what’s included in the premium; confirm details in the plan’s Summary of Benefits.</p>
+              <div className="mt-3 rounded-xl border-2 border-primary bg-primary/5 p-4 text-sm">
+                <p>💊 Every plan that covers prescriptions has its own <strong>formulary</strong> — the list of drugs it covers. Before you enroll, look up your medications in the plan’s formulary to make sure they’re covered and see what you’d pay.</p>
+                <p className="mt-2">Our worst-case figure includes the Part D drug out-of-pocket cap ({money(PART_D_OOP_CAP)} in 2027) — but only if your drugs are on the plan’s formulary. If you take an expensive drug that isn’t covered, your true cost could be higher.</p>
+              </div></div>
             <label className="font-bold">Sort by <select className="ml-2 rounded-lg border-2 border-input bg-card p-2" value={sort} onChange={(e) => setSort(e.target.value as typeof sort)}>
               <option value="total">True yearly cost</option><option value="premium">Monthly premium</option><option value="oop">Worst-case limit</option></select></label>
           </div>
