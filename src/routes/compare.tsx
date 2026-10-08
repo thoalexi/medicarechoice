@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { SiteHeader, Disclaimer } from "@/components/SiteHeader";
-import { COUNTIES, DATA_SOURCE, PART_B_MONTHLY, plansFor, estimateAnnual, money, type Health, type PlanType, type Region } from "@/lib/plans";
+import { COUNTIES, DATA_SOURCE, PART_B_MONTHLY, PART_D_OOP_CAP, plansFor, estimateAnnual, money, type Health, type PlanType, type Region } from "@/lib/plans";
 
 export const Route = createFileRoute("/compare")({
   head: () => ({
