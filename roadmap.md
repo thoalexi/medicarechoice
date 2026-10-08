@@ -8,10 +8,6 @@
 - [x] Make formulary PDF optional with official lookup links (done 2026-10-08)
 - [x] Clarify compare filters and cost terms (done 2026-10-08)
 - [x] Add home-page trust section and founder story page (done 2026-10-08)
-- [ ] Make formulary PDF optional with official lookup links
-- [ ] Clarify compare filters and cost terms
-- [ ] Add home-page trust section and founder story page
-
 ## Done 2026-10-08
 - Fixed feedback submit on published site (server now uses SUPABASE_URL/SUPABASE_PUBLISHABLE_KEY)
 - Worst-case sort now orders by true worst-case yearly total
