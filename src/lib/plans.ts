@@ -44,7 +44,13 @@ export interface Plan {
   dental: boolean | null;
   vision: boolean | null;
   hearing: boolean | null;
-  extrasDetail?: { dental: string; vision: string; hearing: string } | undefined;
+  extrasDetail?: { dental: string; vision: string; hearing: string; fitness: string; otc: string } | undefined;
+  /** Gym/fitness benefit included in premium (CMS PBP data) */
+  fitness: boolean | null;
+  /** Monthly Part B premium giveback, if the plan offers one */
+  partBGiveback: number | null;
+  /** Medicare-covered preventive care (yearly checkup, mammograms, screenings) at $0 copay */
+  preventiveZero: boolean | null;
   starRating: number;
   hospitals: string[];
   summary: string;
@@ -58,7 +64,7 @@ function mapType(t: string, snp: boolean): PlanType {
   return "Other Advantage";
 }
 
-type Extra = { dental: boolean; dentalComprehensive?: boolean; dentalMax?: number | null; dentalOptional?: boolean; vision: boolean; visionExam?: boolean; eyewear?: boolean; eyewearMax?: number | null; hearing: boolean; hearingExam?: boolean; hearingAids?: boolean; hearingAidMax?: number | null };
+type Extra = { dental: boolean; dentalComprehensive?: boolean; dentalMax?: number | null; dentalOptional?: boolean; vision: boolean; visionExam?: boolean; eyewear?: boolean; eyewearMax?: number | null; hearing: boolean; hearingExam?: boolean; hearingAids?: boolean; hearingAidMax?: number | null; fitness?: boolean; otc?: boolean; otcMax?: number | null; otcPer?: string | null; partBGiveback?: number; preventiveZero?: boolean };
 const EXTRAS = extrasData as Record<string, Extra>;
 const usd = (n: number) => "$" + n.toLocaleString();
 
