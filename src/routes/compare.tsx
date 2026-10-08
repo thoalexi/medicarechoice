@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { SiteHeader, Disclaimer } from "@/components/SiteHeader";
 import { PlanSearch } from "@/components/PlanSearch";
 import { HelpPopover } from "@/components/HelpPopover";
-import { COUNTIES, DATA_SOURCE, PART_B_MONTHLY, PART_D_OOP_CAP, plansFor, estimateAnnual, money, type Health, type PlanType, type Region } from "@/lib/plans";
+import { COUNTIES, DATA_SOURCE, PART_B_MONTHLY, PART_D_OOP_CAP, plansFor, estimateAnnual, money, type Health, type PlanType, type Region, type Share } from "@/lib/plans";
 
 export const Route = createFileRoute("/compare")({
   head: () => ({
@@ -23,6 +23,7 @@ export const Route = createFileRoute("/compare")({
 
 const TYPES: PlanType[] = ["Original + Medigap", "Advantage HMO", "Advantage PPO", "Other Advantage", "Original only", "Special Needs (SNP)"];
 const DEFAULT_TYPES = TYPES.filter((t) => t !== "Special Needs (SNP)");
+const share = (v: Share | undefined) => v === undefined ? "—" : typeof v === "number" ? money(v) : `${v.pct}% of the cost`;
 const ext = (v: boolean | null) => (v === null ? "?" : v ? "✓" : "—");
 
 function Compare() {
@@ -108,7 +109,12 @@ function Compare() {
                 {([
                   ["True yearly cost", (r) => money(r.c.total)],
                   ["Monthly plan premium", (r) => money(r.p.monthlyPremium)],
-                  ["Deductible", (r) => money(r.p.deductible)],
+                  ["Medical deductible", (r) => money(r.p.deductible)],
+                  ["Doctor visit", (r) => share(r.p.copays?.pcp)],
+                  ["Specialist visit", (r) => share(r.p.copays?.spec)],
+                  ["Emergency room", (r) => share(r.p.copays?.er)],
+                  ["5-day hospital stay", (r) => share(r.p.copays?.stay)],
+                  ["Drug deductible", (r) => r.p.rxDeductible === undefined ? "—" : money(r.p.rxDeductible)],
                   ["Medical out-of-pocket limit", (r) => r.p.oopMax === null ? "No limit" : money(r.p.oopMax)],
                   ["Drugs included", (r) => r.p.drugCoverage ? "Yes" : `Separate Part D (${money(r.p.drugPremium)}/mo)`],
                   ["Doctors", (r) => r.p.networkSize],
