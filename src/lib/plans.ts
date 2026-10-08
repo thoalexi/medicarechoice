@@ -44,7 +44,13 @@ export interface Plan {
   dental: boolean | null;
   vision: boolean | null;
   hearing: boolean | null;
-  extrasDetail?: { dental: string; vision: string; hearing: string } | undefined;
+  extrasDetail?: { dental: string; vision: string; hearing: string; fitness: string; otc: string } | undefined;
+  /** Gym/fitness benefit included in premium (CMS PBP data) */
+  fitness: boolean | null;
+  /** Monthly Part B premium giveback, if the plan offers one */
+  partBGiveback: number | null;
+  /** Medicare-covered preventive care (yearly checkup, mammograms, screenings) at $0 copay */
+  preventiveZero: boolean | null;
   starRating: number;
   hospitals: string[];
   summary: string;
@@ -58,7 +64,7 @@ function mapType(t: string, snp: boolean): PlanType {
   return "Other Advantage";
 }
 
-type Extra = { dental: boolean; dentalComprehensive?: boolean; dentalMax?: number | null; dentalOptional?: boolean; vision: boolean; visionExam?: boolean; eyewear?: boolean; eyewearMax?: number | null; hearing: boolean; hearingExam?: boolean; hearingAids?: boolean; hearingAidMax?: number | null };
+type Extra = { dental: boolean; dentalComprehensive?: boolean; dentalMax?: number | null; dentalOptional?: boolean; vision: boolean; visionExam?: boolean; eyewear?: boolean; eyewearMax?: number | null; hearing: boolean; hearingExam?: boolean; hearingAids?: boolean; hearingAidMax?: number | null; fitness?: boolean; otc?: boolean; otcMax?: number | null; otcPer?: string | null; partBGiveback?: number; preventiveZero?: boolean };
 const EXTRAS = extrasData as Record<string, Extra>;
 const usd = (n: number) => "$" + n.toLocaleString();
 
@@ -68,6 +74,8 @@ function extrasDetail(e: Extra | undefined): Plan["extrasDetail"] {
     dental: e.dental ? `${e.dentalComprehensive ? "Cleanings + fillings/crowns" : "Cleanings & X-rays"}${e.dentalMax ? `, up to ${usd(e.dentalMax)}/yr` : ""}` : e.dentalOptional ? "Optional add-on (extra cost)" : "Not covered",
     vision: e.vision ? `${e.visionExam ? "Eye exam" : ""}${e.visionExam && e.eyewear ? " + " : ""}${e.eyewear ? `glasses/contacts${e.eyewearMax ? ` up to ${usd(e.eyewearMax)}/yr` : ""}` : ""}` : "Not covered",
     hearing: e.hearing ? `${e.hearingExam ? "Hearing exam" : ""}${e.hearingExam && e.hearingAids ? " + " : ""}${e.hearingAids ? `hearing aids${e.hearingAidMax ? ` up to ${usd(e.hearingAidMax)}` : " (copay)"}` : ""}` : "Not covered",
+    fitness: e.fitness ? "Gym/fitness benefit included" : "Not covered",
+    otc: e.otc ? `Allowance for everyday health items${e.otcMax ? ` — ${usd(e.otcMax)}/${e.otcPer ?? "yr"}` : ""}` : "Not covered",
   };
 }
 
@@ -94,6 +102,9 @@ const cmsPlans: Plan[] = cms.plans.map((p) => {
     networkSize: hmo && !pos ? "Plan network" : "Network + out-of-network",
     referralsNeeded: hmo && !pos,
     dental: x ? x.dental : null, vision: x ? x.vision : null, hearing: x ? x.hearing : null,
+    fitness: x ? (x.fitness ?? false) : null,
+    partBGiveback: x?.partBGiveback ?? null,
+    preventiveZero: x ? (x.preventiveZero ?? null) : null,
     extrasDetail: extrasDetail(x),
     starRating: p.stars,
     hospitals: [],
@@ -103,9 +114,9 @@ const cmsPlans: Plan[] = cms.plans.map((p) => {
 });
 
 const originalPlans: Plan[] = [
-  { id: "orig", name: "Original Medicare (A + B) + Part D", carrier: "Medicare", type: "Original only", regions: "all", monthlyPremium: 0, deductible: 283, oopMax: null, coinsurance: 0.2, drugCoverage: false, drugPremium: PDP_PREMIUM, networkSize: "Any Medicare doctor", referralsNeeded: false, dental: false, vision: false, hearing: false, starRating: 0, hospitals: [], summary: "Go to any doctor that takes Medicare, but you pay 20% with no yearly limit. Risky without extra coverage.", real: false },
-  { id: "medigap-g", name: "Medigap Plan G + Part D", carrier: "Various insurers (typical price)", type: "Original + Medigap", regions: "all", monthlyPremium: 168, deductible: 283, oopMax: 283, coinsurance: 0, drugCoverage: false, drugPremium: PDP_PREMIUM, networkSize: "Any Medicare doctor", referralsNeeded: false, dental: false, vision: false, hearing: false, starRating: 0, hospitals: [], summary: "Highest peace of mind. After the small Part B deductible, nearly everything is covered. Price shown is a typical estimate.", real: false },
-  { id: "medigap-n", name: "Medigap Plan N + Part D", carrier: "Various insurers (typical price)", type: "Original + Medigap", regions: "all", monthlyPremium: 122, deductible: 283, oopMax: 900, coinsurance: 0.03, drugCoverage: false, drugPremium: PDP_PREMIUM, networkSize: "Any Medicare doctor", referralsNeeded: false, dental: false, vision: false, hearing: false, starRating: 0, hospitals: [], summary: "Cheaper than Plan G, with small copays ($20 office / $50 ER). Still use any Medicare doctor. Price shown is a typical estimate.", real: false },
+  { id: "orig", name: "Original Medicare (A + B) + Part D", carrier: "Medicare", type: "Original only", regions: "all", monthlyPremium: 0, deductible: 283, oopMax: null, coinsurance: 0.2, drugCoverage: false, drugPremium: PDP_PREMIUM, networkSize: "Any Medicare doctor", referralsNeeded: false, dental: false, vision: false, hearing: false, fitness: false, partBGiveback: null, preventiveZero: true, starRating: 0, hospitals: [], summary: "Go to any doctor that takes Medicare, but you pay 20% with no yearly limit. Risky without extra coverage.", real: false },
+  { id: "medigap-g", name: "Medigap Plan G + Part D", carrier: "Various insurers (typical price)", type: "Original + Medigap", regions: "all", monthlyPremium: 168, deductible: 283, oopMax: 283, coinsurance: 0, drugCoverage: false, drugPremium: PDP_PREMIUM, networkSize: "Any Medicare doctor", referralsNeeded: false, dental: false, vision: false, hearing: false, fitness: false, partBGiveback: null, preventiveZero: true, starRating: 0, hospitals: [], summary: "Highest peace of mind. After the small Part B deductible, nearly everything is covered. Price shown is a typical estimate.", real: false },
+  { id: "medigap-n", name: "Medigap Plan N + Part D", carrier: "Various insurers (typical price)", type: "Original + Medigap", regions: "all", monthlyPremium: 122, deductible: 283, oopMax: 900, coinsurance: 0.03, drugCoverage: false, drugPremium: PDP_PREMIUM, networkSize: "Any Medicare doctor", referralsNeeded: false, dental: false, vision: false, hearing: false, fitness: false, partBGiveback: null, preventiveZero: true, starRating: 0, hospitals: [], summary: "Cheaper than Plan G, with small copays ($20 office / $50 ER). Still use any Medicare doctor. Price shown is a typical estimate.", real: false },
 ];
 
 export const PLANS: Plan[] = [...originalPlans, ...cmsPlans];

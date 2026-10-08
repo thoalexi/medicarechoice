@@ -5,3 +5,12 @@
 - [x] Load official CMS 2027 Michigan plan list (all 83 counties, ZIP lookup)
 - [ ] Wire Stripe checkout on the donate page
 - [x] Feedback button + /feedback page storing submissions in Lovable Cloud (done 2026-10-07)
+
+## Done 2026-10-08
+- Fixed feedback submit on published site (server now uses SUPABASE_URL/SUPABASE_PUBLISHABLE_KEY)
+- Worst-case sort now orders by true worst-case yearly total
+- Compare page: Part B premium note, fitness/OTC/giveback/preventive benefits from CMS PBP 2027, star rating row
+
+## Open
+- CMS 2027 star ratings not yet published (blank in the Sept 2026 landscape file) — re-extract when CMS releases them; display code already in place
+- Stripe checkout wiring on /donate
