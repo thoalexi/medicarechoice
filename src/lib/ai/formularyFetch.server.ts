@@ -43,7 +43,7 @@ async function gatherCandidates(planName: string, carrierUrl: string | undefined
   if (carrierUrl) {
     tasks.push(
       firecrawl("/scrape", { url: carrierUrl, formats: ["links"], onlyMainContent: false }).then((r) => {
-        const links = ((r?.data as { links?: string[] })?.links ?? (r?.links as string[] | undefined) ?? []);
+        const links = ((r?.data as { links?: string[] })?.links ?? (r?.["links"] as string[] | undefined) ?? []);
         for (const l of links) if (/\.pdf($|\?)/i.test(l) && !out.has(l)) out.set(l, { url: l, title: decodeURIComponent(l.split("/").pop() ?? ""), description: "" });
       }),
     );
@@ -88,7 +88,7 @@ async function download(url: string): Promise<string | null> {
   return btoa(bin);
 }
 
-export async function findFormulary(plan: { id: string; name: string; carrierUrl?: string }): Promise<FoundFormulary | null> {
+export async function findFormulary(plan: { id: string; name: string; carrierUrl?: string | undefined }): Promise<FoundFormulary | null> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data: cached } = await supabaseAdmin.from("formulary_documents").select("url,title,fetched_at").eq("plan_id", plan.id).maybeSingle();
   if (cached && Date.now() - new Date(cached.fetched_at).getTime() < 30 * 864e5) {
