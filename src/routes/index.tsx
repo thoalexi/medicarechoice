@@ -8,6 +8,8 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Answer a few simple questions and see which Medicare plan fits your health, doctors, and budget—with true yearly costs." },
       { property: "og:title", content: "MedicareChoice — Plain-language Medicare plan guide" },
       { property: "og:description", content: "Transparent Medicare recommendations with true yearly costs and trade-offs." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Index,
@@ -34,6 +36,19 @@ function Index() {
             <Link to="/guide" className="rounded-xl bg-primary px-8 py-5 text-xl font-bold text-primary-foreground shadow-md hover:opacity-90">Start the guided questions →</Link>
             <span className="text-muted-foreground">About 3 minutes · 7 questions</span>
           </div>
+          <section className="mt-12 border-y py-10" aria-labelledby="why-heading">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div><p className="font-bold uppercase text-primary">Why this website exists</p><h2 id="why-heading" className="mt-2 text-3xl font-bold">Medicare guidance built around families—not insurers.</h2></div>
+              <Link to="/about" className="font-bold text-primary underline underline-offset-4">Read our story →</Link>
+            </div>
+            <div className="mt-7 grid gap-5 md:grid-cols-3">
+              {[
+                ["Independent", "No insurer pays us to rank their plans higher."],
+                ["Free, always", "No accounts, no paywalls, no upsells."],
+                ["Plain language", "Every estimate shows the trade-offs it left out."],
+              ].map(([title, description]) => <article key={title} className="border-l-4 border-primary pl-5"><h3 className="text-2xl font-bold">{title}</h3><p className="mt-2 text-muted-foreground">{description}</p></article>)}
+            </div>
+          </section>
           <div className="mt-8 rounded-xl border-2 border-dashed border-accent bg-card p-5 text-lg">
             Don't want to answer questions?{" "}
             <Link to="/compare" className="font-bold text-primary underline underline-offset-4">Click here for the comparison dashboard</Link>, or <Link to="/compare" hash="ai-search" className="font-bold text-primary underline underline-offset-4">just describe what you want</Link>.
