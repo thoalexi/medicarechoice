@@ -14,16 +14,16 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
   return (
     <header className="border-b bg-card">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 sm:py-4">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 sm:py-4">
         <Link to="/" className="shrink-0 whitespace-nowrap font-display text-2xl font-bold text-primary">MedicareChoice</Link>
-        <nav className="hidden items-center gap-4 whitespace-nowrap text-sm font-bold xl:flex 2xl:gap-6 2xl:text-base">
-          {LINKS.map((l) => <Link key={l.to} to={l.to} className="whitespace-nowrap hover:text-primary">{l.label}</Link>)}
-          <Link to="/feedback" className="inline-flex items-center gap-2 whitespace-nowrap hover:text-primary">
-            <MessageSquareHeart className="size-4 shrink-0" aria-hidden />
+        <nav className="hidden items-center gap-6 text-base font-bold lg:flex">
+          {LINKS.map((l) => <Link key={l.to} to={l.to} className="hover:text-primary">{l.label}</Link>)}
+          <Link to="/feedback" className="inline-flex items-center gap-2 hover:text-primary">
+            <MessageSquareHeart className="size-4" aria-hidden />
             Feedback
           </Link>
-          <Link to="/donate" className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border-2 border-primary px-4 py-1.5 text-primary transition hover:bg-primary/10">
-            <Heart className="size-4 shrink-0" aria-hidden />
+          <Link to="/donate" className="inline-flex items-center gap-2 rounded-full border-2 border-primary px-4 py-1.5 text-primary transition hover:bg-primary/10">
+            <Heart className="size-4" aria-hidden />
             Donate
           </Link>
         </nav>
@@ -32,14 +32,14 @@ export function SiteHeader() {
           onClick={() => setOpen((o) => !o)}
           aria-expanded={open}
           aria-controls="mobile-menu"
-          className="inline-flex size-12 shrink-0 items-center justify-center rounded-xl border-2 xl:hidden"
+          className="inline-flex size-12 shrink-0 items-center justify-center rounded-xl border-2 lg:hidden"
         >
           {open ? <X className="size-6" aria-hidden /> : <Menu className="size-6" aria-hidden />}
           <span className="sr-only">{open ? "Close menu" : "Open menu"}</span>
         </button>
       </div>
       {open && (
-        <nav id="mobile-menu" className="border-t px-4 pb-4 xl:hidden">
+        <nav id="mobile-menu" className="border-t px-4 pb-4 lg:hidden">
           <ul className="flex flex-col text-lg font-bold">
             {LINKS.map((l) => (
               <li key={l.to}><Link to={l.to} onClick={() => setOpen(false)} className="flex min-h-14 items-center border-b">{l.label}</Link></li>
