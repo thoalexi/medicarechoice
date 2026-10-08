@@ -74,6 +74,8 @@ function extrasDetail(e: Extra | undefined): Plan["extrasDetail"] {
     dental: e.dental ? `${e.dentalComprehensive ? "Cleanings + fillings/crowns" : "Cleanings & X-rays"}${e.dentalMax ? `, up to ${usd(e.dentalMax)}/yr` : ""}` : e.dentalOptional ? "Optional add-on (extra cost)" : "Not covered",
     vision: e.vision ? `${e.visionExam ? "Eye exam" : ""}${e.visionExam && e.eyewear ? " + " : ""}${e.eyewear ? `glasses/contacts${e.eyewearMax ? ` up to ${usd(e.eyewearMax)}/yr` : ""}` : ""}` : "Not covered",
     hearing: e.hearing ? `${e.hearingExam ? "Hearing exam" : ""}${e.hearingExam && e.hearingAids ? " + " : ""}${e.hearingAids ? `hearing aids${e.hearingAidMax ? ` up to ${usd(e.hearingAidMax)}` : " (copay)"}` : ""}` : "Not covered",
+    fitness: e.fitness ? "Gym/fitness benefit included" : "Not covered",
+    otc: e.otc ? `Allowance for everyday health items${e.otcMax ? ` — ${usd(e.otcMax)}/${e.otcPer ?? "yr"}` : ""}` : "Not covered",
   };
 }
 
@@ -100,6 +102,9 @@ const cmsPlans: Plan[] = cms.plans.map((p) => {
     networkSize: hmo && !pos ? "Plan network" : "Network + out-of-network",
     referralsNeeded: hmo && !pos,
     dental: x ? x.dental : null, vision: x ? x.vision : null, hearing: x ? x.hearing : null,
+    fitness: x ? (x.fitness ?? false) : null,
+    partBGiveback: x?.partBGiveback ?? null,
+    preventiveZero: x ? (x.preventiveZero ?? null) : null,
     extrasDetail: extrasDetail(x),
     starRating: p.stars,
     hospitals: [],
