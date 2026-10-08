@@ -36,7 +36,7 @@ function Index() {
           </div>
           <div className="mt-8 rounded-xl border-2 border-dashed border-accent bg-card p-5 text-lg">
             Don't want to answer questions?{" "}
-            <Link to="/compare" className="font-bold text-primary underline underline-offset-4">Click here for the comparison dashboard</Link>.
+            <Link to="/compare" className="font-bold text-primary underline underline-offset-4">Click here for the comparison dashboard</Link>, or <Link to="/compare" hash="ai-search" className="font-bold text-primary underline underline-offset-4">just describe what you want</Link>.
           </div>
         </section>
         <section className="pb-16">
