@@ -3,7 +3,7 @@ import { Heart } from "lucide-react";
 import { SiteHeader, Disclaimer } from "@/components/SiteHeader";
 
 export const Route = createFileRoute("/checkout/return")({
-  validateSearch: (search: Record<string, unknown>): { session_id?: string } => ({
+  validateSearch: (search: Record<string, unknown>): { session_id?: string | undefined } => ({
     session_id: typeof search["session_id"] === "string" ? (search["session_id"] as string) : undefined,
   }),
   head: () => ({
