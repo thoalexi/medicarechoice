@@ -14,16 +14,16 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
   return (
     <header className="border-b bg-card">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 sm:py-4">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 sm:py-4">
         <Link to="/" className="shrink-0 whitespace-nowrap font-display text-2xl font-bold text-primary">MedicareChoice</Link>
-        <nav className="hidden items-center gap-6 text-base font-bold lg:flex">
-          {LINKS.map((l) => <Link key={l.to} to={l.to} className="hover:text-primary">{l.label}</Link>)}
-          <Link to="/feedback" className="inline-flex items-center gap-2 hover:text-primary">
-            <MessageSquareHeart className="size-4" aria-hidden />
+        <nav className="hidden items-center gap-2 whitespace-nowrap text-sm font-bold lg:flex xl:gap-4 2xl:gap-6 2xl:text-base">
+          {LINKS.map((l) => <Link key={l.to} to={l.to} className="whitespace-nowrap hover:text-primary">{l.label}</Link>)}
+          <Link to="/feedback" className="inline-flex items-center gap-2 whitespace-nowrap hover:text-primary">
+            <MessageSquareHeart className="size-4 shrink-0" aria-hidden />
             Feedback
           </Link>
-          <Link to="/donate" className="inline-flex items-center gap-2 rounded-full border-2 border-primary px-4 py-1.5 text-primary transition hover:bg-primary/10">
-            <Heart className="size-4" aria-hidden />
+          <Link to="/donate" className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border-2 border-primary px-4 py-1.5 text-primary transition hover:bg-primary/10">
+            <Heart className="size-4 shrink-0" aria-hidden />
             Donate
           </Link>
         </nav>
