@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as CompareRouteImport } from './routes/compare'
 import { Route as DonateRouteImport } from './routes/donate'
 import { Route as FeedbackRouteImport } from './routes/feedback'
+import { Route as FormularyCheckRouteImport } from './routes/formulary-check'
 import { Route as GuideRouteImport } from './routes/guide'
 
 const IndexRoute = IndexRouteImport.update({
@@ -35,6 +36,11 @@ const FeedbackRoute = FeedbackRouteImport.update({
   path: '/feedback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FormularyCheckRoute = FormularyCheckRouteImport.update({
+  id: '/formulary-check',
+  path: '/formulary-check',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GuideRoute = GuideRouteImport.update({
   id: '/guide',
   path: '/guide',
@@ -46,6 +52,7 @@ export interface FileRoutesByFullPath {
   '/compare': typeof CompareRoute
   '/donate': typeof DonateRoute
   '/feedback': typeof FeedbackRoute
+  '/formulary-check': typeof FormularyCheckRoute
   '/guide': typeof GuideRoute
 }
 export interface FileRoutesByTo {
@@ -53,6 +60,7 @@ export interface FileRoutesByTo {
   '/compare': typeof CompareRoute
   '/donate': typeof DonateRoute
   '/feedback': typeof FeedbackRoute
+  '/formulary-check': typeof FormularyCheckRoute
   '/guide': typeof GuideRoute
 }
 export interface FileRoutesById {
@@ -61,14 +69,23 @@ export interface FileRoutesById {
   '/compare': typeof CompareRoute
   '/donate': typeof DonateRoute
   '/feedback': typeof FeedbackRoute
+  '/formulary-check': typeof FormularyCheckRoute
   '/guide': typeof GuideRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/compare' | '/donate' | '/feedback' | '/guide'
+  fullPaths:
+    '/' | '/compare' | '/donate' | '/feedback' | '/formulary-check' | '/guide'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/compare' | '/donate' | '/feedback' | '/guide'
-  id: '__root__' | '/' | '/compare' | '/donate' | '/feedback' | '/guide'
+  to: '/' | '/compare' | '/donate' | '/feedback' | '/formulary-check' | '/guide'
+  id:
+    | '__root__'
+    | '/'
+    | '/compare'
+    | '/donate'
+    | '/feedback'
+    | '/formulary-check'
+    | '/guide'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -76,6 +93,7 @@ export interface RootRouteChildren {
   CompareRoute: typeof CompareRoute
   DonateRoute: typeof DonateRoute
   FeedbackRoute: typeof FeedbackRoute
+  FormularyCheckRoute: typeof FormularyCheckRoute
   GuideRoute: typeof GuideRoute
 }
 
@@ -109,6 +127,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FeedbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/formulary-check': {
+      id: '/formulary-check'
+      path: '/formulary-check'
+      fullPath: '/formulary-check'
+      preLoaderRoute: typeof FormularyCheckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/guide': {
       id: '/guide'
       path: '/guide'
@@ -124,6 +149,7 @@ const rootRouteChildren: RootRouteChildren = {
   CompareRoute: CompareRoute,
   DonateRoute: DonateRoute,
   FeedbackRoute: FeedbackRoute,
+  FormularyCheckRoute: FormularyCheckRoute,
   GuideRoute: GuideRoute,
 }
 export const routeTree = rootRouteImport
