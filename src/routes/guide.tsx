@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, type ReactNode } from "react";
 import { SiteHeader, Disclaimer } from "@/components/SiteHeader";
-import { plansFor, regionLabel, regionFromZip, scorePlan, money, type Answers } from "@/lib/plans";
+import { plansFor, regionLabel, regionFromZip, scorePlan, money, PART_D_OOP_CAP, type Answers } from "@/lib/plans";
 
 export const Route = createFileRoute("/guide")({
   head: () => ({
@@ -114,6 +114,7 @@ function Results({ a, onEdit }: { a: Answers; onEdit: () => void }) {
                 <div><div className="text-sm text-muted-foreground">Prescriptions</div><div className="text-xl font-bold">{money(cost.drugs)}</div></div>
               </div>
               <p className="mt-2 text-sm text-muted-foreground">Worst-case year: {cost.worstCase ? money(cost.worstCase) : "no limit"}</p>
+              <p className="mt-1 text-sm text-muted-foreground">This worst case includes drug costs up to the Part D cap ({money(PART_D_OOP_CAP)}) — something most plan ads leave out. Check the plan’s formulary to confirm your exact medications are covered.</p>
               <div className="mt-4 grid gap-4 md:grid-cols-2">
                 <ul className="space-y-1">{reasons.map((r) => <li key={r} className="text-success">✓ <span className="text-foreground">{r}</span></li>)}</ul>
                 <ul className="space-y-1">{cautions.map((r) => <li key={r} className="text-warning">⚠ <span className="text-foreground">{r}</span></li>)}</ul>
