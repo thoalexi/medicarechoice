@@ -114,7 +114,7 @@ function Results({ a, onEdit }: { a: Answers; onEdit: () => void }) {
                 <div><div className="text-sm text-muted-foreground">Prescriptions</div><div className="text-xl font-bold">{money(cost.drugs)}</div></div>
               </div>
               <p className="mt-2 text-sm text-muted-foreground">Worst-case year: {cost.worstCase ? money(cost.worstCase) : "no limit"}</p>
-              <p className="mt-1 text-sm text-muted-foreground">This worst case includes drug costs up to the Part D cap ({money(PART_D_OOP_CAP)}) — something most plan ads leave out. Check the plan’s formulary to confirm your exact medications are covered.</p>
+              <p className="mt-1 text-sm text-muted-foreground">This worst case includes drug costs up to the Part D cap ({money(PART_D_OOP_CAP)}) — something most plan ads leave out. Check the plan’s formulary to confirm your exact medications are covered — <Link to="/formulary-check" className="font-bold text-primary underline">check my drugs</Link>.</p>
               <div className="mt-4 grid gap-4 md:grid-cols-2">
                 <ul className="space-y-1">{reasons.map((r) => <li key={r} className="text-success">✓ <span className="text-foreground">{r}</span></li>)}</ul>
                 <ul className="space-y-1">{cautions.map((r) => <li key={r} className="text-warning">⚠ <span className="text-foreground">{r}</span></li>)}</ul>
