@@ -155,7 +155,9 @@ export function estimateAnnual(plan: Plan, health: Health, drugsMonthly: number)
 
 export function scorePlan(plan: Plan, a: Answers) {
   const cost = estimateAnnual(plan, a.health, a.drugsMonthly);
-  let score = 10000 - cost.total;
+  // Bad-year risk counts too: each $1,000 of worst-case ceiling costs 150 points,
+  // so a plan with a lower worst case wins when typical yearly costs are close.
+  let score = 10000 - cost.total - (cost.worstCase !== null ? cost.worstCase * 0.15 : 0);
   const reasons: string[] = [];
   const cautions: string[] = [];
   if (plan.type === "Original only") { score -= 6000; cautions.push("No limit on what you could pay in a bad year."); }

@@ -16,6 +16,8 @@ export const Route = createFileRoute("/compare")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
+  validateSearch: (s: Record<string, unknown>): { county?: string } =>
+    typeof s.county === "string" && s.county ? { county: s.county } : {},
   component: Compare,
 });
 
@@ -24,7 +26,8 @@ const DEFAULT_TYPES = TYPES.filter((t) => t !== "Special Needs (SNP)");
 const ext = (v: boolean | null) => (v === null ? "?" : v ? "✓" : "—");
 
 function Compare() {
-  const [region, setRegion] = useState<Region>(() => COUNTIES[0] ?? "");
+  const { county } = Route.useSearch();
+  const [region, setRegion] = useState<Region>(() => (county && COUNTIES.includes(county) ? county : COUNTIES[0] ?? ""));
   const [health, setHealth] = useState<Health>("some");
   const [drugs, setDrugs] = useState(50);
   const [types, setTypes] = useState<PlanType[]>(DEFAULT_TYPES);
