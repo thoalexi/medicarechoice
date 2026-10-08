@@ -54,12 +54,18 @@ export interface Plan {
   /** Medicare-covered preventive care (yearly checkup, mammograms, screenings) at $0 copay */
   preventiveZero: boolean | null;
   starRating: number;
+  /** Real in-network cost sharing from CMS PBP data: $ per visit, or { pct } coinsurance. stay = cost of a 5-day hospital stay. */
+  copays?: { pcp?: Share; spec?: Share; er?: Share; stay?: Share; medDed?: number } | undefined;
+  /** Yearly prescription deductible (CMS Landscape), when the plan includes drugs */
+  rxDeductible?: number;
   /** Year the star rating comes from (2026 = last year's rating shown until CMS publishes 2027), null if none */
   starYear?: number | null;
   hospitals: string[];
   summary: string;
   real: boolean;
 }
+
+export type Share = number | { pct: number };
 
 function mapType(t: string, snp: boolean): PlanType {
   if (snp) return "Special Needs (SNP)";
@@ -68,7 +74,7 @@ function mapType(t: string, snp: boolean): PlanType {
   return "Other Advantage";
 }
 
-type Extra = { dental: boolean; dentalComprehensive?: boolean; dentalMax?: number | null; dentalOptional?: boolean; vision: boolean; visionExam?: boolean; eyewear?: boolean; eyewearMax?: number | null; hearing: boolean; hearingExam?: boolean; hearingAids?: boolean; hearingAidMax?: number | null; fitness?: boolean; otc?: boolean; otcMax?: number | null; otcPer?: string | null; partBGiveback?: number; preventiveZero?: boolean };
+type Extra = { dental: boolean; dentalComprehensive?: boolean; dentalMax?: number | null; dentalOptional?: boolean; vision: boolean; visionExam?: boolean; eyewear?: boolean; eyewearMax?: number | null; hearing: boolean; hearingExam?: boolean; hearingAids?: boolean; hearingAidMax?: number | null; fitness?: boolean; otc?: boolean; otcMax?: number | null; otcPer?: string | null; partBGiveback?: number; preventiveZero?: boolean; pcp?: Share; spec?: Share; er?: Share; stay?: Share; medDed?: number };
 const EXTRAS = extrasData as Record<string, Extra>;
 const usd = (n: number) => "$" + n.toLocaleString();
 
@@ -98,7 +104,6 @@ const cmsPlans: Plan[] = cms.plans.map((p) => {
     cmsType: p.cmsType,
     regions: p.counties,
     monthlyPremium: p.premium,
-    deductible: 0,
     oopMax: p.moop ?? 9250,
     coinsurance: hmo ? 0.12 : 0.15,
     drugCoverage: p.rx,
@@ -110,6 +115,9 @@ const cmsPlans: Plan[] = cms.plans.map((p) => {
     partBGiveback: x?.partBGiveback ?? null,
     preventiveZero: x ? (x.preventiveZero ?? null) : null,
     extrasDetail: extrasDetail(x),
+    copays: x ? { pcp: x.pcp, spec: x.spec, er: x.er, stay: x.stay, medDed: x.medDed } : undefined,
+    rxDeductible: p.rx ? (p.rxDed ?? 0) : undefined,
+    deductible: x?.medDed ?? 0,
     starRating: p.stars || STARS_2026[p.id.split("_")[0] ?? ""] || 0,
     starYear: p.stars ? 2027 : STARS_2026[p.id.split("_")[0] ?? ""] ? 2026 : null,
     hospitals: [],
@@ -141,14 +149,40 @@ export interface Answers {
   travels: boolean;
 }
 
+/** Typical yearly care for each health level (illustrative): visits, ER trips, hospital stays, plus other care (tests, imaging, outpatient) in dollars. */
+export const CARE_USE: Record<Health, { pcp: number; spec: number; er: number; stays: number; other: number }> = {
+  healthy: { pcp: 2, spec: 1, er: 0, stays: 0, other: 800 },
+  some: { pcp: 4, spec: 6, er: 0.5, stays: 0.25, other: 3000 },
+  chronic: { pcp: 6, spec: 14, er: 1, stays: 1, other: 10000 },
+};
+// Approximate Medicare-allowed prices, used only when a plan charges a percentage instead of a flat copay.
+const BASE_PRICE = { pcp: 130, spec: 200, er: 1500, stay: 15000 };
+const shareCost = (s: Share | undefined, base: number, fallbackPct: number) =>
+  s === undefined ? base * fallbackPct : typeof s === "number" ? s : base * (s.pct / 100);
+
 export function estimateAnnual(plan: Plan, health: Health, drugsMonthly: number) {
   const premiums = (plan.monthlyPremium + PART_B_MONTHLY) * 12;
   const drugPrem = plan.drugCoverage ? 0 : plan.drugPremium * 12;
-  const spend = MEDICAL_SPEND[health];
-  let medical = Math.min(spend, plan.deductible) + Math.max(0, spend - plan.deductible) * plan.coinsurance;
+  let medical: number;
+  const c = plan.copays;
+  if (c) {
+    // Medicare Advantage: use the plan's real copays from CMS.
+    const u = CARE_USE[health];
+    const k = plan.coinsurance;
+    const otherAfterDed = Math.min(u.other, plan.deductible) + Math.max(0, u.other - plan.deductible) * k;
+    medical = u.pcp * shareCost(c.pcp, BASE_PRICE.pcp, k) + u.spec * shareCost(c.spec, BASE_PRICE.spec, k)
+      + u.er * shareCost(c.er, BASE_PRICE.er, k) + u.stays * shareCost(c.stay, BASE_PRICE.stay, k) + otherAfterDed;
+  } else {
+    const spend = MEDICAL_SPEND[health];
+    medical = Math.min(spend, plan.deductible) + Math.max(0, spend - plan.deductible) * plan.coinsurance;
+  }
   if (plan.oopMax !== null) medical = Math.min(medical, plan.oopMax);
   const drugRetail = drugsMonthly * 12;
-  const drugs = plan.type === "Original only" && !plan.drugCoverage && drugsMonthly === 0 ? 0 : Math.min(drugRetail * 0.3, PART_D_OOP_CAP);
+  const rxDed = plan.rxDeductible ?? 0;
+  const drugs = plan.type === "Original only" && !plan.drugCoverage && drugsMonthly === 0 ? 0
+    : plan.drugCoverage
+      ? Math.min(Math.min(drugRetail, rxDed) + Math.max(0, drugRetail - rxDed) * 0.25, PART_D_OOP_CAP)
+      : Math.min(drugRetail * 0.3, PART_D_OOP_CAP);
   const worstCase = plan.oopMax === null ? null : premiums + drugPrem + plan.oopMax + PART_D_OOP_CAP;
   return { premiums: premiums + drugPrem, medical: Math.round(medical), drugs: Math.round(drugs), total: Math.round(premiums + drugPrem + medical + drugs), worstCase };
 }
