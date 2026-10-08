@@ -29,3 +29,9 @@ A new page, **Check my drugs** (`/formulary-check`), where a shopper lists their
 - Errors: 429/402/403 surfaced with friendly messages (busy, credits, unavailable); refusals end the request.
 - UI: `src/routes/formulary-check.tsx` using existing tokens/components; loading state with progress text.
 - Verify with a real sample formulary PDF via Playwright before finishing; record rule in AGENTS.md (AI calls server-only via gateway helpers).
+
+# Also: show 2026 star ratings until 2027 ratings arrive
+- Yes, possible. CMS gives star ratings to each insurer contract (for example, one HAP contract covers several plans), and the 2026 ratings are already published. Most 2027 plans keep the same contract ID, so they can show last year's rating.
+- Label it clearly as "2026 rating (2027 not yet released)". Plans on a brand-new contract show "New — no rating yet".
+- Swap to 2027 ratings automatically once CMS publishes them.
+- Technical: download the official CMS 2026 Star Ratings data table, add a regeneration script that maps Contract_ID to its overall rating, bundle the result as JSON in src/lib, and use it in plans.ts as a fallback when the 2027 rating is blank. No figures entered by hand. Add a roadmap item.
