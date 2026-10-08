@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Heart, Menu, MessageSquareHeart, X } from "lucide-react";
 
 const LINKS = [
+  { to: "/michigan-medicare-2027", label: "Michigan 2027" },
   { to: "/what-does-medicare-cover", label: "What's covered?" },
   { to: "/guide", label: "Guided questions" },
   { to: "/compare", label: "Compare plans" },
