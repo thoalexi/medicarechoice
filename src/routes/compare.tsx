@@ -23,8 +23,9 @@ export const Route = createFileRoute("/compare")({
 
 const TYPES: PlanType[] = ["Original + Medigap", "Advantage HMO", "Advantage PPO", "Other Advantage", "Original only", "Special Needs (SNP)"];
 const DEFAULT_TYPES = TYPES.filter((t) => t !== "Special Needs (SNP)");
-const share = (v: Share | undefined) => v === undefined ? "—" : typeof v === "number" ? money(v) : `${v.pct}% of the cost`;
-const ext = (v: boolean | null) => (v === null ? "?" : v ? "✓" : "—");
+const NA = "Not available — check the plan's Summary of Benefits";
+const share = (v: Share | undefined) => v === undefined ? NA : typeof v === "number" ? money(v) : `${v.pct}% of the cost`;
+const ext = (v: boolean | null) => (v === null ? NA : v ? "Included" : "Not covered");
 
 function Compare() {
   const { county } = Route.useSearch();
@@ -86,10 +87,10 @@ function Compare() {
                 <div><dt className="font-bold">Monthly premium</dt><dd>What the plan charges each month. The standard Part B premium is usually separate, even when a plan says its premium is $0.</dd></div>
                 <div><dt className="font-bold">Worst-case limit</dt><dd>Our estimated bad-year total: annual premiums, the medical out-of-pocket limit, and the Part D drug cap. Original Medicare alone has no medical limit. Drugs outside a plan’s formulary can cost more.</dd></div>
               </dl>
-            </HelpPopover></div><p className="text-muted-foreground">{rows.length} plans · select up to 3 to compare side by side</p><p className="text-sm text-muted-foreground">True yearly cost includes the standard Part B premium ({money(PART_B_MONTHLY)}/mo). Source: {DATA_SOURCE}. Extra benefits show what’s included in the premium; confirm details in the plan’s Summary of Benefits.</p>
+            </HelpPopover></div><p className="text-muted-foreground">{rows.length} plans · select up to 3 to compare side by side</p><p className="text-sm text-muted-foreground">True yearly cost includes the standard Part B premium ({money(PART_B_MONTHLY)}/mo, 2026 figure). Source: {DATA_SOURCE}. Extra benefits show what’s included in the premium; confirm details in the plan’s Summary of Benefits.</p>
               <div className="mt-3 rounded-xl border-2 border-primary bg-primary/5 p-4 text-sm">
                 <p>💊 Every plan that covers prescriptions has its own <strong>formulary</strong> — the list of drugs it covers. Before you enroll, look up your medications in the plan’s formulary to make sure they’re covered and see what you’d pay. <Link to="/formulary-check" className="font-bold text-primary underline">Check my drugs against a formulary →</Link></p>
-                <p className="mt-2">Our worst-case figure includes the Part D drug out-of-pocket cap ({money(PART_D_OOP_CAP)} in 2027) — but only if your drugs are on the plan’s formulary. If you take an expensive drug that isn’t covered, your true cost could be higher.</p>
+                <p className="mt-2">Our worst-case figure includes the Part D drug out-of-pocket cap ({money(PART_D_OOP_CAP)}, 2026 figure; 2027 not yet confirmed) — but only if your drugs are on the plan’s formulary. If you take an expensive drug that isn’t covered, your true cost could be higher.</p>
               </div></div>
             <div className="flex items-center gap-1 font-bold">Sort by <select className="ml-2 rounded-lg border-2 border-input bg-card p-2" value={sort} onChange={(e) => setSort(e.target.value as typeof sort)}>
               <option value="total">True yearly cost</option><option value="premium">Monthly premium</option><option value="oop">Worst-case limit</option></select>
@@ -104,6 +105,7 @@ function Compare() {
 
           {cmp.length > 1 && (
             <div className="mt-6 overflow-x-auto rounded-2xl border-2 border-primary bg-card p-2 sm:p-4"><p className="mb-2 text-sm text-muted-foreground sm:hidden">Swipe sideways to see each plan →</p>
+              {Math.max(...cmp.map((r) => r.c.total)) - Math.min(...cmp.map((r) => r.c.total)) <= 250 && <p className="mb-3 rounded-xl bg-primary/5 p-3 text-sm">These plans cost about the same in a typical year. Compare their worst-case limit, copays and extras to choose between them.</p>}
               <table className="w-full text-left"><tbody>
                 <tr><th className="p-2"></th>{cmp.map(({ p }) => <th key={p.id} className="p-2 font-display text-lg">{p.name}</th>)}</tr>
                 {([
@@ -114,8 +116,8 @@ function Compare() {
                   ["Specialist visit", (r) => share(r.p.copays?.spec)],
                   ["Emergency room", (r) => share(r.p.copays?.er)],
                   ["5-day hospital stay", (r) => share(r.p.copays?.stay)],
-                  ["Drug deductible", (r) => r.p.rxDeductible === undefined ? "—" : money(r.p.rxDeductible)],
-                  ["Medical out-of-pocket limit", (r) => r.p.oopMax === null ? "No limit" : money(r.p.oopMax)],
+                  ["Drug deductible", (r) => r.p.rxDeductible === undefined ? NA : money(r.p.rxDeductible)],
+                  ["Medical out-of-pocket limit (does not include drugs)", (r) => r.p.oopMax === null ? "No limit" : money(r.p.oopMax)],
                   ["Drugs included", (r) => r.p.drugCoverage ? "Yes" : `Separate Part D (${money(r.p.drugPremium)}/mo)`],
                   ["Doctors", (r) => r.p.networkSize],
                   ["Referrals", (r) => r.p.referralsNeeded ? "Required" : "Not needed"],
@@ -123,12 +125,12 @@ function Compare() {
                   ["Vision", (r) => r.p.extrasDetail?.vision ?? ext(r.p.vision)],
                   ["Hearing", (r) => r.p.extrasDetail?.hearing ?? ext(r.p.hearing)],
                   ["Fitness", (r) => r.p.extrasDetail?.fitness ?? ext(r.p.fitness)],
-                  ["Health-items allowance", (r) => r.p.extrasDetail?.otc ?? "—"],
-                  ["Part B giveback", (r) => r.p.partBGiveback ? `${money(r.p.partBGiveback)}/mo off your Part B premium` : "—"],
-                  ["CMS star rating", (r) => r.p.starRating ? `${r.p.starRating} out of 5 stars${r.p.starYear === 2026 ? " (2026 rating — 2027 not yet released)" : ""}` : r.p.real ? "New — no rating yet" : "—"],
-                  ["Preventive care at $0", (r) => r.p.preventiveZero === null ? "?" : r.p.preventiveZero ? "Yearly checkups, mammograms & screenings at $0" : "May have copays"],
-                  ["CMS plan type", (r) => r.p.cmsType ?? "—"],
-                  ["CMS plan ID", (r) => r.p.real ? r.p.id : "—"],
+                  ["Health-items allowance", (r) => r.p.extrasDetail?.otc ?? (r.p.real ? NA : "Not included")],
+                  ["Part B giveback", (r) => r.p.partBGiveback ? `${money(r.p.partBGiveback)}/mo off your Part B premium` : r.p.real ? "None listed" : "Not included"],
+                  ["CMS star rating", (r) => r.p.starRating ? `${r.p.starRating} out of 5 stars${r.p.starYear === 2026 ? " (2026 rating — 2027 not yet released)" : ""}` : r.p.real ? "New — no rating yet" : "Not rated (CMS rates only Advantage and Part D plans)"],
+                  ["Preventive care at $0", (r) => r.p.preventiveZero === null ? NA : r.p.preventiveZero ? "Yearly checkups, mammograms & screenings at $0" : "May have copays"],
+                  ["CMS plan type", (r) => r.p.cmsType ?? (r.p.real ? NA : "Original Medicare / Medigap")],
+                  ["CMS plan ID", (r) => r.p.real ? r.p.id : "None (not a CMS plan)"],
                 ] as [string, (r: (typeof cmp)[number]) => string][]).map(([l, f]) => (
                   <tr key={l} className="border-t"><td className="sticky left-0 min-w-32 bg-card p-2 font-bold">{l}</td>{cmp.map((r) => <td key={r.p.id} className="min-w-40 p-2">{f(r)}</td>)}</tr>))}
               </tbody></table>

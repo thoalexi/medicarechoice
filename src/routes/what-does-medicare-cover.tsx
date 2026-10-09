@@ -69,7 +69,7 @@ function WhatDoesMedicareCover() {
         <p className="mt-4 text-lg">Medicare comes in four parts — A, B, C and D — plus one optional add-on policy, Medigap. Here's how they fit together:</p>
         <ul className="mt-4 list-disc space-y-3 pl-6 text-lg">
           <li><strong>Original Medicare (Parts A & B)</strong> covers hospital stays and medical care like doctor visits. It does <em>not</em> cover most dental, routine vision, hearing aids, or prescriptions.</li>
-          <li><strong>Part D (prescription drugs)</strong> is a separate plan sold by private insurers. Your yearly drug costs are capped ({money(PART_D_OOP_CAP)} in 2027) — but only for drugs on that plan's own list. <Link to="/formulary-check" className="font-bold text-primary underline">Check your medications here</Link>.</li>
+          <li><strong>Part D (prescription drugs)</strong> is a separate plan sold by private insurers. Your yearly drug costs are capped ({money(PART_D_OOP_CAP)} in 2026; 2027 not yet confirmed) — but only for drugs on that plan's own list. <Link to="/formulary-check" className="font-bold text-primary underline">Check your medications here</Link>.</li>
           <li><strong>Medicare Advantage (Part C)</strong> plans are run by private insurers. They must cover everything Original Medicare does, most include Part D drug coverage, and many add extras like dental, vision, and hearing — but the details vary plan by plan and county by county.</li>
           <li><strong>Medigap</strong> is add-on insurance that helps pay what Original Medicare leaves behind. It doesn't add benefits like dental, vision, or drug coverage, and it can't be used with a Medicare Advantage plan.</li>
         </ul>
