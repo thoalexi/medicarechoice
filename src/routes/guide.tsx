@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, type ReactNode } from "react";
 import { SiteHeader, Disclaimer } from "@/components/SiteHeader";
-import { plansFor, regionLabel, regionFromZip, scorePlan, money, PART_D_OOP_CAP, type Answers } from "@/lib/plans";
+import { plansFor, regionLabel, regionFromZip, scorePlan, rankPlans, money, PART_D_OOP_CAP, type Answers } from "@/lib/plans";
 
 export const Route = createFileRoute("/guide")({
   head: () => ({
@@ -10,6 +10,8 @@ export const Route = createFileRoute("/guide")({
       { name: "description", content: "Seven plain-language questions that lead to clear Medicare plan recommendations with true yearly costs." },
       { property: "og:title", content: "Guided Medicare questions — MedicareChoice" },
       { property: "og:description", content: "Find your best-fit Medicare plan in about 3 minutes." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Guide,
@@ -94,7 +96,7 @@ function Guide() {
 
 function Results({ a, onEdit }: { a: Answers; onEdit: () => void }) {
   const region = regionFromZip(a.zip);
-  const ranked = plansFor(region).map((p) => scorePlan(p, a)).sort((x, y) => y.score - x.score);
+  const ranked = rankPlans(plansFor(region).map((p) => scorePlan(p, a)));
   return (
     <div className="min-h-screen"><SiteHeader />
       <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
@@ -102,7 +104,7 @@ function Results({ a, onEdit }: { a: Answers; onEdit: () => void }) {
         <p className="mt-2 text-lg text-muted-foreground">For {regionLabel(region)}. Plans and premiums from the official CMS 2027 list. Costs include your Part B premium and are estimated for a typical year given your answers. Prescription estimates assume your drugs are on the plan’s formulary (its list of covered drugs).</p>
         <button onClick={onEdit} className="mt-3 text-primary underline">Change my answers</button>
         {ranked.length > 1 && Math.abs(ranked[0]!.cost.total - ranked[1]!.cost.total) < 250 && (
-          <p className="mt-6 rounded-xl border-2 border-primary bg-primary/5 p-4 text-lg">These top plans cost about the same in a normal year. Compare their worst-case year, doctor and hospital copays, and extras to choose between them.</p>
+          <p className="mt-6 rounded-xl border-2 border-primary bg-primary/5 p-4 text-lg">These top plans cost about the same in a typical year, so we ranked the one with the lower worst case first. Compare their worst-case year, doctor and hospital copays, and extras to choose between them.</p>
         )}
         <div className="mt-8 space-y-6">
           {ranked.slice(0, 4).map(({ plan, cost, reasons, cautions }, i) => (
@@ -119,7 +121,7 @@ function Results({ a, onEdit }: { a: Answers; onEdit: () => void }) {
                 <div><div className="text-sm text-muted-foreground">Prescriptions</div><div className="text-xl font-bold">{money(cost.drugs)}</div></div>
               </div>
               <p className="mt-2 text-sm text-muted-foreground">Worst-case year: {cost.worstCase ? money(cost.worstCase) : "no limit"}</p>
-              <p className="mt-1 text-sm text-muted-foreground">This worst case includes drug costs up to the Part D cap ({money(PART_D_OOP_CAP)}) — something most plan ads leave out. Check the plan’s formulary to confirm your exact medications are covered — <Link to="/formulary-check" className="font-bold text-primary underline">check my drugs</Link>.</p>
+              <p className="mt-1 text-sm text-muted-foreground">This worst case includes drug costs up to the Part D cap ({money(PART_D_OOP_CAP)}, 2026 figure) — something most plan ads leave out. An Advantage plan’s medical out-of-pocket limit does not include drugs. Check the plan’s formulary to confirm your exact medications are covered — <Link to="/formulary-check" className="font-bold text-primary underline">check my drugs</Link>.</p>
               <div className="mt-4 grid gap-4 md:grid-cols-2">
                 <ul className="space-y-1">{reasons.map((r) => <li key={r} className="text-success">✓ <span className="text-foreground">{r}</span></li>)}</ul>
                 <ul className="space-y-1">{cautions.map((r) => <li key={r} className="text-warning">⚠ <span className="text-foreground">{r}</span></li>)}</ul>

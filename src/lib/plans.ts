@@ -24,7 +24,8 @@ export function regionFromZip(zip: string): Region {
 export const regionLabel = (r: Region) => (r ? `${r} County, Michigan` : "Outside Michigan — showing Original Medicare & Medigap only");
 
 export const PART_B_MONTHLY = 202.9; // 2026 figure; update when CMS announces 2027 Part B
-export const PART_D_OOP_CAP = 2100;
+export const PART_D_OOP_CAP = 2100; // 2026 figure; update when CMS confirms the 2027 cap
+export const FIGURE_YEAR = 2026;
 const PDP_PREMIUM = Math.round(cms.pdpMedian); // median 2027 Michigan stand-alone Part D premium
 
 export interface Plan {
@@ -189,9 +190,7 @@ export function estimateAnnual(plan: Plan, health: Health, drugsMonthly: number)
 
 export function scorePlan(plan: Plan, a: Answers) {
   const cost = estimateAnnual(plan, a.health, a.drugsMonthly);
-  // Bad-year risk counts too: each $1,000 of worst-case ceiling costs 150 points,
-  // so a plan with a lower worst case wins when typical yearly costs are close.
-  let score = 10000 - cost.total - (cost.worstCase !== null ? cost.worstCase * 0.15 : 0);
+  let score = 10000 - cost.total;
   const reasons: string[] = [];
   const cautions: string[] = [];
   if (plan.type === "Original only") { score -= 6000; cautions.push("No limit on what you could pay in a bad year."); }
@@ -215,6 +214,23 @@ export function scorePlan(plan: Plan, a: Answers) {
   if (plan.referralsNeeded) cautions.push("Referrals needed to see specialists.");
   if (plan.oopMax && plan.oopMax > 6000) cautions.push(`In a bad year you could pay up to $${plan.oopMax.toLocaleString()} for medical care.`);
   return { plan, cost, score, reasons, cautions };
+}
+
+type Scored = ReturnType<typeof scorePlan>;
+/** Rank by score, then: when neighbors' typical costs are within $250, the lower worst case goes first; SNPs always last. */
+export function rankPlans(scored: Scored[]): Scored[] {
+  const wc = (s: Scored) => s.cost.worstCase ?? Infinity;
+  const sortGroup = (g: Scored[]) => {
+    g.sort((x, y) => y.score - x.score);
+    for (let pass = 0; pass < g.length; pass++)
+      for (let i = 0; i + 1 < g.length; i++) {
+        const a = g[i]!, b = g[i + 1]!;
+        if (Math.abs(a.cost.total - b.cost.total) <= 250 && wc(b) < wc(a)) { g[i] = b; g[i + 1] = a; }
+      }
+    return g;
+  };
+  const snp = (s: Scored) => s.plan.type === "Special Needs (SNP)";
+  return [...sortGroup(scored.filter((s) => !snp(s))), ...sortGroup(scored.filter(snp))];
 }
 
 export const money = (n: number) => "$" + Math.round(n).toLocaleString();
