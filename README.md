@@ -8,7 +8,7 @@ Also include an option to skip directly to an interactive comparison dashboard (
 
 This project was built with [Lovable](https://lovable.dev).
 
-**Live app**: https://medicarechoice.lovable.app
+**Live app**: https://medicarechoice.lovable.app (domain: https://plainplanguide.com)
 
 ## Build with Lovable
 

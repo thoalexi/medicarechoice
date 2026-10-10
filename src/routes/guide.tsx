@@ -7,9 +7,9 @@ import { plansFor, regionLabel, regionFromZip, scorePlan, rankPlans, money, PART
 export const Route = createFileRoute("/guide")({
   head: () => ({
     meta: [
-      { title: "Guided Medicare questions — MedicareChoice" },
+      { title: "Guided Medicare questions — PlainPlanGuide" },
       { name: "description", content: "Seven plain-language questions that lead to clear Medicare plan recommendations with true yearly costs." },
-      { property: "og:title", content: "Guided Medicare questions — MedicareChoice" },
+      { property: "og:title", content: "Guided Medicare questions — PlainPlanGuide" },
       { property: "og:description", content: "Find your best-fit Medicare plan in about 3 minutes." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

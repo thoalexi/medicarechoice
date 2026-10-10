@@ -8,8 +8,8 @@ import { money } from "@/lib/plans";
 export const Route = createFileRoute("/admin/validation")({
   head: () => ({
     meta: [
-      { title: "Data validation report — MedicareChoice" },
-      { name: "description", content: "Internal data checks for MedicareChoice plan data." },
+      { title: "Data validation report — PlainPlanGuide" },
+      { name: "description", content: "Internal data checks for PlainPlanGuide plan data." },
       { name: "robots", content: "noindex, nofollow" },
       { property: "og:title", content: "Data validation report" },
       { property: "og:description", content: "Internal data checks." },
@@ -32,7 +32,7 @@ function downloadCsv() {
   const lines = [head.map(q).join(",")];
   for (const r of profiles.results) r.top.forEach((t, i) => lines.push([`${r.id}. ${r.name}`, r.county, r.answers.zip, r.who, r.drugs, i + 1, t.name, t.id, t.total, t.worstCase ?? "No limit", "", "", "", ""].map(q).join(",")));
   const url = URL.createObjectURL(new Blob([lines.join("\n")], { type: "text/csv" }));
-  const a = document.createElement("a"); a.href = url; a.download = `medicarechoice-test-profiles-${profiles.ranAt}.csv`; a.click(); URL.revokeObjectURL(url);
+  const a = document.createElement("a"); a.href = url; a.download = `plainplanguide-test-profiles-${profiles.ranAt}.csv`; a.click(); URL.revokeObjectURL(url);
 }
 
 function Validation() {

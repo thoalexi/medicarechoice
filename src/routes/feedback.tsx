@@ -7,9 +7,9 @@ import { submitFeedback } from "@/lib/feedback.functions";
 export const Route = createFileRoute("/feedback")({
   head: () => ({
     meta: [
-      { title: "Give feedback — MedicareChoice" },
-      { name: "description", content: "MedicareChoice is a work in progress. Tell us what you've noticed — issues, ideas, or anything confusing — so we can fix it and grow." },
-      { property: "og:title", content: "Give feedback — MedicareChoice" },
+      { title: "Give feedback — PlainPlanGuide" },
+      { name: "description", content: "PlainPlanGuide is a work in progress. Tell us what you've noticed — issues, ideas, or anything confusing — so we can fix it and grow." },
+      { property: "og:title", content: "Give feedback — PlainPlanGuide" },
       { property: "og:description", content: "We can't grow and be better without your help. Let us know things you've noticed!" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -3,8 +3,8 @@ import { ArrowLeft } from "lucide-react";
 import { SiteHeader, Disclaimer } from "@/components/SiteHeader";
 import cms from "@/lib/cms2027-mi.json";
 
-const URL = "https://medicarechoice.app/michigan-medicare-2027";
-const TITLE = "Choosing Medicare Plans in Michigan (2027 Guide) — MedicareChoice";
+const URL = "https://plainplanguide.com/michigan-medicare-2027";
+const TITLE = "Choosing Medicare Plans in Michigan (2027 Guide) — PlainPlanGuide";
 const DESC = "A plain-language, step-by-step guide to choosing a 2027 Medicare plan in Michigan. Compare Medicare Advantage and Medigap options in every county with true yearly costs.";
 
 export const Route = createFileRoute("/michigan-medicare-2027")({
@@ -133,7 +133,7 @@ function MichiganGuide() {
         <section id="help" className="mt-14 scroll-mt-6">
           <h2 className="text-3xl font-bold">Free, unbiased help in Michigan</h2>
           <p className="mt-4 text-lg"><strong>MMAP</strong> (Michigan Medicare/Medicaid Assistance Program) offers free counseling at <a href="tel:18008037174" className="font-bold text-primary underline underline-offset-4">1-800-803-7174</a>. They don't sell insurance or earn commissions.</p>
-          <p className="mt-3 text-lg"><strong>MedicareChoice</strong> lets you compare every Michigan plan by county, see estimated yearly costs, and check your drug list — free, with no insurer paying us.</p>
+          <p className="mt-3 text-lg"><strong>PlainPlanGuide</strong> lets you compare every Michigan plan by county, see estimated yearly costs, and check your drug list — free, with no insurer paying us.</p>
         </section>
 
         <div className="mt-12 flex flex-col gap-3 sm:flex-row sm:flex-wrap">

@@ -11,9 +11,9 @@ import { CARRIER_FORMULARY_URLS, MEDICARE_PLAN_FINDER_URL } from "@/lib/formular
 export const Route = createFileRoute("/formulary-check")({
   head: () => ({
     meta: [
-      { title: "Check my drugs against a plan's formulary — MedicareChoice" },
+      { title: "Check my drugs against a plan's formulary — PlainPlanGuide" },
       { name: "description", content: "List your medications, upload a Medicare plan's official drug list (formulary), and get a plain-language read of tiers, restrictions, costs and gaps." },
-      { property: "og:title", content: "Check my drugs — MedicareChoice" },
+      { property: "og:title", content: "Check my drugs — PlainPlanGuide" },
       { property: "og:description", content: "See whether your medications are on a plan's formulary, at what tier, and what to verify before enrolling." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -6,15 +6,15 @@ import { money, PART_D_OOP_CAP } from "@/lib/plans";
 export const Route = createFileRoute("/what-does-medicare-cover")({
   head: () => ({
     meta: [
-      { title: "What Does Medicare Cover? Dental, Vision, Hearing & More — MedicareChoice" },
+      { title: "What Does Medicare Cover? Dental, Vision, Hearing & More — PlainPlanGuide" },
       { name: "description", content: "Plain-language answers: does Medicare cover dental, vision, hearing aids, cataract surgery, and prescriptions? What Original Medicare, Part D, Medigap, and Medicare Advantage each cover — and how to compare plans in your county." },
-      { property: "og:title", content: "What Does Medicare Cover? — MedicareChoice" },
+      { property: "og:title", content: "What Does Medicare Cover? — PlainPlanGuide" },
       { property: "og:description", content: "Plain-language answers on dental, vision, hearing aids, cataract surgery, and prescription drugs under Original Medicare, Part D, Medigap, and Medicare Advantage." },
       { property: "og:type", content: "article" },
-      { property: "og:url", content: "https://medicarechoice.app/what-does-medicare-cover" },
+      { property: "og:url", content: "https://plainplanguide.com/what-does-medicare-cover" },
       { name: "twitter:card", content: "summary" },
     ],
-    links: [{ rel: "canonical", href: "https://medicarechoice.app/what-does-medicare-cover" }],
+    links: [{ rel: "canonical", href: "https://plainplanguide.com/what-does-medicare-cover" }],
   }),
   component: WhatDoesMedicareCover,
 });

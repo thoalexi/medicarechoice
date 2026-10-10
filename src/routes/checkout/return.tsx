@@ -8,9 +8,9 @@ export const Route = createFileRoute("/checkout/return")({
   }),
   head: () => ({
     meta: [
-      { title: "Thank you for supporting MedicareChoice" },
+      { title: "Thank you for supporting PlainPlanGuide" },
       { name: "description", content: "Thank you for your gift — it keeps free Medicare guidance going and supports this women-owned business." },
-      { property: "og:title", content: "Thank you for supporting MedicareChoice" },
+      { property: "og:title", content: "Thank you for supporting PlainPlanGuide" },
       { property: "og:description", content: "Your donation supports a free, independent, women-owned Medicare guide." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -33,7 +33,7 @@ function CheckoutReturn() {
           <>
             <h1 className="mt-6 text-4xl font-bold">Thank you — truly.</h1>
             <p className="mt-4 text-xl text-muted-foreground">
-              Your gift keeps MedicareChoice free and ad-free, and it supports this women-owned business. A receipt is
+              Your gift keeps PlainPlanGuide free and ad-free, and it supports this women-owned business. A receipt is
               on its way to your email.
             </p>
           </>

@@ -11,9 +11,9 @@ import { COUNTIES, DATA_SOURCE, PART_B_MONTHLY, PART_D_OOP_CAP, plansFor, estima
 export const Route = createFileRoute("/compare")({
   head: () => ({
     meta: [
-      { title: "Compare Medicare plans side by side — MedicareChoice" },
+      { title: "Compare Medicare plans side by side — PlainPlanGuide" },
       { name: "description", content: "Filter and compare Medigap and Medicare Advantage plans by region, true yearly cost, network, and extras." },
-      { property: "og:title", content: "Compare Medicare plans side by side — MedicareChoice" },
+      { property: "og:title", content: "Compare Medicare plans side by side — PlainPlanGuide" },
       { property: "og:description", content: "An interactive Medicare plan comparison dashboard." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
