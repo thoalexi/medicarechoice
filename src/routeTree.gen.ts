@@ -16,6 +16,7 @@ import { Route as DonateRouteImport } from './routes/donate'
 import { Route as FeedbackRouteImport } from './routes/feedback'
 import { Route as FormularyCheckRouteImport } from './routes/formulary-check'
 import { Route as GuideRouteImport } from './routes/guide'
+import { Route as HowWeCompareRouteImport } from './routes/how-we-compare'
 import { Route as MichiganMedicare2027RouteImport } from './routes/michigan-medicare-2027'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as WhatDoesMedicareCoverRouteImport } from './routes/what-does-medicare-cover'
@@ -56,6 +57,11 @@ const GuideRoute = GuideRouteImport.update({
   path: '/guide',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HowWeCompareRoute = HowWeCompareRouteImport.update({
+  id: '/how-we-compare',
+  path: '/how-we-compare',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MichiganMedicare2027Route = MichiganMedicare2027RouteImport.update({
   id: '/michigan-medicare-2027',
   path: '/michigan-medicare-2027',
@@ -85,6 +91,7 @@ export interface FileRoutesByFullPath {
   '/feedback': typeof FeedbackRoute
   '/formulary-check': typeof FormularyCheckRoute
   '/guide': typeof GuideRoute
+  '/how-we-compare': typeof HowWeCompareRoute
   '/michigan-medicare-2027': typeof MichiganMedicare2027Route
   '/privacy': typeof PrivacyRoute
   '/what-does-medicare-cover': typeof WhatDoesMedicareCoverRoute
@@ -98,6 +105,7 @@ export interface FileRoutesByTo {
   '/feedback': typeof FeedbackRoute
   '/formulary-check': typeof FormularyCheckRoute
   '/guide': typeof GuideRoute
+  '/how-we-compare': typeof HowWeCompareRoute
   '/michigan-medicare-2027': typeof MichiganMedicare2027Route
   '/privacy': typeof PrivacyRoute
   '/what-does-medicare-cover': typeof WhatDoesMedicareCoverRoute
@@ -112,6 +120,7 @@ export interface FileRoutesById {
   '/feedback': typeof FeedbackRoute
   '/formulary-check': typeof FormularyCheckRoute
   '/guide': typeof GuideRoute
+  '/how-we-compare': typeof HowWeCompareRoute
   '/michigan-medicare-2027': typeof MichiganMedicare2027Route
   '/privacy': typeof PrivacyRoute
   '/what-does-medicare-cover': typeof WhatDoesMedicareCoverRoute
@@ -127,6 +136,7 @@ export interface FileRouteTypes {
     | '/feedback'
     | '/formulary-check'
     | '/guide'
+    | '/how-we-compare'
     | '/michigan-medicare-2027'
     | '/privacy'
     | '/what-does-medicare-cover'
@@ -140,6 +150,7 @@ export interface FileRouteTypes {
     | '/feedback'
     | '/formulary-check'
     | '/guide'
+    | '/how-we-compare'
     | '/michigan-medicare-2027'
     | '/privacy'
     | '/what-does-medicare-cover'
@@ -153,6 +164,7 @@ export interface FileRouteTypes {
     | '/feedback'
     | '/formulary-check'
     | '/guide'
+    | '/how-we-compare'
     | '/michigan-medicare-2027'
     | '/privacy'
     | '/what-does-medicare-cover'
@@ -167,6 +179,7 @@ export interface RootRouteChildren {
   FeedbackRoute: typeof FeedbackRoute
   FormularyCheckRoute: typeof FormularyCheckRoute
   GuideRoute: typeof GuideRoute
+  HowWeCompareRoute: typeof HowWeCompareRoute
   MichiganMedicare2027Route: typeof MichiganMedicare2027Route
   PrivacyRoute: typeof PrivacyRoute
   WhatDoesMedicareCoverRoute: typeof WhatDoesMedicareCoverRoute
@@ -224,6 +237,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuideRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/how-we-compare': {
+      id: '/how-we-compare'
+      path: '/how-we-compare'
+      fullPath: '/how-we-compare'
+      preLoaderRoute: typeof HowWeCompareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/michigan-medicare-2027': {
       id: '/michigan-medicare-2027'
       path: '/michigan-medicare-2027'
@@ -263,6 +283,7 @@ const rootRouteChildren: RootRouteChildren = {
   FeedbackRoute: FeedbackRoute,
   FormularyCheckRoute: FormularyCheckRoute,
   GuideRoute: GuideRoute,
+  HowWeCompareRoute: HowWeCompareRoute,
   MichiganMedicare2027Route: MichiganMedicare2027Route,
   PrivacyRoute: PrivacyRoute,
   WhatDoesMedicareCoverRoute: WhatDoesMedicareCoverRoute,
