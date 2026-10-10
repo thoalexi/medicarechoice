@@ -68,6 +68,6 @@
   "partDOopThreshold": 2400,
   "partDSource": "CMS Announcement of CY 2027 MA Capitation Rates and Part C and Part D Payment Policies, Table V-2 (April 6, 2026), https://www.cms.gov/files/document/2027-announcement.pdf",
   "moopInNetworkMax": null,
-  "moopSource": "Not confirmed: the CMS CY 2027 MOOP limit document has not been read directly yet."
+  "moopSource": "The official CMS CY 2027 MOOP limit document has not been read directly yet."
  }
 }
