@@ -42,7 +42,7 @@ def main(path, out="src/lib/cms2027-mi.json"):
                 "premium": money(r["Monthly Consolidated Premium (Part C + D)"]) or 0.0,
                 "moop": money(r["In-Network Maximum Out-of-Pocket (MOOP) Amount"]),
                 "rx": r["Part D Coverage Indicator"] == "Yes",
-                "rxDed": money(r["Annual Part D Deductible Amount"]),
+                "rxDed": money(r["Annual Part D Deductible Amount"]) or 0,
                 "stars": stars(r["Overall Star Rating"]),
                 "counties": [],
             }
