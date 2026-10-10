@@ -100,7 +100,7 @@ function Results({ a, onEdit }: { a: Answers; onEdit: () => void }) {
   return (
     <div className="min-h-screen"><SiteHeader />
       <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
-        <h1 className="text-4xl font-bold">Your best-fit plans</h1>
+        <h1 className="text-4xl font-bold">Your best-fit plans</h1><p className="mt-1 text-sm text-muted-foreground">Independent site — not affiliated with Medicare or CMS. Official info: Medicare.gov or 1-800-MEDICARE.</p>
         <p className="mt-2 text-lg text-muted-foreground">For {regionLabel(region)}. Plans and premiums from the official CMS 2027 list. Costs include your Part B premium and are estimated for a typical year given your answers. Prescription estimates assume your drugs are on the plan’s formulary (its list of covered drugs).</p>
         <button onClick={onEdit} className="mt-3 text-primary underline">Change my answers</button>
         {ranked.length > 1 && Math.abs(ranked[0]!.cost.total - ranked[1]!.cost.total) < 250 && (

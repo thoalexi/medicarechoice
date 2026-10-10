@@ -27,3 +27,4 @@
 - [x] Service-level CMS benefit data for every Michigan plan (2026-10-10)
 - [x] "Search this plan's benefits" box on each plan + "Which plans are best for these?" comparison (2026-10-10)
 - [x] Privacy page and site-wide footer (2026-10-10)
+- [x] Footer independence notices, How we compare plans page, About funding section (2026-10-10)
