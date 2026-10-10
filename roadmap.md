@@ -28,3 +28,6 @@
 - [x] "Search this plan's benefits" box on each plan + "Which plans are best for these?" comparison (2026-10-10)
 - [x] Privacy page and site-wide footer (2026-10-10)
 - [x] Footer independence notices, How we compare plans page, About funding section (2026-10-10)
+- [x] Data provenance, validation checks, test profiles, /admin/validation, /methodology (2026-10-10)
+- [ ] Confirm CMS 2027 MOOP limit from the official CMS document, then set limits2027.moopInNetworkMax (blocked: CMS memo not downloadable yet)
+- [ ] Decide whether to switch site Part D figures to CMS-confirmed 2027 ($700 deductible max, $2,400 cap) (waiting on owner)
