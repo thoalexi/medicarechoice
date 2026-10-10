@@ -56,12 +56,14 @@ export function SiteHeader() {
 export function Disclaimer() {
   return (
     <footer className="border-t">
-      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        <p className="text-sm text-muted-foreground">
+      <div className="mx-auto max-w-6xl space-y-3 px-4 py-8 text-sm text-muted-foreground sm:px-6">
+        <p>MedicareChoice is an independent website. It is not affiliated with, endorsed by, or connected to Medicare, the Centers for Medicare &amp; Medicaid Services (CMS), or any government agency. For official information, visit Medicare.gov or call 1-800-MEDICARE.</p>
+        <p>We don't sell insurance, enroll anyone in plans, or receive payment from any insurance company. Plans are never ranked based on who offers them.</p>
+        <p>
           Plans and prices shown are estimates based on official CMS data, not quotes. Dollar limits marked 2026 will be updated when CMS confirms 2027 figures. Plans that cover prescriptions each have their own formulary (list of covered drugs) — confirm your medications are covered, and at what cost, in the plan’s formulary before enrolling. Confirm details at Medicare.gov or with Michigan's free MMAP counselors (1-800-803-7174) before enrolling.
         </p>
-        <nav aria-label="Footer" className="mt-4 flex flex-wrap gap-x-6">
-          {([["/privacy", "Privacy"], ["/about", "About"], ["/feedback", "Feedback"], ["/donate", "Donate"]] as const).map(([to, label]) => (
+        <nav aria-label="Footer" className="flex text-base flex-wrap gap-x-6">
+          {([["/privacy", "Privacy"], ["/how-we-compare", "How we compare plans"], ["/about", "About"], ["/feedback", "Feedback"]] as const).map(([to, label]) => (
             <Link key={to} to={to} className="inline-flex min-h-12 items-center font-bold text-primary underline">{label}</Link>
           ))}
         </nav>

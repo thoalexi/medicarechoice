@@ -55,6 +55,15 @@ function About() {
             </article>
           </div>
 
+          <section className="mt-12">
+            <h2 className="text-3xl font-bold">How we fund this site</h2>
+            <div className="mt-4 space-y-3 text-lg leading-relaxed">
+              <p>MedicareChoice is paid for only by donations from visitors. We take no money from insurance companies, show no ads, and earn no commissions.</p>
+              <p>Donations pay for website hosting, the AI tools behind the plan search and drug checker, and the time it takes to update plan data each year.</p>
+              <p>Donors have no say in how plans are ranked or what the site says. Every visitor sees the same results, whether they give or not. <Link to="/how-we-compare" className="font-bold text-primary underline">See how we compare plans</Link>.</p>
+            </div>
+          </section>
+
           <div className="mt-12 border-l-4 border-accent bg-secondary p-6">
             <h2 className="text-2xl font-bold">A women-owned resource</h2>
             <p className="mt-2 text-lg">Donations support this women-owned business and help keep MedicareChoice free, independent, and up to date.</p>
