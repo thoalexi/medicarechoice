@@ -15,7 +15,7 @@ export const createDonationCheckout = createServerFn({ method: "POST" })
     try {
       const stripe = createStripeClient(data.environment);
       const monthly = data.frequency === "monthly";
-      const name = monthly ? "Monthly donation to MedicareChoice" : "Donation to MedicareChoice";
+      const name = monthly ? "Monthly donation to PlainPlanGuide" : "Donation to PlainPlanGuide";
       const session = await stripe.checkout.sessions.create({
         line_items: [
           {

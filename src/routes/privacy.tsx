@@ -5,15 +5,15 @@ import { SiteHeader, Disclaimer } from "@/components/SiteHeader";
 export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
-      { title: "Privacy — MedicareChoice" },
-      { name: "description", content: "What MedicareChoice does with the information you type in: no accounts, nothing sold or shared, and most answers never leave your browser." },
-      { property: "og:title", content: "Privacy at MedicareChoice" },
+      { title: "Privacy — PlainPlanGuide" },
+      { name: "description", content: "What PlainPlanGuide does with the information you type in: no accounts, nothing sold or shared, and most answers never leave your browser." },
+      { property: "og:title", content: "Privacy at PlainPlanGuide" },
       { property: "og:description", content: "A plain-language list of what the site collects, what it keeps, and who else sees it." },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://medicarechoice.app/privacy" },
+      { property: "og:url", content: "https://plainplanguide.com/privacy" },
       { name: "twitter:card", content: "summary" },
     ],
-    links: [{ rel: "canonical", href: "https://medicarechoice.app/privacy" }],
+    links: [{ rel: "canonical", href: "https://plainplanguide.com/privacy" }],
   }),
   component: Privacy,
 });

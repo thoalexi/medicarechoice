@@ -8,15 +8,15 @@ const fmt = (d: string | null) => (d ? new Date(d + "T12:00:00").toLocaleDateStr
 export const Route = createFileRoute("/methodology")({
   head: () => ({
     meta: [
-      { title: "Methodology: how we estimate costs and rank plans — MedicareChoice" },
+      { title: "Methodology: how we estimate costs and rank plans — PlainPlanGuide" },
       { name: "description", content: "Where our Michigan 2027 plan data comes from, how true yearly cost and worst case are estimated, and how the best match is chosen." },
-      { property: "og:title", content: "MedicareChoice methodology" },
+      { property: "og:title", content: "PlainPlanGuide methodology" },
       { property: "og:description", content: "Official CMS data, honest cost estimates, and rankings that never depend on who offers the plan." },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://medicarechoice.app/methodology" },
+      { property: "og:url", content: "https://plainplanguide.com/methodology" },
       { name: "twitter:card", content: "summary" },
     ],
-    links: [{ rel: "canonical", href: "https://medicarechoice.app/methodology" }],
+    links: [{ rel: "canonical", href: "https://plainplanguide.com/methodology" }],
   }),
   component: HowWeCompare,
 });
