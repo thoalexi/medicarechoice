@@ -60,7 +60,7 @@ function About() {
             <div className="mt-4 space-y-3 text-lg leading-relaxed">
               <p>MedicareChoice is paid for only by donations from visitors. We take no money from insurance companies, show no ads, and earn no commissions.</p>
               <p>Donations pay for website hosting, the AI tools behind the plan search and drug checker, and the time it takes to update plan data each year.</p>
-              <p>Donors have no say in how plans are ranked or what the site says. Every visitor sees the same results, whether they give or not. <Link to="/how-we-compare" className="font-bold text-primary underline">See how we compare plans</Link>.</p>
+              <p>Donors have no say in how plans are ranked or what the site says. Every visitor sees the same results, whether they give or not. <Link to="/methodology" className="font-bold text-primary underline">See how we compare plans</Link>.</p>
             </div>
           </section>
 
