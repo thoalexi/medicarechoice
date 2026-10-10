@@ -3,6 +3,8 @@ import { useMemo, useState } from "react";
 import { SiteHeader, Disclaimer } from "@/components/SiteHeader";
 import { PlanSearch } from "@/components/PlanSearch";
 import { HelpPopover } from "@/components/HelpPopover";
+import { BenefitSearchPanel } from "@/components/BenefitSearch";
+import type { ServiceChip } from "@/lib/benefitSearch.functions";
 import { COUNTIES, DATA_SOURCE, PART_B_MONTHLY, PART_D_OOP_CAP, plansFor, estimateAnnual, money, type Health, type PlanType, type Region, type Share } from "@/lib/plans";
 
 export const Route = createFileRoute("/compare")({
@@ -37,6 +39,8 @@ function Compare() {
   const [sort, setSort] = useState<"total" | "premium" | "oop">("total");
   const [picked, setPicked] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
+  const [openSearch, setOpenSearch] = useState<string | null>(null);
+  const [chips, setChips] = useState<ServiceChip[]>([]);
 
   const rows = useMemo(() => plansFor(region).filter((p) => types.includes(p.type)
     && (!needs.dental || p.dental !== false) && (!needs.vision || p.vision !== false) && (!needs.hearing || p.hearing !== false) && (!needs.noReferrals || !p.referralsNeeded))
@@ -156,6 +160,9 @@ function Compare() {
                     {p.partBGiveback ? <span className="rounded-full bg-secondary px-3 py-1">Part B giveback: {money(p.partBGiveback)}/mo</span> : null}
                     {p.preventiveZero ? <span className="rounded-full bg-secondary px-3 py-1">$0 checkups & screenings</span> : null}
                   </div>
+                  <button type="button" onClick={() => setOpenSearch(openSearch === p.id ? null : p.id)} aria-expanded={openSearch === p.id} className="mt-3 min-h-12 font-bold text-primary underline">
+                    {openSearch === p.id ? "Hide benefit search" : "🔍 Search this plan's benefits"}</button>
+                  {openSearch === p.id && <BenefitSearchPanel plan={p} areaPlans={rows.map((r) => r.p)} chips={chips} setChips={setChips} />}
                 </div>
                 <div className="hidden text-right md:block"><div className="text-sm text-muted-foreground">True yearly cost</div><div className="font-display text-3xl font-bold text-primary">{money(c.total)}</div>
                   <div className="text-sm text-muted-foreground">Worst case {c.worstCase ? money(c.worstCase) : "unlimited"}</div></div>
