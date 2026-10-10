@@ -1,0 +1,535 @@
+{
+ "ranAt": "2026-10-10",
+ "results": [
+  {
+   "id": 1,
+   "name": "Healthy, no drugs",
+   "who": "Rarely sees a doctor, takes no prescriptions.",
+   "drugs": "None",
+   "answers": {
+    "health": "healthy",
+    "doctorsFlex": "network-ok",
+    "hospital": "none",
+    "drugsMonthly": 0,
+    "priority": "balanced",
+    "extras": {
+     "dental": false,
+     "vision": false,
+     "hearing": false
+    },
+    "travels": false,
+    "zip": "48101"
+   },
+   "county": "Wayne",
+   "top": [
+    {
+     "id": "H8908_004_0",
+     "name": "Humana Gold Plus H8908-004 (HMO-POS)",
+     "type": "Advantage HMO",
+     "monthlyPremium": 0,
+     "total": 2571,
+     "medical": 136,
+     "drugs": 0,
+     "worstCase": 8934.8
+    },
+    {
+     "id": "H5521_404_0",
+     "name": "Aetna Medicare Signature Extra (PPO)",
+     "type": "Advantage PPO",
+     "monthlyPremium": 0,
+     "total": 2555,
+     "medical": 120,
+     "drugs": 0,
+     "worstCase": 9434.8
+    },
+    {
+     "id": "H2354_029_0",
+     "name": "Henry Ford Select (HMO)",
+     "type": "Advantage HMO",
+     "monthlyPremium": 0,
+     "total": 2556,
+     "medical": 121,
+     "drugs": 0,
+     "worstCase": 9484.8
+    }
+   ]
+  },
+  {
+   "id": 2,
+   "name": "Healthy, a few generics",
+   "who": "Rarely sees a doctor; 2–3 common generics.",
+   "drugs": "e.g. atorvastatin, lisinopril, metformin (~$30/mo retail)",
+   "answers": {
+    "health": "healthy",
+    "doctorsFlex": "network-ok",
+    "hospital": "none",
+    "drugsMonthly": 30,
+    "priority": "balanced",
+    "extras": {
+     "dental": false,
+     "vision": false,
+     "hearing": false
+    },
+    "travels": false,
+    "zip": "48009"
+   },
+   "county": "Oakland",
+   "top": [
+    {
+     "id": "H8908_004_0",
+     "name": "Humana Gold Plus H8908-004 (HMO-POS)",
+     "type": "Advantage HMO",
+     "monthlyPremium": 0,
+     "total": 2931,
+     "medical": 136,
+     "drugs": 360,
+     "worstCase": 8934.8
+    },
+    {
+     "id": "H5521_404_0",
+     "name": "Aetna Medicare Signature Extra (PPO)",
+     "type": "Advantage PPO",
+     "monthlyPremium": 0,
+     "total": 2915,
+     "medical": 120,
+     "drugs": 360,
+     "worstCase": 9434.8
+    },
+    {
+     "id": "H2354_029_0",
+     "name": "Henry Ford Select (HMO)",
+     "type": "Advantage HMO",
+     "monthlyPremium": 0,
+     "total": 2796,
+     "medical": 121,
+     "drugs": 240,
+     "worstCase": 9484.8
+    }
+   ]
+  },
+  {
+   "id": 3,
+   "name": "Some care, several generics",
+   "who": "A few visits a year for one condition.",
+   "drugs": "Several generics (~$150/mo retail)",
+   "answers": {
+    "health": "some",
+    "doctorsFlex": "network-ok",
+    "hospital": "none",
+    "drugsMonthly": 150,
+    "priority": "balanced",
+    "extras": {
+     "dental": false,
+     "vision": false,
+     "hearing": false
+    },
+    "travels": false,
+    "zip": "49301"
+   },
+   "county": "Kent",
+   "top": [
+    {
+     "id": "H5216_382_0",
+     "name": "Humana Value Plus H5216-382 (PPO)",
+     "type": "Advantage PPO",
+     "monthlyPremium": 0,
+     "total": 3630,
+     "medical": 745,
+     "drugs": 450,
+     "worstCase": 14384.8
+    },
+    {
+     "id": "H5521_407_0",
+     "name": "Aetna Medicare Signature Extra (PPO)",
+     "type": "Advantage PPO",
+     "monthlyPremium": 0,
+     "total": 4106,
+     "medical": 921,
+     "drugs": 750,
+     "worstCase": 9734.8
+    },
+    {
+     "id": "H5521_219_0",
+     "name": "Aetna Medicare Signature (PPO)",
+     "type": "Advantage PPO",
+     "monthlyPremium": 0,
+     "total": 4187,
+     "medical": 928,
+     "drugs": 825,
+     "worstCase": 9734.8
+    }
+   ]
+  },
+  {
+   "id": 4,
+   "name": "One expensive brand drug",
+   "who": "A few visits a year; one brand-name drug.",
+   "drugs": "e.g. Eliquis (~$600/mo retail)",
+   "answers": {
+    "health": "some",
+    "doctorsFlex": "network-ok",
+    "hospital": "none",
+    "drugsMonthly": 600,
+    "priority": "balanced",
+    "extras": {
+     "dental": false,
+     "vision": false,
+     "hearing": false
+    },
+    "travels": false,
+    "zip": "48420"
+   },
+   "county": "Genesee",
+   "top": [
+    {
+     "id": "H5216_382_0",
+     "name": "Humana Value Plus H5216-382 (PPO)",
+     "type": "Advantage PPO",
+     "monthlyPremium": 0,
+     "total": 4980,
+     "medical": 745,
+     "drugs": 1800,
+     "worstCase": 14384.8
+    },
+    {
+     "id": "H5521_404_0",
+     "name": "Aetna Medicare Signature Extra (PPO)",
+     "type": "Advantage PPO",
+     "monthlyPremium": 0,
+     "total": 5425,
+     "medical": 890,
+     "drugs": 2100,
+     "worstCase": 9434.8
+    },
+    {
+     "id": "H2354_029_0",
+     "name": "Henry Ford Select (HMO)",
+     "type": "Advantage HMO",
+     "monthlyPremium": 0,
+     "total": 5366,
+     "medical": 981,
+     "drugs": 1950,
+     "worstCase": 9484.8
+    }
+   ]
+  },
+  {
+   "id": 5,
+   "name": "Insulin user",
+   "who": "Diabetes, regular visits.",
+   "drugs": "Insulin (Part D cost capped at $35/mo) plus generics (~$70/mo)",
+   "answers": {
+    "health": "some",
+    "doctorsFlex": "network-ok",
+    "hospital": "none",
+    "drugsMonthly": 70,
+    "priority": "balanced",
+    "extras": {
+     "dental": false,
+     "vision": false,
+     "hearing": false
+    },
+    "travels": false,
+    "zip": "48103"
+   },
+   "county": "Washtenaw",
+   "top": [
+    {
+     "id": "H5216_382_0",
+     "name": "Humana Value Plus H5216-382 (PPO)",
+     "type": "Advantage PPO",
+     "monthlyPremium": 0,
+     "total": 3390,
+     "medical": 745,
+     "drugs": 210,
+     "worstCase": 14384.8
+    },
+    {
+     "id": "H5521_404_0",
+     "name": "Aetna Medicare Signature Extra (PPO)",
+     "type": "Advantage PPO",
+     "monthlyPremium": 0,
+     "total": 3910,
+     "medical": 890,
+     "drugs": 585,
+     "worstCase": 9434.8
+    },
+    {
+     "id": "H5521_214_0",
+     "name": "Aetna Medicare Signature (PPO)",
+     "type": "Advantage PPO",
+     "monthlyPremium": 0,
+     "total": 3829,
+     "medical": 884,
+     "drugs": 510,
+     "worstCase": 9734.8
+    }
+   ]
+  },
+  {
+   "id": 6,
+   "name": "Frequent specialist visits",
+   "who": "About 14 specialist visits a year (site's high-use level), few drugs.",
+   "drugs": "A few generics (~$30/mo)",
+   "answers": {
+    "health": "chronic",
+    "doctorsFlex": "network-ok",
+    "hospital": "none",
+    "drugsMonthly": 30,
+    "priority": "balanced",
+    "extras": {
+     "dental": false,
+     "vision": false,
+     "hearing": false
+    },
+    "travels": false,
+    "zip": "48819"
+   },
+   "county": "Ingham",
+   "top": [
+    {
+     "id": "H5216_382_0",
+     "name": "Humana Value Plus H5216-382 (PPO)",
+     "type": "Advantage PPO",
+     "monthlyPremium": 0,
+     "total": 4695,
+     "medical": 2170,
+     "drugs": 90,
+     "worstCase": 14384.8
+    },
+    {
+     "id": "medigap-g",
+     "name": "Medigap Plan G + Part D",
+     "type": "Original + Medigap",
+     "monthlyPremium": 168,
+     "total": 5442,
+     "medical": 283,
+     "drugs": 108,
+     "worstCase": 7433.799999999999
+    },
+    {
+     "id": "medigap-n",
+     "name": "Medigap Plan N + Part D",
+     "type": "Original + Medigap",
+     "monthlyPremium": 122,
+     "total": 5507,
+     "medical": 900,
+     "drugs": 108,
+     "worstCase": 7498.799999999999
+    }
+   ]
+  },
+  {
+   "id": 7,
+   "name": "Chronic conditions, high drug use",
+   "who": "Many visits, a hospital stay likely.",
+   "drugs": "Several brand drugs (~$900/mo retail)",
+   "answers": {
+    "health": "chronic",
+    "doctorsFlex": "network-ok",
+    "hospital": "none",
+    "drugsMonthly": 900,
+    "priority": "balanced",
+    "extras": {
+     "dental": false,
+     "vision": false,
+     "hearing": false
+    },
+    "travels": false,
+    "zip": "48415"
+   },
+   "county": "Saginaw",
+   "top": [
+    {
+     "id": "H5216_382_0",
+     "name": "Humana Value Plus H5216-382 (PPO)",
+     "type": "Advantage PPO",
+     "monthlyPremium": 0,
+     "total": 6705,
+     "medical": 2170,
+     "drugs": 2100,
+     "worstCase": 14384.8
+    },
+    {
+     "id": "medigap-g",
+     "name": "Medigap Plan G + Part D",
+     "type": "Original + Medigap",
+     "monthlyPremium": 168,
+     "total": 7434,
+     "medical": 283,
+     "drugs": 2100,
+     "worstCase": 7433.799999999999
+    },
+    {
+     "id": "medigap-n",
+     "name": "Medigap Plan N + Part D",
+     "type": "Original + Medigap",
+     "monthlyPremium": 122,
+     "total": 7499,
+     "medical": 900,
+     "drugs": 2100,
+     "worstCase": 7498.799999999999
+    }
+   ]
+  },
+  {
+   "id": 8,
+   "name": "Peace of mind, keeps own doctors",
+   "who": "Wants to keep any doctor and avoid surprise bills.",
+   "drugs": "Several generics (~$100/mo)",
+   "answers": {
+    "health": "some",
+    "doctorsFlex": "any",
+    "hospital": "none",
+    "drugsMonthly": 100,
+    "priority": "peace",
+    "extras": {
+     "dental": false,
+     "vision": false,
+     "hearing": false
+    },
+    "travels": false,
+    "zip": "49001"
+   },
+   "county": "Kalamazoo",
+   "top": [
+    {
+     "id": "medigap-n",
+     "name": "Medigap Plan N + Part D",
+     "type": "Original + Medigap",
+     "monthlyPremium": 122,
+     "total": 5373,
+     "medical": 515,
+     "drugs": 360,
+     "worstCase": 7498.799999999999
+    },
+    {
+     "id": "medigap-g",
+     "name": "Medigap Plan G + Part D",
+     "type": "Original + Medigap",
+     "monthlyPremium": 168,
+     "total": 5694,
+     "medical": 283,
+     "drugs": 360,
+     "worstCase": 7433.799999999999
+    },
+    {
+     "id": "H5216_382_0",
+     "name": "Humana Value Plus H5216-382 (PPO)",
+     "type": "Advantage PPO",
+     "monthlyPremium": 0,
+     "total": 3480,
+     "medical": 745,
+     "drugs": 300,
+     "worstCase": 14384.8
+    }
+   ]
+  },
+  {
+   "id": 9,
+   "name": "Lowest premium, wants dental and vision",
+   "who": "Budget first; wants dental and vision included.",
+   "drugs": "A few generics (~$30/mo)",
+   "answers": {
+    "health": "some",
+    "doctorsFlex": "network-ok",
+    "hospital": "none",
+    "drugsMonthly": 30,
+    "priority": "low-premium",
+    "extras": {
+     "dental": true,
+     "vision": true,
+     "hearing": false
+    },
+    "travels": false,
+    "zip": "49808"
+   },
+   "county": "Marquette",
+   "top": [
+    {
+     "id": "H5216_382_0",
+     "name": "Humana Value Plus H5216-382 (PPO)",
+     "type": "Advantage PPO",
+     "monthlyPremium": 0,
+     "total": 3270,
+     "medical": 745,
+     "drugs": 90,
+     "worstCase": 14384.8
+    },
+    {
+     "id": "H5521_285_0",
+     "name": "Aetna Medicare Signature (PPO)",
+     "type": "Advantage PPO",
+     "monthlyPremium": 0,
+     "total": 3974,
+     "medical": 1179,
+     "drugs": 360,
+     "worstCase": 9734.8
+    },
+    {
+     "id": "H5216_384_0",
+     "name": "Humana Full Access (PPO)",
+     "type": "Advantage PPO",
+     "monthlyPremium": 0,
+     "total": 4112,
+     "medical": 1318,
+     "drugs": 360,
+     "worstCase": 9734.8
+    }
+   ]
+  },
+  {
+   "id": 10,
+   "name": "Travels out of state",
+   "who": "Spends winters out of state.",
+   "drugs": "Several generics (~$100/mo)",
+   "answers": {
+    "health": "some",
+    "doctorsFlex": "network-ok",
+    "hospital": "none",
+    "drugsMonthly": 100,
+    "priority": "balanced",
+    "extras": {
+     "dental": false,
+     "vision": false,
+     "hearing": false
+    },
+    "travels": true,
+    "zip": "49637"
+   },
+   "county": "Grand Traverse",
+   "top": [
+    {
+     "id": "H5216_382_0",
+     "name": "Humana Value Plus H5216-382 (PPO)",
+     "type": "Advantage PPO",
+     "monthlyPremium": 0,
+     "total": 3480,
+     "medical": 745,
+     "drugs": 300,
+     "worstCase": 14384.8
+    },
+    {
+     "id": "H5521_285_0",
+     "name": "Aetna Medicare Signature (PPO)",
+     "type": "Advantage PPO",
+     "monthlyPremium": 0,
+     "total": 4214,
+     "medical": 1179,
+     "drugs": 600,
+     "worstCase": 9734.8
+    },
+    {
+     "id": "H5216_384_0",
+     "name": "Humana Full Access (PPO)",
+     "type": "Advantage PPO",
+     "monthlyPremium": 0,
+     "total": 4502,
+     "medical": 1318,
+     "drugs": 750,
+     "worstCase": 9734.8
+    }
+   ]
+  }
+ ]
+}
