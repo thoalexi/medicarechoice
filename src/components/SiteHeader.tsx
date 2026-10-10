@@ -63,7 +63,7 @@ export function Disclaimer() {
           Plans and prices shown are estimates based on official CMS data, not quotes. Dollar limits marked 2026 will be updated when CMS confirms 2027 figures. Plans that cover prescriptions each have their own formulary (list of covered drugs) — confirm your medications are covered, and at what cost, in the plan’s formulary before enrolling. Confirm details at Medicare.gov or with Michigan's free MMAP counselors (1-800-803-7174) before enrolling.
         </p>
         <nav aria-label="Footer" className="flex text-base flex-wrap gap-x-6">
-          {([["/privacy", "Privacy"], ["/how-we-compare", "How we compare plans"], ["/about", "About"], ["/feedback", "Feedback"]] as const).map(([to, label]) => (
+          {([["/privacy", "Privacy"], ["/methodology", "Methodology"], ["/about", "About"], ["/feedback", "Feedback"]] as const).map(([to, label]) => (
             <Link key={to} to={to} className="inline-flex min-h-12 items-center font-bold text-primary underline">{label}</Link>
           ))}
         </nav>

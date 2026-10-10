@@ -1,0 +1,73 @@
+{
+ "asOf": "2026-09-30",
+ "asOfSource": "CMS 2027 Landscape file",
+ "datasets": [
+  {
+   "key": "landscape",
+   "label": "Plan list, premiums, out-of-pocket limits, drug deductibles, counties",
+   "file": "CY2027_Landscape_202609.csv (CY2027 Landscape 202609.1 ZIP)",
+   "url": "https://www.cms.gov/medicare/coverage/prescription-drug-coverage",
+   "released": "2026-09-30",
+   "importedAt": "2026-10-07",
+   "output": "src/lib/cms2027-mi.json",
+   "script": "scripts/build-mi-landscape.py"
+  },
+  {
+   "key": "pbp",
+   "label": "Copays, deductibles, dental, vision, hearing, fitness, allowances",
+   "file": "pbp-benefits-2027.zip (CMS 2027 Plan Benefit Package Benefits)",
+   "url": "https://www.cms.gov/files/zip/pbp-benefits-2027.zip",
+   "released": "2026-10-01",
+   "importedAt": "2026-10-08",
+   "output": "src/lib/cms2027-mi-extras.json",
+   "script": "scripts/build-mi-extras.py, scripts/build-mi-copays.py"
+  },
+  {
+   "key": "services",
+   "label": "Service-level cost sharing (imaging, therapy, labs, prior approval, referrals)",
+   "file": "pbp-benefits-2027.zip (CMS 2027 Plan Benefit Package Benefits)",
+   "url": "https://www.cms.gov/files/zip/pbp-benefits-2027.zip",
+   "released": "2026-10-01",
+   "importedAt": "2026-10-10",
+   "output": "src/lib/cms2027-mi-services.json",
+   "script": "scripts/build-mi-services.py"
+  },
+  {
+   "key": "stars",
+   "label": "Star ratings (2026 ratings, shown until CMS releases 2027)",
+   "file": "CMS 2026 Star Ratings Data Tables (Summary Ratings)",
+   "url": "https://www.cms.gov/medicare/health-drug-plans/part-c-d-performance-data",
+   "released": null,
+   "importedAt": "2026-10-08",
+   "output": "src/lib/cms2026-stars.json",
+   "script": "scripts/build-star-fallback.py"
+  },
+  {
+   "key": "hospitals",
+   "label": "Michigan hospital list",
+   "file": "CMS Hospital General Information (dataset xubh-q36u)",
+   "url": "https://data.cms.gov/provider-data/dataset/xubh-q36u",
+   "released": "2026-07-22",
+   "importedAt": "2026-10-08",
+   "output": "src/lib/mi-hospitals.json",
+   "script": "scripts/build-mi-hospitals.py"
+  },
+  {
+   "key": "formulary",
+   "label": "Drug lists (formularies)",
+   "file": "Each plan's official 2027 formulary, looked up when someone uses Check my drugs",
+   "url": null,
+   "released": null,
+   "importedAt": null,
+   "output": null,
+   "script": null
+  }
+ ],
+ "limits2027": {
+  "partDDeductibleMax": 700,
+  "partDOopThreshold": 2400,
+  "partDSource": "CMS Announcement of CY 2027 MA Capitation Rates and Part C and Part D Payment Policies, Table V-2 (April 6, 2026), https://www.cms.gov/files/document/2027-announcement.pdf",
+  "moopInNetworkMax": null,
+  "moopSource": "The official CMS CY 2027 MOOP limit document has not been read directly yet."
+ }
+}
