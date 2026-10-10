@@ -1,30 +1,39 @@
-# Medicare Navigator
+# PlainPlanGuide
 
-I want to build a Medicare choice website/app for seniors and their adult children navigating enrollment. Depending on what you have illness-wise and money-wise it’s hard to know which one you should pick—there's no transparency in what it actually covers, with traditional Medicare, parts A/B/C/D, Medigap, and Medicare Advantage HMO/PPO options, and plans vary by region (e.g. Michigan regions/counties).
+A free, independent, plain-language Medicare guide for seniors and their adult children, focused on Michigan 2027 plans.
 
-Provide a guided plain-language questionnaire covering ZIP code/location, doctors/hospitals, prescriptions, budget/peace-of-mind preference, and dental/vision extras that leads to clear, transparent plan recommendations with estimated true annual costs and trade-offs.
+**Live website**: https://plainplanguide.com
 
-Also include an option to skip directly to an interactive comparison dashboard ("don't have time or want to answer all of these questions? click here for the comparison dashboard") where users can filter, explore, and compare plans side by side.
+## What PlainPlanGuide does
 
-This project was built with [Lovable](https://lovable.dev).
+- **3-minute guided questionnaire**: county, health, doctors and hospitals, prescriptions, budget vs. peace of mind, and extras lead to plan suggestions with estimated true yearly costs and trade-offs.
+- **Compare plans**: filter, sort and compare Michigan Medicare Advantage, Medigap and Original Medicare options side by side, plus an AI plan search.
+- **Search a plan's benefits**: look up services (MRI, physical therapy, lab work) to see copays, prior approval and referral rules as CMS lists them.
+- **Check my drugs (beta)**: check medicines against a plan's official formulary.
+- **Plain-language guides**: what Medicare covers, Michigan 2027, and our methodology.
 
-**Live app**: https://medicarechoice.lovable.app (domain: https://plainplanguide.com)
+## Independence
 
-## Build with Lovable
+- Not affiliated with, endorsed by, or connected to Medicare, CMS, or any government agency.
+- We don't sell insurance, enroll anyone, or take payment from insurers. Plans are never ranked by who offers them.
+- Funded by donations only. Donations support this women-owned business.
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/a2ae8170-1341-4207-8c03-28307024f5e2).
+## Data sources
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+All plan figures come from official CMS public files and are never hand-edited:
 
-## Development
+- CMS CY2027 Medicare Advantage & Part D Landscape files (Michigan, all 83 counties)
+- CMS 2027 Plan Benefit Package (PBP) Benefits files
+- CMS Hospital General Information
+- CMS Star Ratings (prior year, labeled, until current-year ratings are published)
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+All costs are estimates, not quotes. Confirm at Medicare.gov or with Michigan MMAP (1-800-803-7174).
+
+## Local development
+
+Built with TanStack Start, React 19, Tailwind CSS and [Lovable](https://lovable.dev/projects/a2ae8170-1341-4207-8c03-28307024f5e2).
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
+bun install
+bun dev
 ```
