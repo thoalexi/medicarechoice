@@ -99,7 +99,7 @@ for key, label, fname, p, inc, exc, _ in S:
             if not dc and num(r.get(f"{P}_copay_mcs_amt_t1")) is not None: row["c"] = rng([num(r.get(f"{P}_copay_mcs_amt_t1"))])
         else:
             def cols(kind, unit):
-                return [k for k in r if k.startswith(f"{P}_{kind}") and unit in k and not k.endswith("_yn")
+                return [k for k in r if k.startswith(P + "_") and kind in k and unit in k and not k.endswith("_yn")
                         and not re.search(r"nmc|ehc|wav|bonly|ira", k) and re.search(inc, k) and not (exc and re.search(exc, k))]
             c = rng([num(r[k]) for k in cols("copay", "amt")])
             pc = rng([num(r[k]) for k in cols("coins", "pct")])
