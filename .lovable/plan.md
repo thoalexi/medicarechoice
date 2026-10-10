@@ -29,11 +29,11 @@ Not used: Google Analytics, ad trackers, Facebook pixels, newsletter lists. We d
    - AI section: typed text goes to Lovable AI (using OpenAI) to process; please don't enter names, Medicare numbers, birth dates, or other identifying details.
    - Feedback: what's kept and that you can ask us to delete it.
    - Donations: Stripe processes payments; we never see card numbers.
-   - Contact email for privacy questions, and "Last updated: October 10, 2026."
+   - Privacy questions: a link to the Feedback form (no email address shown). "Last updated: October 10, 2026."
 2. New site-wide footer (on every page, with the existing disclaimer) with links to Privacy, About, Feedback and Donate. Mobile-friendly, 48px tap targets.
 3. Add /privacy to sitemap.xml and give it its own page title and description.
+4. Mark the task in the project task list.
 
 ## Need from you
 
-- The email address for privacy questions (e.g. privacy@medicarechoice.app — only if that inbox exists).
 - Confirm or correct anything in the table above.
