@@ -14,3 +14,4 @@
 - Star ratings fall back to the prior-year CMS Star Ratings data table (src/lib/cms2026-stars.json via scripts/build-star-fallback.py) by contract ID, labeled with its year, until the current-year landscape file carries ratings; why: CMS publishes new ratings after the landscape file.
 - Michigan hospital list comes from the CMS Hospital General Information dataset via scripts/build-mi-hospitals.py into src/lib/mi-hospitals.json; never hand-edit; why: complete, official list.
 - Formulary auto-lookup uses Firecrawl (gateway) server-side plus an AI pick step, caching only public PDF URLs in formulary_documents (service-role only); why: never guess a document, never store user medicines.
+- Service-level cost sharing (imaging, therapy, labs, prior auth, referrals, out-of-network) comes from the CMS PBP Benefits file via scripts/build-mi-services.py into src/lib/cms2027-mi-services.json; never hand-edit; why: per-service figures must be copied from CMS, not estimated.
