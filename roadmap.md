@@ -25,4 +25,4 @@
 - [x] Emphasize the feedback button on the home page and the Check my drugs page (2026-10-08)
 - [x] Hospital question: dropdown of matching hospitals as the person types (2026-10-08)
 - [x] Service-level CMS benefit data for every Michigan plan (2026-10-10)
-- [ ] "Search this plan's benefits" box on each plan + "Which plans are best for these?" comparison (next step)
+- [x] "Search this plan's benefits" box on each plan + "Which plans are best for these?" comparison (2026-10-10)
