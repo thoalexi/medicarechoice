@@ -17,6 +17,7 @@ import { Route as FeedbackRouteImport } from './routes/feedback'
 import { Route as FormularyCheckRouteImport } from './routes/formulary-check'
 import { Route as GuideRouteImport } from './routes/guide'
 import { Route as MichiganMedicare2027RouteImport } from './routes/michigan-medicare-2027'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as WhatDoesMedicareCoverRouteImport } from './routes/what-does-medicare-cover'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout/return'
 
@@ -60,6 +61,11 @@ const MichiganMedicare2027Route = MichiganMedicare2027RouteImport.update({
   path: '/michigan-medicare-2027',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WhatDoesMedicareCoverRoute = WhatDoesMedicareCoverRouteImport.update({
   id: '/what-does-medicare-cover',
   path: '/what-does-medicare-cover',
@@ -80,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/formulary-check': typeof FormularyCheckRoute
   '/guide': typeof GuideRoute
   '/michigan-medicare-2027': typeof MichiganMedicare2027Route
+  '/privacy': typeof PrivacyRoute
   '/what-does-medicare-cover': typeof WhatDoesMedicareCoverRoute
   '/checkout/return': typeof CheckoutReturnRoute
 }
@@ -92,6 +99,7 @@ export interface FileRoutesByTo {
   '/formulary-check': typeof FormularyCheckRoute
   '/guide': typeof GuideRoute
   '/michigan-medicare-2027': typeof MichiganMedicare2027Route
+  '/privacy': typeof PrivacyRoute
   '/what-does-medicare-cover': typeof WhatDoesMedicareCoverRoute
   '/checkout/return': typeof CheckoutReturnRoute
 }
@@ -105,6 +113,7 @@ export interface FileRoutesById {
   '/formulary-check': typeof FormularyCheckRoute
   '/guide': typeof GuideRoute
   '/michigan-medicare-2027': typeof MichiganMedicare2027Route
+  '/privacy': typeof PrivacyRoute
   '/what-does-medicare-cover': typeof WhatDoesMedicareCoverRoute
   '/checkout/return': typeof CheckoutReturnRoute
 }
@@ -119,6 +128,7 @@ export interface FileRouteTypes {
     | '/formulary-check'
     | '/guide'
     | '/michigan-medicare-2027'
+    | '/privacy'
     | '/what-does-medicare-cover'
     | '/checkout/return'
   fileRoutesByTo: FileRoutesByTo
@@ -131,6 +141,7 @@ export interface FileRouteTypes {
     | '/formulary-check'
     | '/guide'
     | '/michigan-medicare-2027'
+    | '/privacy'
     | '/what-does-medicare-cover'
     | '/checkout/return'
   id:
@@ -143,6 +154,7 @@ export interface FileRouteTypes {
     | '/formulary-check'
     | '/guide'
     | '/michigan-medicare-2027'
+    | '/privacy'
     | '/what-does-medicare-cover'
     | '/checkout/return'
   fileRoutesById: FileRoutesById
@@ -156,6 +168,7 @@ export interface RootRouteChildren {
   FormularyCheckRoute: typeof FormularyCheckRoute
   GuideRoute: typeof GuideRoute
   MichiganMedicare2027Route: typeof MichiganMedicare2027Route
+  PrivacyRoute: typeof PrivacyRoute
   WhatDoesMedicareCoverRoute: typeof WhatDoesMedicareCoverRoute
   CheckoutReturnRoute: typeof CheckoutReturnRoute
 }
@@ -218,6 +231,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MichiganMedicare2027RouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/what-does-medicare-cover': {
       id: '/what-does-medicare-cover'
       path: '/what-does-medicare-cover'
@@ -244,6 +264,7 @@ const rootRouteChildren: RootRouteChildren = {
   FormularyCheckRoute: FormularyCheckRoute,
   GuideRoute: GuideRoute,
   MichiganMedicare2027Route: MichiganMedicare2027Route,
+  PrivacyRoute: PrivacyRoute,
   WhatDoesMedicareCoverRoute: WhatDoesMedicareCoverRoute,
   CheckoutReturnRoute: CheckoutReturnRoute,
 }
