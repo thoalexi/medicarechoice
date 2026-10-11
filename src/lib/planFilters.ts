@@ -1,7 +1,6 @@
 // Shared plan criteria used by Compare, the AI plan search and the questionnaire hand-off.
 // One filter implementation so every entry point narrows plans the same way.
 import { PLANS, type Plan, type PlanType } from "./plans";
-import partialData from "./mi-partial-counties.json";
 
 export const TYPES: PlanType[] = ["Original + Medigap", "Advantage HMO", "Advantage PPO", "Other Advantage", "Original only", "Special Needs (SNP)"];
 export const DEFAULT_TYPES: PlanType[] = TYPES.filter((t) => t !== "Special Needs (SNP)");
@@ -98,13 +97,3 @@ export function applyFilters(plans: Plan[], c: UrlCriteria): Plan[] {
     && (!c.must.includes("noReferrals") || !p.referralsNeeded));
 }
 
-const PARTIAL = (partialData as { partial: Record<string, string[]>; notInFile: string[]; period: string });
-export const PARTIAL_PERIOD = PARTIAL.period;
-/** "partial" = CMS says this contract covers only part of the county; "unknown" = contract not yet in the CMS file. */
-export function coverageFlag(p: Plan, county: string): "partial" | "unknown" | null {
-  if (!p.real) return null;
-  const contract = p.id.split("_")[0] ?? "";
-  if (PARTIAL.partial[contract]?.includes(county)) return "partial";
-  if (PARTIAL.notInFile.includes(contract)) return "unknown";
-  return null;
-}
