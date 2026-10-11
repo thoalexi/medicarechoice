@@ -99,7 +99,7 @@ export function validateFigures(next: FiguresPayload, current: FiguresPayload): 
 /** Datasets whose newest file is found by scanning official CMS pages. */
 export const WATCHED = [
   { key: "landscape", page: "https://www.cms.gov/medicare/coverage/prescription-drug-coverage", pattern: /\/files\/zip\/cy(\d{4})-landscape-[\w-]+\.zip/gi, current: "/files/zip/cy2027-landscape-202609-1.zip" },
-  { key: "pbp", page: "https://www.cms.gov/data-research/statistics-trends-and-reports/medicare-advantagepart-d-contract-and-enrollment-data/benefits-data", pattern: /\/files\/zip\/pbp-benefits-(\d{4})[\w-]*\.zip/gi, current: "/files/zip/pbp-benefits-2027.zip" },
+  { key: "pbp", page: "https://www.cms.gov/data-research/statistics-trends-and-reports/medicare-advantagepart-d-contract-and-enrollment-data/benefits-data", pattern: /benefits-data\/(?:pbp-benefits-\d{4}(?:-q\d)?|\d{4}-pbp-benefits(?:-q\d)?)(?=")/gi, current: "benefits-data/pbp-benefits-2027" },
   { key: "stars", page: "https://www.cms.gov/medicare/health-drug-plans/part-c-d-performance-data", pattern: /\/files\/zip\/(\d{4})-star-ratings-data-tables[\w-]*\.zip/gi, current: "/files/zip/2027-star-ratings-data-tables-oct-8-2026.zip" },
 ] as const;
 
