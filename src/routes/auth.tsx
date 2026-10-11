@@ -47,6 +47,11 @@ function AuthPage() {
           {err && <p role="alert" className="text-destructive">{err}</p>}
           <button disabled={busy} className="h-12 w-full rounded-md bg-primary font-bold text-primary-foreground">{busy ? "Signing in…" : "Sign in"}</button>
         </form>
+        <button type="button" className="mt-4 min-h-12 font-bold text-primary underline" onClick={async () => {
+          if (!email) return setErr("Type your email above first.");
+          await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reset-password` });
+          setErr("If that email belongs to the owner, a reset link is on its way.");
+        }}>Forgot password?</button>
       </main>
     </div>
   );
