@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Pill } from "lucide-react";
 import { useMemo, useState } from "react";
 import { SiteHeader, Disclaimer } from "@/components/SiteHeader";
 import { DataAsOf } from "@/components/DataAsOf";
@@ -100,8 +101,8 @@ function Compare() {
                 <p className="mt-3">True yearly cost includes the standard Part B premium ({money(PART_B_MONTHLY)}/mo, 2026 figure). Source: {DATA_SOURCE}.</p>
                 <p className="mt-3">Extra benefits show what’s included in the premium; confirm details in the plan’s Summary of Benefits. All costs are estimates, not quotes.</p>
               </HelpPopover></div>
-              <div className="mt-2 flex flex-wrap items-center gap-x-2 text-base">
-                <p>Each plan has its own drug list (formulary).</p>
+              <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-2xl border-2 border-primary bg-card p-4">
+                <span className="flex items-center gap-2"><Pill aria-hidden className="size-6 shrink-0 text-accent" /><p className="font-semibold">Each plan has its own drug list (formulary).</p></span>
                 <Link to="/formulary-check" className="inline-flex min-h-12 items-center font-bold text-primary underline">Check my drugs →</Link>
                 <HelpPopover label="Why check my drugs before enrolling?">
                   <h2 className="text-lg font-bold">Check your medications</h2>
