@@ -165,8 +165,8 @@ function Compare() {
                   <div className="mt-1 md:hidden"><span className="font-display text-2xl font-bold text-primary">{money(c.total)}</span> <span className="text-sm text-muted-foreground">true yearly cost · worst case {c.worstCase ? money(c.worstCase) : "unlimited"}</span></div>
                   <div className="text-muted-foreground">{p.type} · {p.carrier}{p.starRating ? ` · ${p.starRating}★${p.starYear === 2026 ? " (2026)" : ""}` : ""}</div>
                   <p className="mt-2">{p.summary}</p>
-                  <div className="mt-2 flex flex-wrap gap-2 text-sm">
-                    <span className="rounded-full bg-muted px-3 py-1">Premium {money(p.monthlyPremium)}/mo</span>
+                  <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
+                    <span className="inline-flex items-center rounded-full bg-muted px-3 py-1">Premium {money(p.monthlyPremium)}/mo</span>
                     <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1">Medical max {p.oopMax === null ? "no limit" : money(p.oopMax)}
                       <HelpPopover compact label="Medical max vs. worst case">
                         <h2 className="text-lg font-bold">Medical max vs. worst case</h2>
