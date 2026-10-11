@@ -92,10 +92,23 @@ function Compare() {
                 <div><dt className="font-bold">Monthly premium</dt><dd>What the plan charges each month. The standard Part B premium is usually separate, even when a plan says its premium is $0.</dd></div>
                 <div><dt className="font-bold">Worst-case limit</dt><dd>Our estimated bad-year total: annual premiums, the medical out-of-pocket limit, and the Part D drug cap. Original Medicare alone has no medical limit. Drugs outside a plan’s formulary can cost more.</dd></div>
               </dl>
-            </HelpPopover></div><p className="mt-1 text-sm text-muted-foreground">Independent site — not affiliated with Medicare or CMS. Official info: Medicare.gov or 1-800-MEDICARE.</p><DataAsOf /><p className="text-muted-foreground">{rows.length} plans · select up to 3 to compare side by side</p><p className="text-sm text-muted-foreground">True yearly cost includes the standard Part B premium ({money(PART_B_MONTHLY)}/mo, 2026 figure). Source: {DATA_SOURCE}. Extra benefits show what’s included in the premium; confirm details in the plan’s Summary of Benefits.</p>
-              <div className="mt-3 rounded-xl border-2 border-primary bg-primary/5 p-4 text-sm">
-                <p>💊 Every plan that covers prescriptions has its own <strong>formulary</strong> — the list of drugs it covers. Before you enroll, look up your medications in the plan’s formulary to make sure they’re covered and see what you’d pay. <Link to="/formulary-check" className="font-bold text-primary underline">Check my drugs against a formulary →</Link></p>
-                <p className="mt-2">Our worst-case figure includes the Part D drug out-of-pocket cap ({money(PART_D_OOP_CAP)}, 2026 figure; 2027 not yet confirmed) — but only if your drugs are on the plan’s formulary. If you take an expensive drug that isn’t covered, your true cost could be higher.</p>
+            </HelpPopover></div>
+              <p className="mt-1 text-muted-foreground">{rows.length} plans · select up to 3 to compare side by side</p>
+              <div className="flex items-center gap-1"><DataAsOf compact /><HelpPopover label="About this independent guide and its estimates">
+                <h2 className="text-lg font-bold">About these estimates</h2>
+                <p className="mt-3">Independent site — not affiliated with Medicare or CMS. Official info: Medicare.gov or 1-800-MEDICARE.</p>
+                <p className="mt-3">True yearly cost includes the standard Part B premium ({money(PART_B_MONTHLY)}/mo, 2026 figure). Source: {DATA_SOURCE}.</p>
+                <p className="mt-3">Extra benefits show what’s included in the premium; confirm details in the plan’s Summary of Benefits. All costs are estimates, not quotes.</p>
+              </HelpPopover></div>
+              <div className="mt-2 flex flex-wrap items-center gap-x-2 text-base">
+                <p>Each plan has its own drug list (formulary).</p>
+                <Link to="/formulary-check" className="inline-flex min-h-12 items-center font-bold text-primary underline">Check my drugs →</Link>
+                <HelpPopover label="Why check my drugs before enrolling?">
+                  <h2 className="text-lg font-bold">Check your medications</h2>
+                  <p className="mt-3">Before you enroll, check the plan’s formulary to make sure your medications are covered and see what you’d pay.</p>
+                  <p className="mt-3">Our worst-case estimate includes the Part D drug out-of-pocket cap ({money(PART_D_OOP_CAP)}, 2026 figure; 2027 not yet confirmed), but only for drugs on the plan’s formulary. An expensive drug that isn’t covered could make your true cost higher.</p>
+                  <p className="mt-3">An Advantage plan’s medical out-of-pocket limit does not include drugs.</p>
+                </HelpPopover>
               </div></div>
             <div className="flex items-center gap-1 font-bold">Sort by <select className="ml-2 rounded-lg border-2 border-input bg-card p-2" value={sort} onChange={(e) => setSort(e.target.value as typeof sort)}>
               <option value="total">True yearly cost</option><option value="premium">Monthly premium</option><option value="oop">Worst-case limit</option></select>
