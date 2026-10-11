@@ -20,14 +20,35 @@ export const Route = createFileRoute("/reset-password")({
 
 function ResetPage() {
   const navigate = useNavigate();
-  const [ready, setReady] = useState(false);
+  const [state, setState] = useState<"checking" | "ready" | "expired" | "none">("checking");
   const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
   const [msg, setMsg] = useState("");
+  const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    const { data } = supabase.auth.onAuthStateChange((_e, s) => { if (s) setReady(true); });
-    supabase.auth.getSession().then(({ data: d }) => { if (d.session) setReady(true); });
+    let done = false;
+    const ok = () => { done = true; setState("ready"); };
+    const { data } = supabase.auth.onAuthStateChange((_e, s) => { if (s) ok(); });
+    (async () => {
+      const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+      const query = new URLSearchParams(window.location.search);
+      if (hash.get("error_code") || query.get("error_code")) { setState("expired"); return; }
+      const at = hash.get("access_token"), rt = hash.get("refresh_token");
+      if (at && rt) {
+        const { error } = await supabase.auth.setSession({ access_token: at, refresh_token: rt });
+        if (!error) { history.replaceState(null, "", "/reset-password"); return ok(); }
+      }
+      const code = query.get("code");
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        if (!error) { history.replaceState(null, "", "/reset-password"); return ok(); }
+      }
+      const { data: d } = await supabase.auth.getSession();
+      if (d.session) return ok();
+      setTimeout(() => { if (!done) setState(at || code ? "expired" : "none"); }, 1500);
+    })();
     return () => data.subscription.unsubscribe();
   }, []);
 
@@ -41,20 +62,37 @@ function ResetPage() {
     navigate({ to: "/admin/cms-updates" });
   }
 
+  async function sendLink(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reset-password` });
+    setBusy(false); setSent(true);
+  }
+
+  const input = "mt-1 h-12 w-full rounded-md border border-input bg-card px-3 text-base";
+  const btn = "h-12 w-full rounded-md bg-primary font-bold text-primary-foreground";
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <main className="mx-auto max-w-md px-4 py-12">
         <h1 className="text-3xl font-bold">Set your password</h1>
-        {!ready ? (
-          <p className="mt-4">Open this page from the link in your email. If the link has expired, use “Forgot password?” on the sign-in page to get a new one.</p>
-        ) : (
+        {state === "checking" && <p className="mt-4">Checking your link…</p>}
+        {state === "ready" && (
           <form onSubmit={submit} className="mt-6 space-y-4">
             <label className="block"><span className="font-bold">New password</span>
-              <input type="password" required minLength={10} autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} className="mt-1 h-12 w-full rounded-md border border-input bg-card px-3 text-base" /></label>
+              <input type="password" required minLength={10} autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} className={input} /></label>
             {msg && <p role="alert" className="text-destructive">{msg}</p>}
-            <button disabled={busy} className="h-12 w-full rounded-md bg-primary font-bold text-primary-foreground">{busy ? "Saving…" : "Save password"}</button>
+            <button disabled={busy} className={btn}>{busy ? "Saving…" : "Save password"}</button>
           </form>
+        )}
+        {(state === "expired" || state === "none") && (
+          sent ? <p className="mt-4" role="status">A new link is on its way. Open the newest email and tap its button — older links stop working.</p> : (
+          <form onSubmit={sendLink} className="mt-6 space-y-4">
+            <p>{state === "expired" ? "That link has expired or was already used. Each link works only once." : "To set your password, we'll email you a link."} Enter your email and we'll send a new one.</p>
+            <label className="block"><span className="font-bold">Email</span>
+              <input type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} className={input} /></label>
+            <button disabled={busy} className={btn}>{busy ? "Sending…" : "Email me a new link"}</button>
+          </form>)
         )}
       </main>
     </div>
