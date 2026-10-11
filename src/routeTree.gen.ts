@@ -10,7 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CompareRouteImport } from './routes/compare'
 import { Route as DonateRouteImport } from './routes/donate'
 import { Route as FeedbackRouteImport } from './routes/feedback'
@@ -23,15 +25,26 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as WhatDoesMedicareCoverRouteImport } from './routes/what-does-medicare-cover'
 import { Route as AdminValidationRouteImport } from './routes/admin.validation'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout/return'
+import { Route as AuthenticatedAdminCmsUpdatesRouteImport } from './routes/_authenticated/admin.cms-updates'
+import { Route as ApiPublicCmsCheckRouteImport } from './routes/api/public/cms-check'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CompareRoute = CompareRouteImport.update({
@@ -94,10 +107,22 @@ const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
   path: '/checkout/return',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminCmsUpdatesRoute =
+  AuthenticatedAdminCmsUpdatesRouteImport.update({
+    id: '/admin/cms-updates',
+    path: '/admin/cms-updates',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const ApiPublicCmsCheckRoute = ApiPublicCmsCheckRouteImport.update({
+  id: '/api/public/cms-check',
+  path: '/api/public/cms-check',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/auth': typeof AuthRoute
   '/compare': typeof CompareRoute
   '/donate': typeof DonateRoute
   '/feedback': typeof FeedbackRoute
@@ -110,10 +135,13 @@ export interface FileRoutesByFullPath {
   '/what-does-medicare-cover': typeof WhatDoesMedicareCoverRoute
   '/admin/validation': typeof AdminValidationRoute
   '/checkout/return': typeof CheckoutReturnRoute
+  '/admin/cms-updates': typeof AuthenticatedAdminCmsUpdatesRoute
+  '/api/public/cms-check': typeof ApiPublicCmsCheckRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/auth': typeof AuthRoute
   '/compare': typeof CompareRoute
   '/donate': typeof DonateRoute
   '/feedback': typeof FeedbackRoute
@@ -126,11 +154,15 @@ export interface FileRoutesByTo {
   '/what-does-medicare-cover': typeof WhatDoesMedicareCoverRoute
   '/admin/validation': typeof AdminValidationRoute
   '/checkout/return': typeof CheckoutReturnRoute
+  '/admin/cms-updates': typeof AuthenticatedAdminCmsUpdatesRoute
+  '/api/public/cms-check': typeof ApiPublicCmsCheckRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/about': typeof AboutRoute
+  '/auth': typeof AuthRoute
   '/compare': typeof CompareRoute
   '/donate': typeof DonateRoute
   '/feedback': typeof FeedbackRoute
@@ -143,12 +175,15 @@ export interface FileRoutesById {
   '/what-does-medicare-cover': typeof WhatDoesMedicareCoverRoute
   '/admin/validation': typeof AdminValidationRoute
   '/checkout/return': typeof CheckoutReturnRoute
+  '/_authenticated/admin/cms-updates': typeof AuthenticatedAdminCmsUpdatesRoute
+  '/api/public/cms-check': typeof ApiPublicCmsCheckRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/about'
+    | '/auth'
     | '/compare'
     | '/donate'
     | '/feedback'
@@ -161,10 +196,13 @@ export interface FileRouteTypes {
     | '/what-does-medicare-cover'
     | '/admin/validation'
     | '/checkout/return'
+    | '/admin/cms-updates'
+    | '/api/public/cms-check'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
+    | '/auth'
     | '/compare'
     | '/donate'
     | '/feedback'
@@ -177,10 +215,14 @@ export interface FileRouteTypes {
     | '/what-does-medicare-cover'
     | '/admin/validation'
     | '/checkout/return'
+    | '/admin/cms-updates'
+    | '/api/public/cms-check'
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/about'
+    | '/auth'
     | '/compare'
     | '/donate'
     | '/feedback'
@@ -193,11 +235,15 @@ export interface FileRouteTypes {
     | '/what-does-medicare-cover'
     | '/admin/validation'
     | '/checkout/return'
+    | '/_authenticated/admin/cms-updates'
+    | '/api/public/cms-check'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
+  AuthRoute: typeof AuthRoute
   CompareRoute: typeof CompareRoute
   DonateRoute: typeof DonateRoute
   FeedbackRoute: typeof FeedbackRoute
@@ -210,6 +256,7 @@ export interface RootRouteChildren {
   WhatDoesMedicareCoverRoute: typeof WhatDoesMedicareCoverRoute
   AdminValidationRoute: typeof AdminValidationRoute
   CheckoutReturnRoute: typeof CheckoutReturnRoute
+  ApiPublicCmsCheckRoute: typeof ApiPublicCmsCheckRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -221,11 +268,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about': {
       id: '/about'
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/compare': {
@@ -312,12 +373,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckoutReturnRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin/cms-updates': {
+      id: '/_authenticated/admin/cms-updates'
+      path: '/admin/cms-updates'
+      fullPath: '/admin/cms-updates'
+      preLoaderRoute: typeof AuthenticatedAdminCmsUpdatesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/public/cms-check': {
+      id: '/api/public/cms-check'
+      path: '/api/public/cms-check'
+      fullPath: '/api/public/cms-check'
+      preLoaderRoute: typeof ApiPublicCmsCheckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminCmsUpdatesRoute: typeof AuthenticatedAdminCmsUpdatesRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminCmsUpdatesRoute: AuthenticatedAdminCmsUpdatesRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AboutRoute: AboutRoute,
+  AuthRoute: AuthRoute,
   CompareRoute: CompareRoute,
   DonateRoute: DonateRoute,
   FeedbackRoute: FeedbackRoute,
@@ -330,6 +418,7 @@ const rootRouteChildren: RootRouteChildren = {
   WhatDoesMedicareCoverRoute: WhatDoesMedicareCoverRoute,
   AdminValidationRoute: AdminValidationRoute,
   CheckoutReturnRoute: CheckoutReturnRoute,
+  ApiPublicCmsCheckRoute: ApiPublicCmsCheckRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

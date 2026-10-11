@@ -14,6 +14,75 @@ export type Database = {
   }
   public: {
     Tables: {
+      dataset_checks: {
+        Row: {
+          dataset_key: string
+          found_url: string | null
+          last_checked_at: string | null
+          last_updated_at: string | null
+          note: string | null
+          update_available: boolean
+        }
+        Insert: {
+          dataset_key: string
+          found_url?: string | null
+          last_checked_at?: string | null
+          last_updated_at?: string | null
+          note?: string | null
+          update_available?: boolean
+        }
+        Update: {
+          dataset_key?: string
+          found_url?: string | null
+          last_checked_at?: string | null
+          last_updated_at?: string | null
+          note?: string | null
+          update_available?: boolean
+        }
+        Relationships: []
+      }
+      dataset_versions: {
+        Row: {
+          coverage_year: number
+          dataset_key: string
+          id: string
+          imported_at: string
+          payload: Json
+          published_at: string | null
+          report: Json
+          sha256: string
+          source_published: string | null
+          source_url: string | null
+          status: string
+        }
+        Insert: {
+          coverage_year: number
+          dataset_key: string
+          id?: string
+          imported_at?: string
+          payload: Json
+          published_at?: string | null
+          report?: Json
+          sha256: string
+          source_published?: string | null
+          source_url?: string | null
+          status?: string
+        }
+        Update: {
+          coverage_year?: number
+          dataset_key?: string
+          id?: string
+          imported_at?: string
+          payload?: Json
+          published_at?: string | null
+          report?: Json
+          sha256?: string
+          source_published?: string | null
+          source_url?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       feedback: {
         Row: {
           category: string
@@ -62,15 +131,49 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_live_datasets: {
+        Args: never
+        Returns: {
+          dataset_key: string
+          payload: Json
+          published_at: string
+        }[]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      publish_dataset_version: { Args: { _id: string }; Returns: undefined }
+      restore_previous_version: { Args: { _key: string }; Returns: undefined }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "owner"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -197,6 +300,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["owner"],
+    },
   },
 } as const

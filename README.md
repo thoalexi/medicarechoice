@@ -37,3 +37,15 @@ Built with TanStack Start, React 19, Tailwind CSS and [Lovable](https://lovable.
 bun install
 bun dev
 ```
+
+## How to run the next CMS update
+
+**In the browser (star ratings and yearly Medicare figures):**
+1. Sign in at `/auth`, then open `/admin/cms-updates`.
+2. Press **Check CMS now** to see whether CMS posted newer files (last checked and last updated are shown separately).
+3. Star ratings: paste the cms.gov Star Ratings Data Tables ZIP link (or upload the "Summary Ratings" CSV) and press preview. Review changes and checks.
+4. Yearly figures: type only CMS-announced amounts with the cms.gov link; tick "Confirmed" only when CMS has announced that year's figure. Preview.
+5. Press **Publish checked update**. If anything looks wrong, press **Restore previous version**.
+
+**Plan list and benefits (Landscape and PBP files)** — still imported with the scripts:
+`python3 scripts/build-mi-landscape.py`, `build-mi-extras.py`, `build-mi-copays.py`, `build-mi-services.py`, then `python3 scripts/validate-data.py` and `bun scripts/run-test-profiles.ts`; update `data/sources.json`. Tests: `bunx vitest run`.

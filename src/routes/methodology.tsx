@@ -40,7 +40,7 @@ function HowWeCompare() {
 
         <Section title="Where the plan data comes from">
           <p>Every Michigan plan, price and benefit comes from official files published by CMS, the federal agency that runs Medicare: the 2027 Medicare Advantage and Part D Landscape files and the 2027 Plan Benefit Package files. We don't type in or estimate plan figures by hand.</p>
-          <p>CMS hasn't released 2027 star ratings yet, so we show 2026 ratings, labeled "2026." New plans show "New — no rating yet." Medigap prices are typical estimates and are labeled that way.</p>
+          <p>Star ratings are the CMS 2027 ratings released October 8, 2026, matched by contract number. Contracts CMS calls too new to measure show "New — no rating yet." Medigap prices are typical estimates and are labeled that way.</p>
         </Section>
 
         <Section title="True yearly cost">

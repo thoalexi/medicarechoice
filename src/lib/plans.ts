@@ -2,7 +2,27 @@ import cms from "./cms2027-mi.json";
 import extrasData from "./cms2027-mi-extras.json";
 import zipCounty from "./mi-zip-county.json";
 import stars2026 from "./cms2026-stars.json";
+import stars2027 from "./cms2027-stars.json";
+import figures from "./medicare-figures.json";
 const STARS_2026 = stars2026 as Record<string, number>;
+export type StarsPayload = { year: number; ratings: Record<string, { stars: number; category?: string }>; unavailable: Record<string, string> };
+let S27 = stars2027 as StarsPayload;
+/** CMS rating by contract ID from the current star file; 2026 only for contracts CMS left out of it entirely. */
+function starFor(contract: string): { stars: number; year: number | null } {
+  const r = S27.ratings[contract];
+  if (r) return { stars: r.stars, year: S27.year };
+  if (S27.unavailable[contract]) return { stars: 0, year: null };
+  const old = STARS_2026[contract];
+  return old ? { stars: old, year: 2026 } : { stars: 0, year: null };
+}
+export type Figure = { value: number; year: number; confirmed: boolean; source: string; label: string };
+export type FigureKey = "partDOopCap" | "partDStandardDeductible" | "partBMonthly" | "partBDeductible";
+export type FiguresPayload = { coverageYear: number; figures: Record<FigureKey, Figure> };
+let FIG_YEAR = figures.coverageYear;
+export const FIGURES = JSON.parse(JSON.stringify(figures.figures)) as Record<FigureKey, Figure>;
+/** "2027 figure" or "2026 figure — 2027 not yet announced" */
+export const figureNote = (f: Figure) => (f.confirmed ? `${f.year} figure` : `${f.year} figure — ${FIG_YEAR} not yet announced`);
+export const PLAN_COUNT = cms.plans.length;
 
 // Official CMS CY2027 Landscape (file 202609.1) — every Medicare Advantage plan sold in Michigan.
 // Premiums, out-of-pocket limits, star ratings and county availability are real CMS figures.
@@ -23,9 +43,9 @@ export function regionFromZip(zip: string): Region {
 }
 export const regionLabel = (r: Region) => (r ? `${r} County, Michigan` : "Outside Michigan — showing Original Medicare & Medigap only");
 
-export const PART_B_MONTHLY = 202.9; // 2026 figure; update when CMS announces 2027 Part B
-export const PART_D_OOP_CAP = 2100; // 2026 figure; update when CMS confirms the 2027 cap
-export const FIGURE_YEAR = 2026;
+export let PART_B_MONTHLY = FIGURES.partBMonthly.value;
+export let PART_D_OOP_CAP = FIGURES.partDOopCap.value;
+export let FIGURE_YEAR = FIGURES.partBMonthly.year;
 const PDP_PREMIUM = Math.round(cms.pdpMedian); // median 2027 Michigan stand-alone Part D premium
 
 export interface Plan {
@@ -119,8 +139,8 @@ const cmsPlans: Plan[] = cms.plans.map((p) => {
     copays: x ? { pcp: x.pcp, spec: x.spec, er: x.er, stay: x.stay, medDed: x.medDed } : undefined,
     rxDeductible: p.rx ? (p.rxDed ?? 0) : undefined,
     deductible: x?.medDed ?? 0,
-    starRating: p.stars || STARS_2026[p.id.split("_")[0] ?? ""] || 0,
-    starYear: p.stars ? 2027 : STARS_2026[p.id.split("_")[0] ?? ""] ? 2026 : null,
+    starRating: starFor(p.id.split("_")[0] ?? "").stars,
+    starYear: starFor(p.id.split("_")[0] ?? "").year,
     hospitals: [],
     summary: `${net}${p.rx ? "" : " Does not include drug coverage."}${snpNote}`,
     real: true,
@@ -128,9 +148,9 @@ const cmsPlans: Plan[] = cms.plans.map((p) => {
 });
 
 const originalPlans: Plan[] = [
-  { id: "orig", name: "Original Medicare (A + B) + Part D", carrier: "Medicare", type: "Original only", regions: "all", monthlyPremium: 0, deductible: 283, oopMax: null, coinsurance: 0.2, drugCoverage: false, drugPremium: PDP_PREMIUM, networkSize: "Any Medicare doctor", referralsNeeded: false, dental: false, vision: false, hearing: false, fitness: false, partBGiveback: null, preventiveZero: true, starRating: 0, hospitals: [], summary: "Go to any doctor that takes Medicare, but you pay 20% with no yearly limit. Risky without extra coverage.", real: false },
-  { id: "medigap-g", name: "Medigap Plan G + Part D", carrier: "Various insurers (typical price)", type: "Original + Medigap", regions: "all", monthlyPremium: 168, deductible: 283, oopMax: 283, coinsurance: 0, drugCoverage: false, drugPremium: PDP_PREMIUM, networkSize: "Any Medicare doctor", referralsNeeded: false, dental: false, vision: false, hearing: false, fitness: false, partBGiveback: null, preventiveZero: true, starRating: 0, hospitals: [], summary: "Highest peace of mind. After the small Part B deductible, nearly everything is covered. Price shown is a typical estimate.", real: false },
-  { id: "medigap-n", name: "Medigap Plan N + Part D", carrier: "Various insurers (typical price)", type: "Original + Medigap", regions: "all", monthlyPremium: 122, deductible: 283, oopMax: 900, coinsurance: 0.03, drugCoverage: false, drugPremium: PDP_PREMIUM, networkSize: "Any Medicare doctor", referralsNeeded: false, dental: false, vision: false, hearing: false, fitness: false, partBGiveback: null, preventiveZero: true, starRating: 0, hospitals: [], summary: "Cheaper than Plan G, with small copays ($20 office / $50 ER). Still use any Medicare doctor. Price shown is a typical estimate.", real: false },
+  { id: "orig", name: "Original Medicare (A + B) + Part D", carrier: "Medicare", type: "Original only", regions: "all", monthlyPremium: 0, deductible: FIGURES.partBDeductible.value, oopMax: null, coinsurance: 0.2, drugCoverage: false, drugPremium: PDP_PREMIUM, networkSize: "Any Medicare doctor", referralsNeeded: false, dental: false, vision: false, hearing: false, fitness: false, partBGiveback: null, preventiveZero: true, starRating: 0, hospitals: [], summary: "Go to any doctor that takes Medicare, but you pay 20% with no yearly limit. Risky without extra coverage.", real: false },
+  { id: "medigap-g", name: "Medigap Plan G + Part D", carrier: "Various insurers (typical price)", type: "Original + Medigap", regions: "all", monthlyPremium: 168, deductible: FIGURES.partBDeductible.value, oopMax: FIGURES.partBDeductible.value, coinsurance: 0, drugCoverage: false, drugPremium: PDP_PREMIUM, networkSize: "Any Medicare doctor", referralsNeeded: false, dental: false, vision: false, hearing: false, fitness: false, partBGiveback: null, preventiveZero: true, starRating: 0, hospitals: [], summary: "Highest peace of mind. After the small Part B deductible, nearly everything is covered. Price shown is a typical estimate.", real: false },
+  { id: "medigap-n", name: "Medigap Plan N + Part D", carrier: "Various insurers (typical price)", type: "Original + Medigap", regions: "all", monthlyPremium: 122, deductible: FIGURES.partBDeductible.value, oopMax: 900, coinsurance: 0.03, drugCoverage: false, drugPremium: PDP_PREMIUM, networkSize: "Any Medicare doctor", referralsNeeded: false, dental: false, vision: false, hearing: false, fitness: false, partBGiveback: null, preventiveZero: true, starRating: 0, hospitals: [], summary: "Cheaper than Plan G, with small copays ($20 office / $50 ER). Still use any Medicare doctor. Price shown is a typical estimate.", real: false },
 ];
 
 export const PLANS: Plan[] = [...originalPlans, ...cmsPlans];
@@ -234,3 +254,29 @@ export function rankPlans(scored: Scored[]): Scored[] {
 }
 
 export const money = (n: number) => "$" + Math.round(n).toLocaleString();
+
+/** Owner-published data from the CMS Updates screen; null = use the built-in files. */
+export type LiveData = { stars?: StarsPayload | null; figures?: FiguresPayload | null; publishedAt?: Record<string, string> };
+let appliedKey = "";
+/** Apply live overrides once per distinct payload (same data on server and browser, so no hydration mismatch). */
+export function applyLiveData(live: LiveData | null | undefined) {
+  const key = JSON.stringify(live?.publishedAt ?? {});
+  if (key === appliedKey) return;
+  appliedKey = key;
+  S27 = live?.stars ?? (stars2027 as StarsPayload);
+  const f = live?.figures ?? (figures as FiguresPayload);
+  FIG_YEAR = f.coverageYear;
+  Object.assign(FIGURES, JSON.parse(JSON.stringify(f.figures)));
+  PART_B_MONTHLY = FIGURES.partBMonthly.value;
+  PART_D_OOP_CAP = FIGURES.partDOopCap.value;
+  FIGURE_YEAR = FIGURES.partBMonthly.year;
+  for (const p of PLANS) {
+    if (p.real) {
+      const s = starFor(p.id.split("_")[0] ?? "");
+      p.starRating = s.stars; p.starYear = s.year;
+    } else {
+      p.deductible = FIGURES.partBDeductible.value;
+      if (p.id === "medigap-g") p.oopMax = FIGURES.partBDeductible.value;
+    }
+  }
+}

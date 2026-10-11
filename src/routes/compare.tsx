@@ -7,7 +7,7 @@ import { PlanSearch } from "@/components/PlanSearch";
 import { HelpPopover } from "@/components/HelpPopover";
 import { BenefitSearchPanel } from "@/components/BenefitSearch";
 import type { ServiceChip } from "@/lib/benefitSearch.functions";
-import { COUNTIES, DATA_SOURCE, PART_B_MONTHLY, PART_D_OOP_CAP, plansFor, estimateAnnual, money, type Health, type PlanType, type Region, type Share } from "@/lib/plans";
+import { COUNTIES, DATA_SOURCE, PART_B_MONTHLY, PART_D_OOP_CAP, FIGURES, figureNote, plansFor, estimateAnnual, money, type Health, type PlanType, type Region, type Share } from "@/lib/plans";
 
 export const Route = createFileRoute("/compare")({
   head: () => ({
@@ -98,7 +98,7 @@ function Compare() {
               <div className="flex items-center gap-1"><DataAsOf compact /><HelpPopover label="About this independent guide and its estimates">
                 <h2 className="text-lg font-bold">About these estimates</h2>
                 <p className="mt-3">Independent site — not affiliated with Medicare or CMS. Official info: Medicare.gov or 1-800-MEDICARE.</p>
-                <p className="mt-3">True yearly cost includes the standard Part B premium ({money(PART_B_MONTHLY)}/mo, 2026 figure). Source: {DATA_SOURCE}.</p>
+                <p className="mt-3">True yearly cost includes the standard Part B premium ({money(PART_B_MONTHLY)}/mo, {figureNote(FIGURES.partBMonthly)}). Source: {DATA_SOURCE}.</p>
                 <p className="mt-3">Extra benefits show what’s included in the premium; confirm details in the plan’s Summary of Benefits. All costs are estimates, not quotes.</p>
               </HelpPopover></div>
               <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-2xl border-2 border-primary bg-card p-4">
@@ -107,7 +107,7 @@ function Compare() {
                 <HelpPopover label="Why check my drugs before enrolling?">
                   <h2 className="text-lg font-bold">Check your medications</h2>
                   <p className="mt-3">Before you enroll, check the plan’s formulary to make sure your medications are covered and see what you’d pay.</p>
-                  <p className="mt-3">Our worst-case estimate includes the Part D drug out-of-pocket cap ({money(PART_D_OOP_CAP)}, 2026 figure; 2027 not yet confirmed), but only for drugs on the plan’s formulary. An expensive drug that isn’t covered could make your true cost higher.</p>
+                  <p className="mt-3">Our worst-case estimate includes the Part D drug out-of-pocket cap ({money(PART_D_OOP_CAP)}, {figureNote(FIGURES.partDOopCap)}), but only for drugs on the plan’s formulary. An expensive drug that isn’t covered could make your true cost higher.</p>
                   <p className="mt-3">An Advantage plan’s medical out-of-pocket limit does not include drugs.</p>
                 </HelpPopover>
               </div></div>
@@ -171,7 +171,7 @@ function Compare() {
                       <HelpPopover compact label="Medical max vs. worst case">
                         <h2 className="text-lg font-bold">Medical max vs. worst case</h2>
                         <p className="mt-3"><strong>Medical max</strong> is the most you'd pay in a year for covered doctor and hospital care. It does not include drugs or premiums.</p>
-                        <p className="mt-3"><strong>Worst case</strong> adds the medical max, the Part D drug cap ({money(PART_D_OOP_CAP)}, 2026 figure), and a year of premiums including Part B.</p>
+                        <p className="mt-3"><strong>Worst case</strong> adds the medical max, the Part D drug cap ({money(PART_D_OOP_CAP)}, {figureNote(FIGURES.partDOopCap)}), and a year of premiums including Part B.</p>
                       </HelpPopover></span>
                     {(["dental", "vision", "hearing", "fitness", "otc"] as const).map((k) => p.extrasDetail?.[k] && p.extrasDetail[k] !== "Not covered" && (
                       <span key={k} className="rounded-full bg-secondary px-3 py-1" title={p.extrasDetail[k]}>
