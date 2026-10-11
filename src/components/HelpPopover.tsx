@@ -3,7 +3,7 @@ import { CircleHelp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
-export function HelpPopover({ label, children }: { label: string; children: ReactNode }) {
+export function HelpPopover({ label, children, compact = false }: { label: string; children: ReactNode; compact?: boolean }) {
   const [open, setOpen] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const show = () => {
@@ -23,7 +23,7 @@ export function HelpPopover({ label, children }: { label: string; children: Reac
             variant="ghost"
             size="icon"
             aria-label={label}
-            className="size-8 min-h-8 min-w-8 rounded-full text-primary"
+            className={compact ? "size-5 min-h-5 min-w-5 rounded-full text-primary [&_svg]:size-4" : "size-8 min-h-8 min-w-8 rounded-full text-primary"}
             onFocus={show}
           >
             <CircleHelp aria-hidden />
