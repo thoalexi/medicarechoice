@@ -44,3 +44,4 @@
 - [ ] Part B 2027 figures (blocked: CMS has not announced yet)
 
 - [x] Compare page plain-language wording + confirmed/needs-confirmation benefit groups (2026-10-11)
+- [x] Two-row site header (2026-10-11)
