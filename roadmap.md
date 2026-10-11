@@ -38,6 +38,7 @@
 - [x] 2027 star ratings imported by contract number (2026-10-11)
 - [x] Owner-only CMS Updates screen: check, preview, publish, restore (2026-10-11)
 - [x] Create the owner sign-in account, invite email + password reset page (2026-10-11)
+- [x] Fix email link landing on homepage + turn on email sign-in (2026-10-11)
 - [ ] Turn on the weekly automatic CMS check (blocked: database scheduler permission denied; owner uses "Check CMS now")
 - [ ] Browser import of Landscape/PBP files (still done by scripts; large ZIPs)
 - [ ] Part B 2027 figures (blocked: CMS has not announced yet)
