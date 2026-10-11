@@ -32,6 +32,12 @@
 - [x] Footer independence notices, How we compare plans page, About funding section (2026-10-10)
 - [x] Data provenance, validation checks, test profiles, /admin/validation, /methodology (2026-10-10)
 - [ ] Confirm CMS 2027 MOOP limit from the official CMS document, then set limits2027.moopInNetworkMax (blocked: CMS memo not downloadable yet)
-- [ ] Decide whether to switch site Part D figures to CMS-confirmed 2027 ($700 deductible max, $2,400 cap) (waiting on owner)
+- [x] Switch Part D figures to CMS-confirmed 2027 ($2,400 cap; $700 deductible limit) (2026-10-11)
 - [x] Compare plan cards: "Premium $0/mo" pill text sits too high in the pill — lower it so it reads centered
 - [x] Compare plan cards: make the "Medical max" pill the same height as the "Premium" pill
+- [x] 2027 star ratings imported by contract number (2026-10-11)
+- [x] Owner-only CMS Updates screen: check, preview, publish, restore (2026-10-11)
+- [ ] Create the owner sign-in account (blocked: need owner email)
+- [ ] Turn on the weekly automatic CMS check (blocked: scheduler setup needs the cron secret wired up by Lovable support/next step)
+- [ ] Browser import of Landscape/PBP files (still done by scripts; large ZIPs)
+- [ ] Part B 2027 figures (blocked: CMS has not announced yet)
