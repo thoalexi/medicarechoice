@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/SiteHeader";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (s: Record<string, unknown>) => ({ next: typeof s.next === "string" && s.next.startsWith("/") && !s.next.startsWith("//") ? s.next : "/admin/cms-updates" }),
+  validateSearch: (s: Record<string, unknown>) => ({ next: typeof s['next'] === "string" && s['next'].startsWith("/") && !s['next'].startsWith("//") ? s['next'] : "/admin/cms-updates" }),
   head: () => ({
     meta: [
       { title: "Owner sign-in — PlainPlanGuide" },

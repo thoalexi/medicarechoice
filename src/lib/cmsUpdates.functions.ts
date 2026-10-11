@@ -69,7 +69,7 @@ async function stage(ctx: { supabase: any }, row: { dataset_key: "stars" | "figu
 
 /** Stage star ratings from a CMS ZIP URL (cms.gov only) or uploaded Summary Ratings CSV text. */
 export const stageStars = owner
-  .inputValidator((d: { url?: string; csv?: string; released?: string }) => {
+  .inputValidator((d: { url?: string | undefined; csv?: string | undefined; released?: string | undefined }) => {
     if (d.url && !/^https:\/\/www\.cms\.gov\/files\/zip\/[\w.-]+\.zip$/.test(d.url)) throw new Error("Use an official cms.gov ZIP link.");
     if (!d.url && !d.csv) throw new Error("Give a CMS link or upload the Summary Ratings file.");
     if (d.csv && d.csv.length > 5_000_000) throw new Error("File too large.");

@@ -76,7 +76,7 @@ function CmsUpdates() {
               <div key={s.key} className="rounded-md border border-border bg-card p-3 text-sm">
                 <p className="font-bold">{s.label} {c?.update_available && <span className="ml-2 rounded bg-warning px-2 py-0.5 text-primary-foreground">Update available</span>}</p>
                 <p>In use: {s.file} · CMS release {s.released ?? "not stated"} · imported {s.importedAt}</p>
-                <p>Last checked: {when(c?.last_checked_at)} · Last successfully updated: {when(c?.last_updated_at ?? (live?.published_at ?? null)) === "Never" ? s.importedAt : when(c?.last_updated_at ?? live?.published_at)}</p>
+                <p>Last checked: {when(c?.last_checked_at)} · Last successfully updated: {c?.last_updated_at || live?.published_at ? when(c?.last_updated_at ?? live?.published_at) : s.importedAt}</p>
                 {c?.note && <p className="text-muted-foreground">{c.note}{c.found_url && <> — <a className="text-primary underline" href={c.found_url} target="_blank" rel="noreferrer">CMS file</a></>}</p>}
                 {(s.key === "landscape" || s.key === "pbp" || s.key === "services") && <p className="text-muted-foreground">Plan list and benefit files are imported with the project's import scripts (see "How to run the next update" in the README).</p>}
               </div>

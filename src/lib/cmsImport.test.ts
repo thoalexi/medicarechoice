@@ -12,9 +12,9 @@ describe("star import", () => {
   it("parses ratings by contract and keeps unavailable as unavailable", () => {
     const p = parseStarsCsv(hdr + rows + "\nH9999,X,Plan too new to be measured,Plan too new to be measured,Plan too new to be measured\n");
     expect(p.year).toBe(2027);
-    expect(p.ratings.H1000).toEqual({ stars: 4.5, category: "overall" });
-    expect(p.unavailable.H9999).toBe("Plan too new to be measured");
-    expect(p.ratings.H9999).toBeUndefined();
+    expect(p.ratings['H1000']).toEqual({ stars: 4.5, category: "overall" });
+    expect(p.unavailable['H9999']).toBe("Plan too new to be measured");
+    expect(p.ratings['H9999']).toBeUndefined();
   });
   it("rejects malformed files", () => {
     expect(() => parseStarsCsv("a,b\n1,2")).toThrow();
