@@ -42,3 +42,5 @@
 - [ ] Turn on the weekly automatic CMS check (blocked: database scheduler permission denied; owner uses "Check CMS now")
 - [ ] Browser import of Landscape/PBP files (still done by scripts; large ZIPs)
 - [ ] Part B 2027 figures (blocked: CMS has not announced yet)
+
+- [x] Compare page plain-language wording + confirmed/needs-confirmation benefit groups (2026-10-11)
