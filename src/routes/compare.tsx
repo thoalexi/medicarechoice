@@ -17,7 +17,7 @@ export const Route = createFileRoute("/compare")({
   head: () => ({
     meta: [
       { title: "Compare Medicare plans side by side — PlainPlanGuide" },
-      { name: "description", content: "Filter and compare Medigap and Medicare Advantage plans by region, example yearly cost, network, and extras." },
+      { name: "description", content: "Filter and compare Medigap and Medicare Advantage plans by region, estimated yearly cost, network, and extras." },
       { property: "og:title", content: "Compare Medicare plans side by side — PlainPlanGuide" },
       { property: "og:description", content: "An interactive Medicare plan comparison dashboard." },
       { property: "og:type", content: "website" },
@@ -174,7 +174,7 @@ function Compare() {
             <div id="compare-plans"><div className="flex items-center gap-2"><h2 className="text-3xl font-bold sm:text-4xl">Compare plans</h2><HelpPopover label="What do the cost terms mean?">
               <h2 className="text-lg font-bold">Understanding plan costs</h2>
               <dl className="mt-3 space-y-3 text-sm">
-                <div><dt className="font-bold">Example yearly cost</dt><dd>Our estimate of the standard Part B premium, plan premiums, medical spending, prescription spending, and a separate Part D premium when needed.</dd></div>
+                <div><dt className="font-bold">Estimated yearly cost</dt><dd>Our estimate of the standard Part B premium, plan premiums, medical spending, prescription spending, and a separate Part D premium when needed.</dd></div>
                 <div><dt className="font-bold">Monthly premium</dt><dd>What the plan charges each month. The standard Part B premium is usually separate, even when a plan says its premium is $0.</dd></div>
                 <div><dt className="font-bold">High-cost scenario</dt><dd>An illustrative bad year, not a guaranteed maximum: annual premiums, the medical out-of-pocket limit, and the Part D drug cap. Original Medicare alone has no medical limit. Drugs outside a plan’s formulary can cost more.</dd></div>
               </dl>
@@ -183,7 +183,7 @@ function Compare() {
               <div className="flex items-center gap-1"><DataAsOf compact /><HelpPopover label="About this independent guide and its estimates">
                 <h2 className="text-lg font-bold">About these estimates</h2>
                 <p className="mt-3">Independent site — not affiliated with Medicare or CMS. Official info: Medicare.gov or 1-800-MEDICARE.</p>
-                <p className="mt-3">Example yearly cost includes the standard Part B premium ({money(PART_B_MONTHLY)}/mo, {figureNote(FIGURES.partBMonthly)}). Source: {DATA_SOURCE}.</p>
+                <p className="mt-3">Estimated yearly cost includes the standard Part B premium ({money(PART_B_MONTHLY)}/mo, {figureNote(FIGURES.partBMonthly)}). Source: {DATA_SOURCE}.</p>
                 <p className="mt-3">Extra benefits show what’s included in the premium; confirm details in the plan’s Summary of Benefits. All costs are estimates, not quotes.</p>
               </HelpPopover></div>
               <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-2xl border-2 border-primary bg-card p-4">
@@ -197,10 +197,10 @@ function Compare() {
                 </HelpPopover>
               </div></div>
             <div className="flex items-center gap-1 font-bold">Sort by <select className="ml-2 rounded-lg border-2 border-input bg-card p-2" value={sortKey} onChange={(e) => update({ sort: e.target.value as SortKey })}>
-              <option value="total">Example yearly cost</option><option value="premium">Monthly premium</option><option value="oop">High-cost scenario</option></select>
+              <option value="total">Estimated yearly cost</option><option value="premium">Monthly premium</option><option value="oop">High-cost scenario</option></select>
               <HelpPopover label="What do these sort options mean?">
                 <dl className="space-y-3 text-sm">
-                  <div><dt className="font-bold">Example yearly cost</dt><dd>Our estimate of everything you'd pay in a typical year: the standard Part B premium, plan premiums, medical spending, prescription spending, and a separate Part D premium when needed.</dd></div>
+                  <div><dt className="font-bold">Estimated yearly cost</dt><dd>Our estimate of everything you'd pay in a typical year: the standard Part B premium, plan premiums, medical spending, prescription spending, and a separate Part D premium when needed.</dd></div>
                   <div><dt className="font-bold">Monthly premium</dt><dd>What the plan charges each month. The standard Part B premium is usually separate, even when a plan says its premium is $0.</dd></div>
                   <div><dt className="font-bold">High-cost scenario</dt><dd>An illustrative bad year, not a guaranteed maximum: annual premiums plus the plan's medical out-of-pocket limit and the Part D drug cap. Original Medicare alone has no medical limit, and drugs outside a plan's formulary can cost more.</dd></div>
                 </dl>
@@ -223,7 +223,7 @@ function Compare() {
               <table className="w-full text-left"><tbody>
                 <tr><th className="p-2"></th>{cmp.map(({ p }) => <th key={p.id} className="p-2 font-display text-lg">{p.name}</th>)}</tr>
                 {([
-                  ["Example yearly cost", (r) => money(r.c.total)],
+                  ["Estimated yearly cost", (r) => money(r.c.total)],
                   ["Monthly plan premium", (r) => money(r.p.monthlyPremium)],
                   ["Medical deductible", (r) => money(r.p.deductible)],
                   ["Doctor visit", (r) => share(r.p.copays?.pcp)],
@@ -257,7 +257,7 @@ function Compare() {
                 <label className="-m-2 flex size-10 items-start justify-center p-2"><input type="checkbox" aria-label={`Compare ${p.name}`} className="size-6" checked={picked.includes(p.id)} onChange={() => toggle(p.id)} /></label>
                 <div className="min-w-0">
                   <h2 className="text-xl font-bold">{p.name}</h2>
-                  <div className="mt-1 md:hidden"><span className="font-display text-2xl font-bold text-primary">{money(c.total)}</span> <span className="text-sm text-muted-foreground">example yearly cost · worst case {c.worstCase ? money(c.worstCase) : "unlimited"}</span></div>
+                  <div className="mt-1 md:hidden"><span className="font-display text-2xl font-bold text-primary">{money(c.total)}</span> <span className="text-sm text-muted-foreground">estimated yearly cost · worst case {c.worstCase ? money(c.worstCase) : "unlimited"}</span></div>
                   <div className="text-muted-foreground">{p.cmsType && p.real ? p.cmsType : p.type} · {p.carrier}{p.starRating ? ` · ${p.starRating}★${p.starYear === 2026 ? " (2026)" : ""}` : ""}</div>
                   <p className="mt-2">{p.summary}</p>
                   <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
@@ -279,7 +279,7 @@ function Compare() {
                     {openSearch === p.id ? "Hide benefit search" : "🔍 Search this plan's benefits"}</button>
                   {openSearch === p.id && <BenefitSearchPanel plan={p} areaPlans={rows.map((r) => r.p)} chips={chips} setChips={setChips} />}
                 </div>
-                <div className="hidden text-right md:block"><div className="text-sm text-muted-foreground">Example yearly cost</div><div className="font-display text-3xl font-bold text-primary">{money(c.total)}</div>
+                <div className="hidden text-right md:block"><div className="text-sm text-muted-foreground">Estimated yearly cost</div><div className="font-display text-3xl font-bold text-primary">{money(c.total)}</div>
                   <div className="text-sm text-muted-foreground">Worst case {c.worstCase ? money(c.worstCase) : "unlimited"}</div></div>
               </div>
             ))}
