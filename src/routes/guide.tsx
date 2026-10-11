@@ -9,7 +9,7 @@ export const Route = createFileRoute("/guide")({
   head: () => ({
     meta: [
       { title: "Guided Medicare questions — PlainPlanGuide" },
-      { name: "description", content: "Seven plain-language questions that lead to clear Medicare plan recommendations with example yearly costs." },
+      { name: "description", content: "Seven plain-language questions that lead to clear Medicare plan recommendations with estimated yearly costs." },
       { property: "og:title", content: "Guided Medicare questions — PlainPlanGuide" },
       { property: "og:description", content: "Find your best-fit Medicare plan in about 3 minutes." },
       { property: "og:type", content: "website" },
@@ -121,7 +121,7 @@ function Results({ a, onEdit }: { a: Answers; onEdit: () => void }) {
               {i === 0 && <div className="mb-2 inline-block rounded-full bg-accent px-3 py-1 text-sm font-bold text-accent-foreground">Best match</div>}
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div><h2 className="text-2xl font-bold">{plan.name}</h2><div className="text-muted-foreground">{plan.type} · {plan.carrier}{plan.starRating ? ` · ${plan.starRating}★${plan.starYear === 2026 ? " (2026 rating)" : ""}` : ""}</div></div>
-                <div className="text-right"><div className="text-sm text-muted-foreground">Example yearly cost</div><div className="font-display text-4xl font-bold text-primary">{money(cost.total)}</div></div>
+                <div className="text-right"><div className="text-sm text-muted-foreground">Estimated yearly cost</div><div className="font-display text-4xl font-bold text-primary">{money(cost.total)}</div></div>
               </div>
               <p className="mt-3 text-lg">{plan.summary}</p>
               <div className="mt-4 grid grid-cols-3 gap-3 rounded-xl bg-muted p-4 text-center">

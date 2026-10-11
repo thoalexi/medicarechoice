@@ -251,7 +251,7 @@ export function scorePlan(plan: Plan, a: Answers) {
 
 export type SortKey = "total" | "premium" | "oop";
 export const sortForPriority = (p: Answers["priority"]): SortKey => (p === "low-premium" ? "premium" : p === "peace" ? "oop" : "total");
-export const SORT_LABEL: Record<SortKey, string> = { total: "example yearly cost", premium: "monthly premium", oop: "illustrative high-cost scenario" };
+export const SORT_LABEL: Record<SortKey, string> = { total: "estimated yearly cost", premium: "monthly premium", oop: "illustrative high-cost scenario" };
 
 type Scored = ReturnType<typeof scorePlan>;
 const keyOf = (s: Scored, k: SortKey) => (k === "total" ? s.cost.total : k === "premium" ? s.plan.monthlyPremium : s.cost.worstCase ?? Infinity);
@@ -259,8 +259,8 @@ const keyOf = (s: Scored, k: SortKey) => (k === "total" ? s.cost.total : k === "
  * Ordered, explainable rules:
  * 1. Plans with a yearly limit first; Original Medicare alone (no limit) next; Special Needs Plans last.
  * 2. Within each group, plans meeting more of your stated preferences first.
- * 3. Then by the chosen sort (example yearly cost, premium, or high-cost scenario).
- * 4. When sorting by example cost and neighbors are within $250, the lower high-cost scenario goes first.
+ * 3. Then by the chosen sort (estimated yearly cost, premium, or high-cost scenario).
+ * 4. When sorting by estimated cost and neighbors are within $250, the lower high-cost scenario goes first.
  */
 export function rankPlans(scored: Scored[], key: SortKey = "total"): Scored[] {
   const wc = (s: Scored) => s.cost.worstCase ?? Infinity;
@@ -288,7 +288,7 @@ export function explainOrder(a: Pick<Answers, "doctorsFlex" | "travels" | "extra
   const out = [];
   if (prefs.length) out.push(`Plans that meet more of what you asked for (${prefs.join(", ")}) are listed first. This uses each plan's type and CMS benefit data; unknown benefits don't count.`);
   out.push(`Then plans are sorted by ${SORT_LABEL[key]}, lowest first.`);
-  if (key === "total") out.push("When two plans' example costs are within $250, the one with the lower high-cost scenario goes first.");
+  if (key === "total") out.push("When two plans' estimated costs are within $250, the one with the lower high-cost scenario goes first.");
   out.push("Original Medicare alone (no yearly limit) is listed after plans with a limit, and Special Needs Plans are listed last.");
   return out;
 }
