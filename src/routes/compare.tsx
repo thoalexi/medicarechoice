@@ -167,8 +167,8 @@ function Compare() {
                   <p className="mt-2">{p.summary}</p>
                   <div className="mt-2 flex flex-wrap gap-2 text-sm">
                     <span className="rounded-full bg-muted px-3 py-1">Premium {money(p.monthlyPremium)}/mo</span>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-muted py-1 pl-3 pr-1">Medical max {p.oopMax === null ? "no limit" : money(p.oopMax)}
-                      <HelpPopover label="Medical max vs. worst case">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1">Medical max {p.oopMax === null ? "no limit" : money(p.oopMax)}
+                      <HelpPopover compact label="Medical max vs. worst case">
                         <h2 className="text-lg font-bold">Medical max vs. worst case</h2>
                         <p className="mt-3"><strong>Medical max</strong> is the most you'd pay in a year for covered doctor and hospital care. It does not include drugs or premiums.</p>
                         <p className="mt-3"><strong>Worst case</strong> adds the medical max, the Part D drug cap ({money(PART_D_OOP_CAP)}, 2026 figure), and a year of premiums including Part B.</p>
