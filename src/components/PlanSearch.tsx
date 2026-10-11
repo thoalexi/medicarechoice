@@ -1,68 +1,77 @@
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { searchPlans, type PlanMatch } from "@/lib/planSearch.functions";
-import { money } from "@/lib/plans";
+import { searchPlans, type SearchCriteria } from "@/lib/planSearch.functions";
 
-export function PlanSearch({ onResults }: { onResults: (county: string | null, ids: string[]) => void }) {
+/** Lines describing what the search understood — built from validated criteria only, never model text. */
+export function understoodLines(c: SearchCriteria): string[] {
+  const out: string[] = [];
+  if (c.county) out.push(`Location: ${c.county} County`);
+  if (c.carriers.length) out.push(`Insurer: ${c.carriers.join(" or ")}`);
+  if (c.structure) out.push(`Plan type: ${c.structure}${c.structure === "HMO" ? " (not HMO-POS)" : c.structure === "PPO" ? " (includes Regional PPO)" : ""}`);
+  if (!c.structure && c.types.every((t) => t.startsWith("Original"))) out.push("Original Medicare / Medigap");
+  if (!c.structure && c.types.length && c.types.every((t) => t !== "Original + Medigap") && !c.carriers.length) out.push("Medicare Advantage");
+  if (c.maxPremium !== null) out.push(`Monthly premium up to $${c.maxPremium}`);
+  (["dental", "vision", "hearing"] as const).forEach((w) => c.prefs.wants[w] && out.push(`Wants ${w}`));
+  if (c.prefs.keepAnyDoctor) out.push("Wants to see doctors outside a network");
+  if (c.prefs.travels) out.push("Travels out of the area");
+  if (c.prefs.priority === "low-premium") out.push("Low monthly cost matters most");
+  if (c.prefs.priority === "peace") out.push("Predictable costs matter most");
+  return out;
+}
+
+export function PlanSearch({ onApply }: { onApply: (c: SearchCriteria) => void }) {
   const run = useServerFn(searchPlans);
   const [q, setQ] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [followUp, setFollowUp] = useState<string | null>(null);
-  const [matches, setMatches] = useState<PlanMatch[]>([]);
-  const [county, setCounty] = useState<string | null>(null);
+  const [notes, setNotes] = useState<string[]>([]);
+  const [understood, setUnderstood] = useState<string[]>([]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (q.trim().length < 3 || loading) return;
-    setLoading(true); setError(null); setFollowUp(null); setMatches([]);
+    setLoading(true); setError(null); setNotes([]); setUnderstood([]);
     try {
       const r = await run({ data: { query: q.trim() } });
       if (!r.ok) setError(r.error);
-      else if (r.followUp) setFollowUp(r.followUp);
-      else { setMatches(r.matches); setCounty(r.county); if (r.matches.length === 0) setError("No plans matched everything you asked for. Try loosening a requirement."); }
+      else {
+        const c = r.criteria;
+        const n: string[] = [];
+        if (r.needsLocation) n.push("You didn't mention where you live, so we kept the county already selected below. Add your city, county or ZIP to change it.");
+        if (c.related.length) n.push(`${c.related.join(" and ")} ${c.related.length > 1 ? "are" : "is"} a related but separate insurer — you can add it in the insurer filter below.`);
+        if (c.unknownInsurers.length) n.push(`We couldn't find an insurer called "${c.unknownInsurers.join('", "')}" in Michigan's 2027 plans, so we didn't filter by it.`);
+        setNotes(n);
+        setUnderstood(understoodLines(c));
+        onApply(c);
+      }
     } catch { setError("Something went wrong. Please try again."); }
     setLoading(false);
   }
 
   return (
-    <section id="ai-search" className="mx-auto max-w-6xl px-6 pt-10">
-      <div className="rounded-2xl border-2 border-primary/40 bg-card p-6">
-        <h1 className="font-display text-3xl font-bold">Tell us what matters to you</h1>
-        <p className="mt-1 text-muted-foreground">Describe it in your own words and we'll suggest the 3 best-fitting plans.</p>
+    <section id="ai-search" aria-labelledby="ai-search-h" className="border-b bg-secondary/40">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+        <h1 id="ai-search-h" className="font-display text-3xl font-bold">Find Plans Based on Your Needs</h1>
+        <p className="mt-1 text-lg text-muted-foreground">Tell us what you're looking for, and we'll help you narrow down your options.</p>
         <form onSubmit={submit} className="mt-4 flex flex-col gap-3 md:flex-row">
           <textarea aria-label="Describe what you're looking for" maxLength={500} rows={2} value={q} onChange={(e) => setQ(e.target.value)}
-            placeholder="I live in Lansing, see my doctor at Sparrow, want dental and a low monthly cost."
+            placeholder="I live in Flint, want a Blue Cross PPO with dental and a low monthly cost."
             className="flex-1 rounded-lg border-2 border-input bg-background p-3 text-lg" />
-          <button type="submit" disabled={loading || q.trim().length < 3} className="rounded-lg bg-primary px-6 py-3 text-lg font-bold text-primary-foreground disabled:opacity-50">
+          <button type="submit" disabled={loading || q.trim().length < 3} className="min-h-12 rounded-lg bg-primary px-6 py-3 text-lg font-bold text-primary-foreground disabled:opacity-50">
             {loading ? "Searching…" : "Find my plans"}
           </button>
         </form>
-        {followUp && <p className="mt-4 rounded-lg bg-muted p-4 text-lg">{followUp} <span className="text-muted-foreground">Add it to your description and search again.</span></p>}
+        <p className="mt-2 text-sm text-muted-foreground">Please don't include names, Medicare numbers or medical details. What you type is sent to our AI provider to understand it and isn't saved.</p>
         {error && <p role="alert" className="mt-4 rounded-lg bg-muted p-4 text-lg">{error}</p>}
-        {matches.length > 0 && (
-          <>
-            <div className="mt-5 grid gap-4 md:grid-cols-3">
-              {matches.map((m, i) => (
-                <div key={m.id} className="rounded-xl border-2 bg-background p-4">
-                  <div className="text-sm font-bold text-primary">#{i + 1} match</div>
-                  <h2 className="text-lg font-bold">{m.name}</h2>
-                  <div className="text-sm text-muted-foreground">{m.type} · {m.carrier}</div>
-                  <div className="mt-2">Premium <b>{money(m.monthlyPremium)}/mo</b></div>
-                  <div>True yearly cost <b>{money(m.total)}</b></div>
-                  <ul className="mt-2 space-y-1 text-sm">
-                    {m.reasons.map((r) => <li key={r}>✓ {r}</li>)}
-                    {m.cautions.map((c) => <li key={c}>⚠ {c}</li>)}
-                  </ul>
-                </div>
-              ))}
-            </div>
-            <button onClick={() => onResults(county, matches.map((m) => m.id))} className="mt-4 rounded-lg border-2 border-primary px-5 py-2 font-bold text-primary">
-              Compare these {matches.length} side by side
-            </button>
-            <p className="mt-3 text-sm text-muted-foreground">Estimates only, using official CMS 2027 plan data. Check each plan's formulary for your drugs and confirm with Medicare.gov or Michigan MMAP (1-800-803-7174) before enrolling.</p>
-          </>
+        {understood.length > 0 && (
+          <div role="status" className="mt-4 rounded-lg bg-card p-4">
+            <p className="font-bold">Here's what we understood — applied to the filters below:</p>
+            <p className="mt-1">{understood.join(" · ")}</p>
+            {notes.map((n) => <p key={n} className="mt-2 text-muted-foreground">{n}</p>)}
+            <a href="#compare-plans" className="mt-2 inline-flex min-h-12 items-center font-bold text-primary underline">See matching plans ↓</a>
+          </div>
         )}
+        {understood.length === 0 && notes.length > 0 && notes.map((n) => <p key={n} className="mt-2">{n}</p>)}
       </div>
     </section>
   );
