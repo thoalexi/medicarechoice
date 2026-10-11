@@ -127,7 +127,7 @@ function Compare() {
         <button type="button" onClick={() => setShowFilters((s) => !s)} aria-expanded={showFilters} className="flex min-h-14 items-center justify-between rounded-2xl border-2 bg-card px-5 text-lg font-bold lg:hidden">
           <span>Filters · {c.county} County</span><span aria-hidden>{showFilters ? "▲ Hide" : "▼ Show"}</span>
         </button>
-        <aside className={`h-fit space-y-5 rounded-2xl border bg-card p-5 lg:sticky lg:top-4 lg:self-start lg:block ${showFilters ? "" : "hidden"}`}>
+        <aside className={`h-fit space-y-5 rounded-2xl border bg-card p-5 lg:block ${showFilters ? "" : "hidden"}`}>
           <p className="hidden text-2xl font-bold lg:block">Filters</p>
           <label className="block font-bold">Michigan county<select className={sel} value={c.county} onChange={(e) => update({ county: e.target.value })}>
             {COUNTIES.map((x) => <option key={x} value={x}>{x}</option>)}</select></label>
