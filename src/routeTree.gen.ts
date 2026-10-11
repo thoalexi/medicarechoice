@@ -22,6 +22,7 @@ import { Route as HowWeCompareRouteImport } from './routes/how-we-compare'
 import { Route as MethodologyRouteImport } from './routes/methodology'
 import { Route as MichiganMedicare2027RouteImport } from './routes/michigan-medicare-2027'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as WhatDoesMedicareCoverRouteImport } from './routes/what-does-medicare-cover'
 import { Route as AdminValidationRouteImport } from './routes/admin.validation'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout/return'
@@ -92,6 +93,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
   path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WhatDoesMedicareCoverRoute = WhatDoesMedicareCoverRouteImport.update({
   id: '/what-does-medicare-cover',
   path: '/what-does-medicare-cover',
@@ -132,6 +138,7 @@ export interface FileRoutesByFullPath {
   '/methodology': typeof MethodologyRoute
   '/michigan-medicare-2027': typeof MichiganMedicare2027Route
   '/privacy': typeof PrivacyRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/what-does-medicare-cover': typeof WhatDoesMedicareCoverRoute
   '/admin/validation': typeof AdminValidationRoute
   '/checkout/return': typeof CheckoutReturnRoute
@@ -151,6 +158,7 @@ export interface FileRoutesByTo {
   '/methodology': typeof MethodologyRoute
   '/michigan-medicare-2027': typeof MichiganMedicare2027Route
   '/privacy': typeof PrivacyRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/what-does-medicare-cover': typeof WhatDoesMedicareCoverRoute
   '/admin/validation': typeof AdminValidationRoute
   '/checkout/return': typeof CheckoutReturnRoute
@@ -172,6 +180,7 @@ export interface FileRoutesById {
   '/methodology': typeof MethodologyRoute
   '/michigan-medicare-2027': typeof MichiganMedicare2027Route
   '/privacy': typeof PrivacyRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/what-does-medicare-cover': typeof WhatDoesMedicareCoverRoute
   '/admin/validation': typeof AdminValidationRoute
   '/checkout/return': typeof CheckoutReturnRoute
@@ -193,6 +202,7 @@ export interface FileRouteTypes {
     | '/methodology'
     | '/michigan-medicare-2027'
     | '/privacy'
+    | '/reset-password'
     | '/what-does-medicare-cover'
     | '/admin/validation'
     | '/checkout/return'
@@ -212,6 +222,7 @@ export interface FileRouteTypes {
     | '/methodology'
     | '/michigan-medicare-2027'
     | '/privacy'
+    | '/reset-password'
     | '/what-does-medicare-cover'
     | '/admin/validation'
     | '/checkout/return'
@@ -232,6 +243,7 @@ export interface FileRouteTypes {
     | '/methodology'
     | '/michigan-medicare-2027'
     | '/privacy'
+    | '/reset-password'
     | '/what-does-medicare-cover'
     | '/admin/validation'
     | '/checkout/return'
@@ -253,6 +265,7 @@ export interface RootRouteChildren {
   MethodologyRoute: typeof MethodologyRoute
   MichiganMedicare2027Route: typeof MichiganMedicare2027Route
   PrivacyRoute: typeof PrivacyRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   WhatDoesMedicareCoverRoute: typeof WhatDoesMedicareCoverRoute
   AdminValidationRoute: typeof AdminValidationRoute
   CheckoutReturnRoute: typeof CheckoutReturnRoute
@@ -352,6 +365,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/what-does-medicare-cover': {
       id: '/what-does-medicare-cover'
       path: '/what-does-medicare-cover'
@@ -415,6 +435,7 @@ const rootRouteChildren: RootRouteChildren = {
   MethodologyRoute: MethodologyRoute,
   MichiganMedicare2027Route: MichiganMedicare2027Route,
   PrivacyRoute: PrivacyRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   WhatDoesMedicareCoverRoute: WhatDoesMedicareCoverRoute,
   AdminValidationRoute: AdminValidationRoute,
   CheckoutReturnRoute: CheckoutReturnRoute,
