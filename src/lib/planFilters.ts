@@ -75,7 +75,7 @@ export const MUSTS: Must[] = ["dental", "vision", "hearing", "noReferrals"];
 export interface UrlCriteria {
   county: string;
   types: PlanType[];
-  structure: Structure | "";
+  structures: Structure[];
   carriers: string[];
   q: string;
   must: Must[];
@@ -87,7 +87,7 @@ export interface UrlCriteria {
 export function applyFilters(plans: Plan[], c: UrlCriteria): Plan[] {
   return plans.filter((p) =>
     c.types.includes(p.type)
-    && (!c.structure || (p.real ? structureOf(p) === c.structure : false))
+    && (c.structures.length === 0 || (p.real && c.structures.includes(structureOf(p) as Structure)))
     && (c.carriers.length === 0 || c.carriers.includes(p.carrier))
     && matchKeyword(p, c.q)
     && (c.maxPremium === null || p.monthlyPremium <= c.maxPremium)

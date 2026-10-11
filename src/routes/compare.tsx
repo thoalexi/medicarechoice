@@ -50,7 +50,7 @@ function Compare() {
   const c: UrlCriteria = {
     county: sp.county && COUNTIES.includes(sp.county) ? sp.county : COUNTIES[0] ?? "",
     types: sp.types ? list(sp.types).filter((t): t is PlanType => (TYPES as string[]).includes(t)) : DEFAULT_TYPES,
-    structure: (STRUCTURES as readonly string[]).includes(sp.structure ?? "") ? (sp.structure as Structure) : "",
+    structures: list(sp.structure).filter((x): x is Structure => (STRUCTURES as readonly string[]).includes(x)),
     carriers: list(sp.carriers).filter((x) => CARRIERS.includes(x)),
     q: (sp.q ?? "").slice(0, 80),
     must: list(sp.must).filter((m): m is Must => (MUSTS as string[]).includes(m)),
@@ -62,7 +62,7 @@ function Compare() {
     const n = { ...c, ...patch };
     const def = n.types.length === DEFAULT_TYPES.length && DEFAULT_TYPES.every((t) => n.types.includes(t));
     navigate({ to: ".", replace: true, resetScroll: false, search: {
-      county: n.county, ...(def ? {} : { types: n.types.join("|") }), ...(n.structure ? { structure: n.structure } : {}),
+      county: n.county, ...(def ? {} : { types: n.types.join("|") }), ...(n.structures.length ? { structure: n.structures.join("|") } : {}),
       ...(n.carriers.length ? { carriers: n.carriers.join("|") } : {}), ...(n.q ? { q: n.q } : {}),
       ...(n.must.length ? { must: n.must.join("|") } : {}), ...(n.maxPremium !== null ? { max: String(n.maxPremium) } : {}), ...(n.sort ? { sort: n.sort } : {}),
     } });
@@ -86,7 +86,7 @@ function Compare() {
   // Which single filter is blocking results, so we can say so instead of silently loosening anything.
   const blockers = rows.length > 0 ? [] : ([
     c.carriers.length && { label: `Insurer: ${c.carriers.join(", ")}`, fix: { carriers: [] } },
-    c.structure && { label: `Plan type ${c.structure}`, fix: { structure: "" } },
+    c.structures.length && { label: `Plan type ${c.structures.join(", ")}`, fix: { structures: [] } },
     c.q && { label: `Keyword "${c.q}"`, fix: { q: "" } },
     c.maxPremium !== null && { label: `Premium up to $${c.maxPremium}`, fix: { maxPremium: null } },
     c.must.length && { label: `Must include ${c.must.map((m) => MUST_LABEL[m]).join(", ")}`, fix: { must: [] } },
@@ -94,7 +94,7 @@ function Compare() {
   ].filter(Boolean) as { label: string; fix: Partial<UrlCriteria> }[]).map((b) => ({ ...b, n: applyFilters(area, { ...c, ...b.fix }).length })).filter((b) => b.n > 0);
 
   const applySearch = (s: SearchCriteria) => {
-    update({ county: s.county || c.county, carriers: s.carriers, structure: s.structure, types: s.types, maxPremium: s.maxPremium, q: "", sort: "" });
+    update({ county: s.county || c.county, carriers: s.carriers, structures: s.structure ? [s.structure] : [], types: s.types, maxPremium: s.maxPremium, q: "", sort: "" });
     setQDraft("");
     setPrefs({ keepAnyDoctor: s.prefs.keepAnyDoctor || prefs.keepAnyDoctor, travels: s.prefs.travels || prefs.travels, priority: s.prefs.priority === "balanced" ? prefs.priority : s.prefs.priority,
       wants: { dental: s.prefs.wants.dental || prefs.wants.dental, vision: s.prefs.wants.vision || prefs.wants.vision, hearing: s.prefs.wants.hearing || prefs.wants.hearing } }, "search");
@@ -110,7 +110,7 @@ function Compare() {
   ];
   const filterChips: { label: string; clear: () => void }[] = [
     ...c.carriers.map((x) => ({ label: `Insurer: ${x}`, clear: () => update({ carriers: c.carriers.filter((y) => y !== x) }) })),
-    ...(c.structure ? [{ label: `Plan type: ${c.structure}`, clear: () => update({ structure: "" }) }] : []),
+    ...c.structures.map((x) => ({ label: `Plan type: ${x}`, clear: () => update({ structures: c.structures.filter((y) => y !== x) }) })),
     ...(c.q ? [{ label: `Keyword: "${c.q}"`, clear: () => { setQDraft(""); update({ q: "" }); } }] : []),
     ...(c.maxPremium !== null ? [{ label: `Premium up to $${c.maxPremium}/mo`, clear: () => update({ maxPremium: null }) }] : []),
     ...c.must.map((m) => ({ label: `Must include: ${MUST_LABEL[m]}`, clear: () => update({ must: c.must.filter((y) => y !== m) }) })),
@@ -140,8 +140,8 @@ function Compare() {
             <div className="mt-1 max-h-56 overflow-y-auto rounded-lg border p-2">
               {CARRIERS.filter((x) => area.some((p) => p.carrier === x)).map((x) => <label key={x} className="flex min-h-10 items-center gap-2"><input type="checkbox" className="size-5 shrink-0" checked={c.carriers.includes(x)} onChange={() => update({ carriers: c.carriers.includes(x) ? c.carriers.filter((y) => y !== x) : [...c.carriers, x] })} />{x}</label>)}
             </div></fieldset>
-          <label className="block font-bold">Advantage plan structure<select className={sel} value={c.structure} onChange={(e) => update({ structure: e.target.value as Structure | "" })}>
-            <option value="">Any</option>{STRUCTURES.map((x) => <option key={x} value={x}>{x === "PPO" ? "PPO (incl. Regional PPO)" : x}</option>)}</select></label>
+          <fieldset><legend className="font-bold">Advantage plan structure</legend>
+            {STRUCTURES.map((x) => <label key={x} className="mt-1 flex min-h-10 items-center gap-2"><input type="checkbox" className="size-5 shrink-0" checked={c.structures.includes(x)} onChange={() => update({ structures: c.structures.includes(x) ? c.structures.filter((y) => y !== x) : [...c.structures, x] })} />{x === "PPO" ? "PPO (incl. Regional PPO)" : x}</label>)}</fieldset>
           <label className="block font-bold">Highest monthly premium<select className={sel} value={c.maxPremium ?? ""} onChange={(e) => update({ maxPremium: e.target.value === "" ? null : Number(e.target.value) })}>
             <option value="">Any</option>{[0, 25, 50, 100, 200].map((v) => <option key={v} value={v}>{v === 0 ? "$0 only" : `Up to $${v}`}</option>)}</select></label>
           <div className="space-y-3 rounded-xl bg-secondary/50 p-3">
@@ -166,7 +166,7 @@ function Compare() {
           <fieldset><legend className="font-bold">Must include</legend>
             {MUSTS.map((k) => <label key={k} className="mt-1 flex items-center gap-2"><input type="checkbox" className="size-5" checked={c.must.includes(k)} onChange={() => update({ must: c.must.includes(k) ? c.must.filter((y) => y !== k) : [...c.must, k] })} />{MUST_LABEL[k]}</label>)}
             <p className="mt-1 text-sm text-muted-foreground">Hides plans CMS lists as not covering it. Plans with unknown coverage stay listed.</p></fieldset>
-          {(filterChips.length > 0 || prefChips.length > 0) && <button type="button" onClick={() => { resetPrefs(); setQDraft(""); update({ carriers: [], structure: "", q: "", must: [], maxPremium: null, types: DEFAULT_TYPES, sort: "" }); }} className="min-h-12 font-bold text-primary underline">Clear all filters and preferences</button>}
+          {(filterChips.length > 0 || prefChips.length > 0) && <button type="button" onClick={() => { resetPrefs(); setQDraft(""); update({ carriers: [], structures: [], q: "", must: [], maxPremium: null, types: DEFAULT_TYPES, sort: "" }); }} className="min-h-12 font-bold text-primary underline">Clear all filters and preferences</button>}
         </aside>
 
         <section>
