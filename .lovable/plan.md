@@ -9,7 +9,11 @@
 ## Data check (done before this revision)
 - **Plan year:** everything is CMS plan year 2027 (Landscape file September 2026, release 202609; Plan Benefit Package 2027; 2027 Star Ratings). These are still the newest files CMS has posted. Years are not mixed, with three labeled exceptions: Part B premium and deductible (2026 figures, because CMS hasn't announced 2027), the 2026 star rating for any contract missing from the 2027 table, and typical Medigap prices.
 - **Which plans are covered:** 181 Michigan Medicare Advantage plans across all 83 counties. On the last check, plan counts per county matched the CMS file and every plan ID was valid and appeared once. **Not included:** individual stand-alone Part D drug plans (we use the median Michigan Part D premium, $49.80, as one typical figure) and individual Medigap policies (3 typical-price examples). Compare will say this plainly so the list isn't mistaken for every option.
-- **Coverage area:** county-level, taken from CMS. Plans that cover only part of a county (partial-county plans) are listed for the whole county. Compare will add a note to confirm with the plan.
+- **Coverage area (partial counties):** CMS does not publish ZIP-level coverage areas for Medicare Advantage plans. The ZIP-level coverage file people find online belongs to the Healthcare.gov Marketplace, not Medicare. CMS does publish county-level coverage files, including the monthly "MA Contract Service Area" file ([3](https://www.cms.gov/data-research/statistics-trends-and-reports/medicare-advantagepart-d-contract-and-enrollment-data/ma-contract-service-area-state/county)), and those include a "partial county" flag. Plan:
+  1. First, look for a plan-level 2027 partial-county flag in the 2027 Plan Benefit Package coverage-area table.
+  2. If that isn't there, use the MA Contract Service Area flag. That flag is set per contract, not per plan, and it reflects current enrollment-year data, so it will be labeled that way.
+  3. Plans flagged as covering only part of a county stay in the list, with a badge: "May cover only part of this county — confirm your ZIP with the plan or Medicare.gov." No plan is hidden because of incomplete location data.
+  4. A new import script writes this flag into the bundled data and runs it through the existing validation checks, like the other CMS files.
 - **Reliable plan details:** premium, medical max, drug deductible, plan type, insurer, stars, dental/vision/hearing/fitness, and per-service copays. Some extras are missing for some plans and show "Not available — check the Summary of Benefits."
 - **Not in the data:** hospital and doctor networks, and drug formularies.
 
@@ -17,8 +21,14 @@
 - **True yearly cost** = 12 months of the plan premium + the Part B premium (2026 figure) + Part D premium if needed + estimated medical costs + estimated drug costs.
 - **Medical costs** use the plan's real CMS copays and deductibles, multiplied by an **illustrative number of visits** for each health level. For example, "A few ongoing issues" assumes 4 primary-care visits, 6 specialist visits, half an ER trip and a quarter of a hospital stay. When a plan charges a percentage instead of a flat copay, we apply it to approximate Medicare prices. The total is capped at the plan's medical max.
 - **Drug costs** use the monthly amount the person typed, the plan's real drug deductible, then an **assumed 25% share** after that, capped at $2,400 (the 2027 Part D cap). Actual costs depend on each drug's tier, which we don't have.
-- **Worst case** = the plan's medical max + the $2,400 drug cap + a year of premiums. It is built entirely from official limits and is the most reliable figure.
-- **Change:** no new cost math. On Compare, cost labels will read "Example yearly cost (based on typical use for your health level)," and a short "How this is estimated" note will list the assumptions above. Health level and drug amount stay in the existing estimate, labeled as an example rather than a personal projection.
+- **"Worst case"** = the plan's medical max + the $2,400 drug cap + a year of premiums. It is **not** a true maximum. It leaves out care the plan doesn't cover, drugs not on the plan's list (its formulary), most out-of-network bills, dental and other extras, and, for Medigap, Part B excess charges.
+- **Changes (no new cost math):**
+  - "True yearly cost" becomes **"Example yearly cost."**
+  - "Worst case" becomes **"Illustrative high-cost scenario,"** with the line: "Not a limit on everything you could pay."
+  - A short "How this is estimated" note sorts every number into two groups:
+    - **Official Medicare limits:** $2,400 Part D cap (2027), each plan's medical max and drug deductible, and plan premiums.
+    - **Our assumptions:** visit counts, approximate prices, the 25% drug share, typical Medigap and Part D prices, and the 2026 Part B figures.
+  - These renames apply on Compare, the questionnaire results, and the "Medical max" bubble. Home, the coverage guide and the methodology page change only where they use these two exact labels.
 
 ## What people will see
 1. **Two clearly labeled sections**
@@ -55,7 +65,8 @@
 
 ## Privacy
 - **Web address (shareable, not sensitive):** county, insurer, plan type, exact CMS type, keyword, sort, and must-include extras.
-- **This browser tab only (session storage, cleared when the tab closes):** health level, drug cost, doctor/hospital preferences, budget style, travel and wanted extras. Nothing is sent to our server or stored there, and nothing is logged.
+- **This browser tab only (session storage, cleared when the tab closes), kept to the minimum:** health level (one of 3 general choices), monthly drug cost rounded to a range, keep-any-doctor yes/no, budget style, travel yes/no, wanted extras. **Not kept:** ZIP code (only the county is kept), hospital name, any diagnoses, medicine names, or anything typed into the AI box. Nothing is sent to or stored on our server.
+- **Logging check:** remove or scrub any console or error-report output that could include these answers or the AI search text (the AI search currently logs only an error status; this will be confirmed).
 - **AI search:** only the typed text is sent, as it is today, with the existing "don't enter names or Medicare numbers" note. Questionnaire health answers are never added to it.
 - The privacy page will be updated with one line about session storage.
 
@@ -63,12 +74,18 @@
 - No redesign of other pages, no new pages, no accounts.
 - Places outside Michigan get "We only cover Michigan right now."
 
-## Decisions that need your approval
-1. **Blue Cross vs. Blue Care Network:** "Blue Cross" / "BCBS" will match only Blue Cross Blue Shield of Michigan. Blue Care Network (a separate Blue Cross–owned HMO company) is suggested in a note, not included automatically. OK?
-2. **Ranking weights:** should we replace the current fixed point bonuses (for example +2,500 for "keep any doctor") with simple ordered sort rules, as described above? This will change the order of some results.
-3. **Hospital answer:** OK to make it info only (it no longer affects order)?
-4. **Partial-county plans:** keep listing them county-wide with a "confirm your ZIP is covered" note? Getting exact ZIP-level coverage isn't possible with the current CMS files.
-5. **Cost labels:** OK to rename "True yearly cost" to "Example yearly cost" on Compare and the questionnaire results? (Your project notes currently use "True yearly cost.")
+## Approved decisions
+1. Blue Cross Blue Shield of Michigan and Blue Care Network stay separate, with a suggestion to add the related insurer.
+2. Replace the fixed point bonuses with clear, rule-based sorting.
+3. The hospital answer is info only (shown during that visit, never saved).
+4. Rename "True yearly cost" to "Example yearly cost." The project notes will be updated to match.
+
+## Build order
+1. Questionnaire transfer and shared filter state (web address + session storage).
+2. Connect the AI search to the shared filters.
+3. Keyword search and "Your Current Preferences."
+4. Section separation, sorting explanations, cost wording, and the partial-county flag.
+5. Full test suite, regression checks, and checks at 393px. Then a report of what changed, what was tested, and what's still limited. **Nothing is published until you review it.**
 
 ## Technical details
 - **One source of truth:** a `useCompareCriteria()` hook merges URL params (`validateSearch` + zod `fallback`: county, types[], cmsTypes[], carriers[], q, sort, must[]) with a sessionStorage-backed preference store (read in `useEffect` to avoid hydration mismatch). All writes go through one `setCriteria(patch, source)`; the newest write wins within each field, and each field records its source.
