@@ -122,6 +122,23 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   // Owner-published CMS updates override the built-in files before any page renders.
   applyLiveData(Route.useLoaderData());
+  const router = useRouter();
+  // Invite and password-reset email links can land on any page; send them to the password page.
+  useEffect(() => {
+    const h = window.location.hash;
+    if (/type=(invite|recovery)/.test(h) && window.location.pathname !== "/reset-password") {
+      window.location.replace(`/reset-password${h}`);
+      return;
+    }
+    let sub: { unsubscribe: () => void } | undefined;
+    void import("@/integrations/supabase/client").then(({ supabase }) => {
+      sub = supabase.auth.onAuthStateChange((event) => {
+        if (event === "PASSWORD_RECOVERY" && window.location.pathname !== "/reset-password") void router.navigate({ to: "/reset-password" });
+      }).data.subscription;
+    });
+    return () => sub?.unsubscribe();
+  }, [router]);
+
 
   return (
     <QueryClientProvider client={queryClient}>
