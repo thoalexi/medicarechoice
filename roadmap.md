@@ -33,4 +33,4 @@
 - [x] Data provenance, validation checks, test profiles, /admin/validation, /methodology (2026-10-10)
 - [ ] Confirm CMS 2027 MOOP limit from the official CMS document, then set limits2027.moopInNetworkMax (blocked: CMS memo not downloadable yet)
 - [ ] Decide whether to switch site Part D figures to CMS-confirmed 2027 ($700 deductible max, $2,400 cap) (waiting on owner)
-- [ ] Compare plan cards: "Premium $0/mo" pill text sits too high in the pill — lower it so it reads centered
+- [x] Compare plan cards: "Premium $0/mo" pill text sits too high in the pill — lower it so it reads centered
