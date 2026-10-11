@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Pill } from "lucide-react";
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { CARRIERS, STRUCTURES, MUSTS, TYPES, DEFAULT_TYPES, applyFilters, type UrlCriteria, type Must, type Structure } from "@/lib/planFilters";
 import { usePrefs, setPrefs, resetPrefs, DRUG_BANDS, type DrugBand, type Source } from "@/lib/comparePrefs";
