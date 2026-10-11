@@ -1,54 +1,120 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Pill } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { CARRIERS, STRUCTURES, MUSTS, TYPES, DEFAULT_TYPES, applyFilters, type UrlCriteria, type Must, type Structure } from "@/lib/planFilters";
+import { usePrefs, setPrefs, resetPrefs, DRUG_BANDS, type DrugBand, type Source } from "@/lib/comparePrefs";
+import type { SearchCriteria } from "@/lib/planSearch.functions";
 import { SiteHeader, Disclaimer } from "@/components/SiteHeader";
 import { DataAsOf } from "@/components/DataAsOf";
 import { PlanSearch } from "@/components/PlanSearch";
 import { HelpPopover } from "@/components/HelpPopover";
 import { BenefitSearchPanel } from "@/components/BenefitSearch";
 import type { ServiceChip } from "@/lib/benefitSearch.functions";
-import { COUNTIES, DATA_SOURCE, PART_B_MONTHLY, PART_D_OOP_CAP, FIGURES, figureNote, plansFor, estimateAnnual, money, type Health, type PlanType, type Region, type Share } from "@/lib/plans";
+import { COUNTIES, DATA_SOURCE, PART_B_MONTHLY, PART_D_OOP_CAP, FIGURES, figureNote, plansFor, scorePlan, rankPlans, explainOrder, sortForPriority, SORT_LABEL, money, type Health, type PlanType, type Share, type SortKey } from "@/lib/plans";
 
 export const Route = createFileRoute("/compare")({
   head: () => ({
     meta: [
       { title: "Compare Medicare plans side by side — PlainPlanGuide" },
-      { name: "description", content: "Filter and compare Medigap and Medicare Advantage plans by region, true yearly cost, network, and extras." },
+      { name: "description", content: "Filter and compare Medigap and Medicare Advantage plans by region, example yearly cost, network, and extras." },
       { property: "og:title", content: "Compare Medicare plans side by side — PlainPlanGuide" },
       { property: "og:description", content: "An interactive Medicare plan comparison dashboard." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  validateSearch: (s: Record<string, unknown>): { county?: string } =>
-    typeof s["county"] === "string" && s["county"] ? { county: s["county"] } : {},
+  validateSearch: (s: Record<string, unknown>): Partial<Record<"county" | "types" | "structure" | "carriers" | "q" | "must" | "max" | "sort", string>> => {
+    const out: Record<string, string> = {};
+    for (const k of ["county", "types", "structure", "carriers", "q", "must", "max", "sort"]) {
+      const v = s[k];
+      if (typeof v === "string" && v) out[k] = v.slice(0, 300);
+      else if (typeof v === "number") out[k] = String(v);
+    }
+    return out;
+  },
   component: Compare,
 });
 
-const TYPES: PlanType[] = ["Original + Medigap", "Advantage HMO", "Advantage PPO", "Other Advantage", "Original only", "Special Needs (SNP)"];
-const DEFAULT_TYPES = TYPES.filter((t) => t !== "Special Needs (SNP)");
+const list = (v: string | undefined) => (v ? v.split("|").filter(Boolean) : []);
+const MUST_LABEL: Record<Must, string> = { dental: "Dental", vision: "Vision", hearing: "Hearing", noReferrals: "No referrals" };
+const SRC_LABEL: Record<Source, string> = { questionnaire: "from your questionnaire", search: "from your search", you: "you chose" };
 const NA = "Not available — check the plan's Summary of Benefits";
 const share = (v: Share | undefined) => v === undefined ? NA : typeof v === "number" ? money(v) : `${v.pct}% of the cost`;
 const ext = (v: boolean | null) => (v === null ? NA : v ? "Included" : "Not covered");
 
 function Compare() {
-  const { county } = Route.useSearch();
-  const [region, setRegion] = useState<Region>(() => (county && COUNTIES.includes(county) ? county : COUNTIES[0] ?? ""));
-  const [health, setHealth] = useState<Health>("some");
-  const [drugs, setDrugs] = useState(50);
-  const [types, setTypes] = useState<PlanType[]>(DEFAULT_TYPES);
-  const [needs, setNeeds] = useState({ dental: false, vision: false, hearing: false, noReferrals: false });
-  const [sort, setSort] = useState<"total" | "premium" | "oop">("total");
+  const sp = Route.useSearch();
+  const navigate = useNavigate({ from: "/compare" });
+  const prefs = usePrefs();
+  const c: UrlCriteria = {
+    county: sp.county && COUNTIES.includes(sp.county) ? sp.county : COUNTIES[0] ?? "",
+    types: sp.types ? list(sp.types).filter((t): t is PlanType => (TYPES as string[]).includes(t)) : DEFAULT_TYPES,
+    structure: (STRUCTURES as readonly string[]).includes(sp.structure ?? "") ? (sp.structure as Structure) : "",
+    carriers: list(sp.carriers).filter((x) => CARRIERS.includes(x)),
+    q: (sp.q ?? "").slice(0, 80),
+    must: list(sp.must).filter((m): m is Must => (MUSTS as string[]).includes(m)),
+    maxPremium: sp.max !== undefined && !Number.isNaN(Number(sp.max)) ? Math.max(0, Number(sp.max)) : null,
+    sort: sp.sort === "total" || sp.sort === "premium" || sp.sort === "oop" ? sp.sort : "",
+  };
+  const sortKey: SortKey = c.sort || sortForPriority(prefs.priority);
+  const update = (patch: Partial<UrlCriteria>) => {
+    const n = { ...c, ...patch };
+    const def = n.types.length === DEFAULT_TYPES.length && DEFAULT_TYPES.every((t) => n.types.includes(t));
+    navigate({ to: ".", replace: true, resetScroll: false, search: {
+      county: n.county, ...(def ? {} : { types: n.types.join("|") }), ...(n.structure ? { structure: n.structure } : {}),
+      ...(n.carriers.length ? { carriers: n.carriers.join("|") } : {}), ...(n.q ? { q: n.q } : {}),
+      ...(n.must.length ? { must: n.must.join("|") } : {}), ...(n.maxPremium !== null ? { max: String(n.maxPremium) } : {}), ...(n.sort ? { sort: n.sort } : {}),
+    } });
+  };
+  const answers = {
+    zip: "", health: prefs.health, doctorsFlex: prefs.keepAnyDoctor ? "any" : "network-ok", hospital: "none",
+    drugsMonthly: prefs.drugs, priority: prefs.priority, extras: prefs.wants, travels: prefs.travels,
+  } as const;
   const [picked, setPicked] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
   const [openSearch, setOpenSearch] = useState<string | null>(null);
   const [chips, setChips] = useState<ServiceChip[]>([]);
+  const [qDraft, setQDraft] = useState(c.q);
 
-  const rows = useMemo(() => plansFor(region).filter((p) => types.includes(p.type)
-    && (!needs.dental || p.dental !== false) && (!needs.vision || p.vision !== false) && (!needs.hearing || p.hearing !== false) && (!needs.noReferrals || !p.referralsNeeded))
-    .map((p) => ({ p, c: estimateAnnual(p, health, drugs) }))
-    .sort((a, b) => sort === "total" ? a.c.total - b.c.total : sort === "premium" ? a.p.monthlyPremium - b.p.monthlyPremium : (a.c.worstCase ?? 1e9) - (b.c.worstCase ?? 1e9)),
-    [region, types, needs, health, drugs, sort]);
+  const area = useMemo(() => plansFor(c.county), [c.county]);
+  const ranked = useMemo(() => rankPlans(applyFilters(area, c).map((p) => scorePlan(p, { ...answers, extras: { ...answers.extras } })), sortKey),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [area, JSON.stringify(c), JSON.stringify(prefs), sortKey]);
+  const rows = ranked.map((r) => ({ p: r.plan, c: r.cost, matched: r.matched }));
+
+  // Which single filter is blocking results, so we can say so instead of silently loosening anything.
+  const blockers = rows.length > 0 ? [] : ([
+    c.carriers.length && { label: `Insurer: ${c.carriers.join(", ")}`, fix: { carriers: [] } },
+    c.structure && { label: `Plan type ${c.structure}`, fix: { structure: "" } },
+    c.q && { label: `Keyword "${c.q}"`, fix: { q: "" } },
+    c.maxPremium !== null && { label: `Premium up to $${c.maxPremium}`, fix: { maxPremium: null } },
+    c.must.length && { label: `Must include ${c.must.map((m) => MUST_LABEL[m]).join(", ")}`, fix: { must: [] } },
+    { label: "Plan type checkboxes", fix: { types: DEFAULT_TYPES } },
+  ].filter(Boolean) as { label: string; fix: Partial<UrlCriteria> }[]).map((b) => ({ ...b, n: applyFilters(area, { ...c, ...b.fix }).length })).filter((b) => b.n > 0);
+
+  const applySearch = (s: SearchCriteria) => {
+    update({ county: s.county || c.county, carriers: s.carriers, structure: s.structure, types: s.types, maxPremium: s.maxPremium, q: "", sort: "" });
+    setQDraft("");
+    setPrefs({ keepAnyDoctor: s.prefs.keepAnyDoctor || prefs.keepAnyDoctor, travels: s.prefs.travels || prefs.travels, priority: s.prefs.priority === "balanced" ? prefs.priority : s.prefs.priority,
+      wants: { dental: s.prefs.wants.dental || prefs.wants.dental, vision: s.prefs.wants.vision || prefs.wants.vision, hearing: s.prefs.wants.hearing || prefs.wants.hearing } }, "search");
+    setPicked([]);
+    setTimeout(() => document.getElementById("compare-plans")?.scrollIntoView({ behavior: "smooth" }), 50);
+  };
+  const src = (k: string) => (prefs.sources[k] ? ` (${SRC_LABEL[prefs.sources[k]!]})` : "");
+  const prefChips: { label: string; clear: () => void }[] = [
+    ...(["dental", "vision", "hearing"] as const).filter((w) => prefs.wants[w]).map((w) => ({ label: `Prefers ${w}${src(w)}`, clear: () => setPrefs({ wants: { ...prefs.wants, [w]: false } }, "you") })),
+    ...(prefs.keepAnyDoctor ? [{ label: `Doctors outside a network${src("keepAnyDoctor")}`, clear: () => setPrefs({ keepAnyDoctor: false }, "you") }] : []),
+    ...(prefs.travels ? [{ label: `Travels${src("travels")}`, clear: () => setPrefs({ travels: false }, "you") }] : []),
+    ...(prefs.priority !== "balanced" ? [{ label: `${prefs.priority === "peace" ? "Predictable costs" : "Low monthly cost"} first${src("priority")}`, clear: () => setPrefs({ priority: "balanced" }, "you") }] : []),
+  ];
+  const filterChips: { label: string; clear: () => void }[] = [
+    ...c.carriers.map((x) => ({ label: `Insurer: ${x}`, clear: () => update({ carriers: c.carriers.filter((y) => y !== x) }) })),
+    ...(c.structure ? [{ label: `Plan type: ${c.structure}`, clear: () => update({ structure: "" }) }] : []),
+    ...(c.q ? [{ label: `Keyword: "${c.q}"`, clear: () => { setQDraft(""); update({ q: "" }); } }] : []),
+    ...(c.maxPremium !== null ? [{ label: `Premium up to $${c.maxPremium}/mo`, clear: () => update({ maxPremium: null }) }] : []),
+    ...c.must.map((m) => ({ label: `Must include: ${MUST_LABEL[m]}`, clear: () => update({ must: c.must.filter((y) => y !== m) }) })),
+  ];
 
   const toggle = (id: string) => setPicked((x) => x.includes(id) ? x.filter((y) => y !== id) : x.length < 3 ? [...x, id] : x);
   const cmp = rows.filter((r) => picked.includes(r.p.id));
@@ -56,18 +122,35 @@ function Compare() {
 
   return (
     <div className="min-h-screen"><SiteHeader />
-      <PlanSearch onResults={(c, ids) => { if (c) setRegion(c); setTypes(TYPES); setPicked(ids); setTimeout(() => document.getElementById("compare-plans")?.scrollIntoView({ behavior: "smooth" }), 50); }} />
+      <PlanSearch onApply={applySearch} />
       <main className="mx-auto grid max-w-6xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8 lg:py-10">
         <button type="button" onClick={() => setShowFilters((s) => !s)} aria-expanded={showFilters} className="flex min-h-14 items-center justify-between rounded-2xl border-2 bg-card px-5 text-lg font-bold lg:hidden">
-          <span>Filters · {region} County</span><span aria-hidden>{showFilters ? "▲ Hide" : "▼ Show"}</span>
+          <span>Filters · {c.county} County</span><span aria-hidden>{showFilters ? "▲ Hide" : "▼ Show"}</span>
         </button>
         <aside className={`h-fit space-y-5 rounded-2xl border bg-card p-5 lg:sticky lg:top-4 lg:block ${showFilters ? "" : "hidden"}`}>
           <p className="hidden text-2xl font-bold lg:block">Filters</p>
-          <label className="block font-bold">Michigan county<select className={sel} value={region} onChange={(e) => setRegion(e.target.value)}>
-            {COUNTIES.map((c) => <option key={c} value={c}>{c}</option>)}</select></label>
-          <label className="block font-bold">Expected health use<select className={sel} value={health} onChange={(e) => setHealth(e.target.value as Health)}>
-            <option value="healthy">Low (healthy)</option><option value="some">Medium</option><option value="chronic">High (chronic)</option></select></label>
-          <label className="block font-bold">Monthly drug costs: {money(drugs)}<input type="range" min={0} max={2000} step={25} value={drugs} onChange={(e) => setDrugs(+e.target.value)} className="mt-2 w-full accent-primary" /></label>
+          <label className="block font-bold">Michigan county<select className={sel} value={c.county} onChange={(e) => update({ county: e.target.value })}>
+            {COUNTIES.map((x) => <option key={x} value={x}>{x}</option>)}</select></label>
+          <form onSubmit={(e) => { e.preventDefault(); update({ q: qDraft.trim() }); }}>
+            <label className="block font-bold" htmlFor="kw">Search by insurer or plan name</label>
+            <div className="mt-1 flex gap-2"><input id="kw" type="search" maxLength={80} value={qDraft} onChange={(e) => setQDraft(e.target.value)} placeholder="e.g. Humana, BCBS, dental" className="min-h-12 w-full min-w-0 rounded-lg border-2 border-input bg-card p-2" />
+              <button type="submit" className="min-h-12 rounded-lg bg-primary px-3 font-bold text-primary-foreground">Go</button></div>
+          </form>
+          <fieldset><legend className="font-bold">Insurer</legend>
+            <div className="mt-1 max-h-56 overflow-y-auto rounded-lg border p-2">
+              {CARRIERS.filter((x) => area.some((p) => p.carrier === x)).map((x) => <label key={x} className="flex min-h-10 items-center gap-2"><input type="checkbox" className="size-5 shrink-0" checked={c.carriers.includes(x)} onChange={() => update({ carriers: c.carriers.includes(x) ? c.carriers.filter((y) => y !== x) : [...c.carriers, x] })} />{x}</label>)}
+            </div></fieldset>
+          <label className="block font-bold">Advantage plan structure<select className={sel} value={c.structure} onChange={(e) => update({ structure: e.target.value as Structure | "" })}>
+            <option value="">Any</option>{STRUCTURES.map((x) => <option key={x} value={x}>{x === "PPO" ? "PPO (incl. Regional PPO)" : x}</option>)}</select></label>
+          <label className="block font-bold">Highest monthly premium<select className={sel} value={c.maxPremium ?? ""} onChange={(e) => update({ maxPremium: e.target.value === "" ? null : Number(e.target.value) })}>
+            <option value="">Any</option>{[0, 25, 50, 100, 200].map((v) => <option key={v} value={v}>{v === 0 ? "$0 only" : `Up to $${v}`}</option>)}</select></label>
+          <div className="space-y-3 rounded-xl bg-secondary/50 p-3">
+            <p className="font-bold">For your cost estimate <span className="block text-sm font-normal text-muted-foreground">Kept only in this browser tab, never in the web address.</span></p>
+            <label className="block font-bold">Expected health use<select className={sel} value={prefs.health} onChange={(e) => setPrefs({ health: e.target.value as Health }, "you")}>
+              <option value="healthy">Low (healthy)</option><option value="some">Medium</option><option value="chronic">High (chronic)</option></select></label>
+            <label className="block font-bold">Monthly drug costs<select className={sel} value={prefs.drugs} onChange={(e) => setPrefs({ drugs: Number(e.target.value) as DrugBand }, "you")}>
+              {DRUG_BANDS.map((d) => <option key={d.v} value={d.v}>{d.label}</option>)}</select></label>
+          </div>
           <fieldset><legend className="flex items-center gap-1 font-bold">Plan types <HelpPopover label="What do these plan types mean?">
             <h2 className="text-lg font-bold">Medicare plan types</h2>
             <dl className="mt-3 space-y-3 text-sm">
@@ -79,9 +162,11 @@ function Compare() {
               <div><dt className="font-bold">Special Needs Plan (SNP)</dt><dd>A Medicare Advantage plan for people who meet specific eligibility rules, such as having Medicaid, certain chronic conditions, or institutional care needs.</dd></div>
             </dl>
           </HelpPopover></legend>
-            {TYPES.map((t) => <label key={t} className="mt-1 flex items-center gap-2"><input type="checkbox" className="size-5" checked={types.includes(t)} onChange={() => setTypes((x) => x.includes(t) ? x.filter((y) => y !== t) : [...x, t])} />{t}</label>)}</fieldset>
+            {TYPES.map((t) => <label key={t} className="mt-1 flex items-center gap-2"><input type="checkbox" className="size-5" checked={c.types.includes(t)} onChange={() => update({ types: c.types.includes(t) ? c.types.filter((y) => y !== t) : [...c.types, t] })} />{t}</label>)}</fieldset>
           <fieldset><legend className="font-bold">Must include</legend>
-            {(["dental", "vision", "hearing", "noReferrals"] as const).map((k) => <label key={k} className="mt-1 flex items-center gap-2"><input type="checkbox" className="size-5" checked={needs[k]} onChange={() => setNeeds({ ...needs, [k]: !needs[k] })} />{k === "noReferrals" ? "No referrals" : k.charAt(0).toUpperCase() + k.slice(1)}</label>)}</fieldset>
+            {MUSTS.map((k) => <label key={k} className="mt-1 flex items-center gap-2"><input type="checkbox" className="size-5" checked={c.must.includes(k)} onChange={() => update({ must: c.must.includes(k) ? c.must.filter((y) => y !== k) : [...c.must, k] })} />{MUST_LABEL[k]}</label>)}
+            <p className="mt-1 text-sm text-muted-foreground">Hides plans CMS lists as not covering it. Plans with unknown coverage stay listed.</p></fieldset>
+          {(filterChips.length > 0 || prefChips.length > 0) && <button type="button" onClick={() => { resetPrefs(); setQDraft(""); update({ carriers: [], structure: "", q: "", must: [], maxPremium: null, types: DEFAULT_TYPES, sort: "" }); }} className="min-h-12 font-bold text-primary underline">Clear all filters and preferences</button>}
         </aside>
 
         <section>
@@ -89,16 +174,16 @@ function Compare() {
             <div id="compare-plans"><div className="flex items-center gap-2"><h2 className="text-3xl font-bold sm:text-4xl">Compare plans</h2><HelpPopover label="What do the cost terms mean?">
               <h2 className="text-lg font-bold">Understanding plan costs</h2>
               <dl className="mt-3 space-y-3 text-sm">
-                <div><dt className="font-bold">True yearly cost</dt><dd>Our estimate of the standard Part B premium, plan premiums, medical spending, prescription spending, and a separate Part D premium when needed.</dd></div>
+                <div><dt className="font-bold">Example yearly cost</dt><dd>Our estimate of the standard Part B premium, plan premiums, medical spending, prescription spending, and a separate Part D premium when needed.</dd></div>
                 <div><dt className="font-bold">Monthly premium</dt><dd>What the plan charges each month. The standard Part B premium is usually separate, even when a plan says its premium is $0.</dd></div>
-                <div><dt className="font-bold">Worst-case limit</dt><dd>Our estimated bad-year total: annual premiums, the medical out-of-pocket limit, and the Part D drug cap. Original Medicare alone has no medical limit. Drugs outside a plan’s formulary can cost more.</dd></div>
+                <div><dt className="font-bold">High-cost scenario</dt><dd>An illustrative bad year, not a guaranteed maximum: annual premiums, the medical out-of-pocket limit, and the Part D drug cap. Original Medicare alone has no medical limit. Drugs outside a plan’s formulary can cost more.</dd></div>
               </dl>
             </HelpPopover></div>
-              <p className="mt-1 text-muted-foreground">{rows.length} plans · select up to 3 to compare side by side</p>
+              <p className="mt-1 text-muted-foreground">{rows.length} plans in {c.county} County · select up to 3 to compare side by side</p>
               <div className="flex items-center gap-1"><DataAsOf compact /><HelpPopover label="About this independent guide and its estimates">
                 <h2 className="text-lg font-bold">About these estimates</h2>
                 <p className="mt-3">Independent site — not affiliated with Medicare or CMS. Official info: Medicare.gov or 1-800-MEDICARE.</p>
-                <p className="mt-3">True yearly cost includes the standard Part B premium ({money(PART_B_MONTHLY)}/mo, {figureNote(FIGURES.partBMonthly)}). Source: {DATA_SOURCE}.</p>
+                <p className="mt-3">Example yearly cost includes the standard Part B premium ({money(PART_B_MONTHLY)}/mo, {figureNote(FIGURES.partBMonthly)}). Source: {DATA_SOURCE}.</p>
                 <p className="mt-3">Extra benefits show what’s included in the premium; confirm details in the plan’s Summary of Benefits. All costs are estimates, not quotes.</p>
               </HelpPopover></div>
               <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-2xl border-2 border-primary bg-card p-4">
@@ -111,16 +196,26 @@ function Compare() {
                   <p className="mt-3">An Advantage plan’s medical out-of-pocket limit does not include drugs.</p>
                 </HelpPopover>
               </div></div>
-            <div className="flex items-center gap-1 font-bold">Sort by <select className="ml-2 rounded-lg border-2 border-input bg-card p-2" value={sort} onChange={(e) => setSort(e.target.value as typeof sort)}>
-              <option value="total">True yearly cost</option><option value="premium">Monthly premium</option><option value="oop">Worst-case limit</option></select>
+            <div className="flex items-center gap-1 font-bold">Sort by <select className="ml-2 rounded-lg border-2 border-input bg-card p-2" value={sortKey} onChange={(e) => update({ sort: e.target.value as SortKey })}>
+              <option value="total">Example yearly cost</option><option value="premium">Monthly premium</option><option value="oop">High-cost scenario</option></select>
               <HelpPopover label="What do these sort options mean?">
                 <dl className="space-y-3 text-sm">
-                  <div><dt className="font-bold">True yearly cost</dt><dd>Our estimate of everything you'd pay in a typical year: the standard Part B premium, plan premiums, medical spending, prescription spending, and a separate Part D premium when needed.</dd></div>
+                  <div><dt className="font-bold">Example yearly cost</dt><dd>Our estimate of everything you'd pay in a typical year: the standard Part B premium, plan premiums, medical spending, prescription spending, and a separate Part D premium when needed.</dd></div>
                   <div><dt className="font-bold">Monthly premium</dt><dd>What the plan charges each month. The standard Part B premium is usually separate, even when a plan says its premium is $0.</dd></div>
-                  <div><dt className="font-bold">Worst-case limit</dt><dd>Our estimated bad-year total: annual premiums plus the plan's medical out-of-pocket limit and the Part D drug cap. Original Medicare alone has no medical limit, and drugs outside a plan's formulary can cost more.</dd></div>
+                  <div><dt className="font-bold">High-cost scenario</dt><dd>An illustrative bad year, not a guaranteed maximum: annual premiums plus the plan's medical out-of-pocket limit and the Part D drug cap. Original Medicare alone has no medical limit, and drugs outside a plan's formulary can cost more.</dd></div>
                 </dl>
               </HelpPopover></div>
           </div>
+
+          {(filterChips.length > 0 || prefChips.length > 0) && (
+            <div className="mt-4 rounded-2xl border bg-card p-4" aria-label="Your active filters and preferences">
+              {filterChips.length > 0 && <><p className="font-bold">Showing only</p><ul className="mt-1 flex flex-wrap gap-2">{filterChips.map((x) => <li key={x.label}><button type="button" onClick={x.clear} aria-label={`Remove ${x.label}`} className="min-h-12 rounded-full bg-primary/10 px-4 text-left">{x.label} <span aria-hidden>✕</span></button></li>)}</ul></>}
+              {prefChips.length > 0 && <><p className="mt-3 font-bold">Listed first if they match <span className="font-normal text-muted-foreground">(no plans are hidden)</span></p><ul className="mt-1 flex flex-wrap gap-2">{prefChips.map((x) => <li key={x.label}><button type="button" onClick={x.clear} aria-label={`Remove ${x.label}`} className="min-h-12 rounded-full bg-secondary px-4 text-left">{x.label} <span aria-hidden>✕</span></button></li>)}</ul></>}
+            </div>
+          )}
+          <details className="mt-3"><summary className="min-h-12 cursor-pointer py-3 font-bold text-primary">Why are plans in this order?</summary>
+            <ul className="list-disc space-y-1 pl-6">{explainOrder({ doctorsFlex: answers.doctorsFlex, travels: prefs.travels, extras: prefs.wants }, sortKey).map((l) => <li key={l}>{l}</li>)}</ul>
+            <p className="mt-2 text-sm text-muted-foreground">Plans are never ordered by who offers them. Plans are shown for your whole county; CMS doesn't publish ZIP-level service areas, so confirm a plan serves your address.</p></details>
 
           {cmp.length > 1 && (
             <div className="mt-6 overflow-x-auto rounded-2xl border-2 border-primary bg-card p-2 sm:p-4"><p className="mb-2 text-sm text-muted-foreground sm:hidden">Swipe sideways to see each plan →</p>
@@ -128,7 +223,7 @@ function Compare() {
               <table className="w-full text-left"><tbody>
                 <tr><th className="p-2"></th>{cmp.map(({ p }) => <th key={p.id} className="p-2 font-display text-lg">{p.name}</th>)}</tr>
                 {([
-                  ["True yearly cost", (r) => money(r.c.total)],
+                  ["Example yearly cost", (r) => money(r.c.total)],
                   ["Monthly plan premium", (r) => money(r.p.monthlyPremium)],
                   ["Medical deductible", (r) => money(r.p.deductible)],
                   ["Doctor visit", (r) => share(r.p.copays?.pcp)],
@@ -162,8 +257,8 @@ function Compare() {
                 <label className="-m-2 flex size-10 items-start justify-center p-2"><input type="checkbox" aria-label={`Compare ${p.name}`} className="size-6" checked={picked.includes(p.id)} onChange={() => toggle(p.id)} /></label>
                 <div className="min-w-0">
                   <h2 className="text-xl font-bold">{p.name}</h2>
-                  <div className="mt-1 md:hidden"><span className="font-display text-2xl font-bold text-primary">{money(c.total)}</span> <span className="text-sm text-muted-foreground">true yearly cost · worst case {c.worstCase ? money(c.worstCase) : "unlimited"}</span></div>
-                  <div className="text-muted-foreground">{p.type} · {p.carrier}{p.starRating ? ` · ${p.starRating}★${p.starYear === 2026 ? " (2026)" : ""}` : ""}</div>
+                  <div className="mt-1 md:hidden"><span className="font-display text-2xl font-bold text-primary">{money(c.total)}</span> <span className="text-sm text-muted-foreground">example yearly cost · worst case {c.worstCase ? money(c.worstCase) : "unlimited"}</span></div>
+                  <div className="text-muted-foreground">{p.cmsType && p.real ? p.cmsType : p.type} · {p.carrier}{p.starRating ? ` · ${p.starRating}★${p.starYear === 2026 ? " (2026)" : ""}` : ""}</div>
                   <p className="mt-2">{p.summary}</p>
                   <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
                     <span className="inline-flex items-center rounded-full bg-muted px-3 py-1">Premium {money(p.monthlyPremium)}/mo</span>
@@ -184,11 +279,12 @@ function Compare() {
                     {openSearch === p.id ? "Hide benefit search" : "🔍 Search this plan's benefits"}</button>
                   {openSearch === p.id && <BenefitSearchPanel plan={p} areaPlans={rows.map((r) => r.p)} chips={chips} setChips={setChips} />}
                 </div>
-                <div className="hidden text-right md:block"><div className="text-sm text-muted-foreground">True yearly cost</div><div className="font-display text-3xl font-bold text-primary">{money(c.total)}</div>
+                <div className="hidden text-right md:block"><div className="text-sm text-muted-foreground">Example yearly cost</div><div className="font-display text-3xl font-bold text-primary">{money(c.total)}</div>
                   <div className="text-sm text-muted-foreground">Worst case {c.worstCase ? money(c.worstCase) : "unlimited"}</div></div>
               </div>
             ))}
-            {rows.length === 0 && <p className="rounded-xl bg-muted p-6 text-lg">No plans match these filters. Try unchecking a requirement.</p>}
+            {rows.length === 0 && <div role="status" className="rounded-xl bg-muted p-6 text-lg"><p>No plans in {c.county} County match all of these filters.</p>
+              {blockers.length > 0 && <ul className="mt-3 space-y-2">{blockers.map((b) => <li key={b.label}><button type="button" onClick={() => update(b.fix)} className="min-h-12 text-left font-bold text-primary underline">Remove "{b.label}" to see {b.n} plan{b.n === 1 ? "" : "s"}</button></li>)}</ul>}</div>}
           </div>
         </section>
       </main>
