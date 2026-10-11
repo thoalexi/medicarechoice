@@ -6,7 +6,6 @@ import stars2027 from "./cms2027-stars.json";
 import figures from "./medicare-figures.json";
 import { parseStarsCsv, validateStars, validateFigures, sha256Hex } from "./cmsImport";
 import type { FiguresPayload, LiveData, StarsPayload } from "./plans";
-import { runCmsCheck } from "./cmsCheck.server";
 
 /** Public: only live, owner-published payloads. Falls back to built-in data on any error. */
 export const getLiveData = createServerFn({ method: "GET" }).handler(async (): Promise<LiveData | null> => {
@@ -51,6 +50,7 @@ export const getUpdateStatus = owner.handler(async ({ context }) => {
 
 export const checkForUpdates = owner.handler(async ({ context }) => {
   await assertOwner(context);
+  const { runCmsCheck } = await import("./cmsCheck.server");
   return runCmsCheck(context.supabase as any, figures.coverageYear);
 });
 

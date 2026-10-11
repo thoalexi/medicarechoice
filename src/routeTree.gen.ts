@@ -23,6 +23,7 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as WhatDoesMedicareCoverRouteImport } from './routes/what-does-medicare-cover'
 import { Route as AdminValidationRouteImport } from './routes/admin.validation'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout/return'
+import { Route as ApiPublicCmsCheckRouteImport } from './routes/api/public/cms-check'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -94,6 +95,11 @@ const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
   path: '/checkout/return',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCmsCheckRoute = ApiPublicCmsCheckRouteImport.update({
+  id: '/api/public/cms-check',
+  path: '/api/public/cms-check',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -110,6 +116,7 @@ export interface FileRoutesByFullPath {
   '/what-does-medicare-cover': typeof WhatDoesMedicareCoverRoute
   '/admin/validation': typeof AdminValidationRoute
   '/checkout/return': typeof CheckoutReturnRoute
+  '/api/public/cms-check': typeof ApiPublicCmsCheckRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -126,6 +133,7 @@ export interface FileRoutesByTo {
   '/what-does-medicare-cover': typeof WhatDoesMedicareCoverRoute
   '/admin/validation': typeof AdminValidationRoute
   '/checkout/return': typeof CheckoutReturnRoute
+  '/api/public/cms-check': typeof ApiPublicCmsCheckRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -143,6 +151,7 @@ export interface FileRoutesById {
   '/what-does-medicare-cover': typeof WhatDoesMedicareCoverRoute
   '/admin/validation': typeof AdminValidationRoute
   '/checkout/return': typeof CheckoutReturnRoute
+  '/api/public/cms-check': typeof ApiPublicCmsCheckRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -161,6 +170,7 @@ export interface FileRouteTypes {
     | '/what-does-medicare-cover'
     | '/admin/validation'
     | '/checkout/return'
+    | '/api/public/cms-check'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -177,6 +187,7 @@ export interface FileRouteTypes {
     | '/what-does-medicare-cover'
     | '/admin/validation'
     | '/checkout/return'
+    | '/api/public/cms-check'
   id:
     | '__root__'
     | '/'
@@ -193,6 +204,7 @@ export interface FileRouteTypes {
     | '/what-does-medicare-cover'
     | '/admin/validation'
     | '/checkout/return'
+    | '/api/public/cms-check'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -210,6 +222,7 @@ export interface RootRouteChildren {
   WhatDoesMedicareCoverRoute: typeof WhatDoesMedicareCoverRoute
   AdminValidationRoute: typeof AdminValidationRoute
   CheckoutReturnRoute: typeof CheckoutReturnRoute
+  ApiPublicCmsCheckRoute: typeof ApiPublicCmsCheckRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -312,6 +325,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckoutReturnRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cms-check': {
+      id: '/api/public/cms-check'
+      path: '/api/public/cms-check'
+      fullPath: '/api/public/cms-check'
+      preLoaderRoute: typeof ApiPublicCmsCheckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -330,6 +350,7 @@ const rootRouteChildren: RootRouteChildren = {
   WhatDoesMedicareCoverRoute: WhatDoesMedicareCoverRoute,
   AdminValidationRoute: AdminValidationRoute,
   CheckoutReturnRoute: CheckoutReturnRoute,
+  ApiPublicCmsCheckRoute: ApiPublicCmsCheckRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
