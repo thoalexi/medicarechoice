@@ -5,19 +5,23 @@ import stars2026 from "./cms2026-stars.json";
 import stars2027 from "./cms2027-stars.json";
 import figures from "./medicare-figures.json";
 const STARS_2026 = stars2026 as Record<string, number>;
-const S27 = stars2027 as { ratings: Record<string, { stars: number }>; unavailable: Record<string, string> };
-/** 2027 CMS rating by contract ID; 2026 only for contracts CMS left out of the 2027 tables entirely. */
+export type StarsPayload = { year: number; ratings: Record<string, { stars: number; category?: string }>; unavailable: Record<string, string> };
+let S27 = stars2027 as StarsPayload;
+/** CMS rating by contract ID from the current star file; 2026 only for contracts CMS left out of it entirely. */
 function starFor(contract: string): { stars: number; year: number | null } {
   const r = S27.ratings[contract];
-  if (r) return { stars: r.stars, year: 2027 };
+  if (r) return { stars: r.stars, year: S27.year };
   if (S27.unavailable[contract]) return { stars: 0, year: null };
   const old = STARS_2026[contract];
   return old ? { stars: old, year: 2026 } : { stars: 0, year: null };
 }
 export type Figure = { value: number; year: number; confirmed: boolean; source: string; label: string };
-export const FIGURES = figures.figures as Record<"partDOopCap" | "partDStandardDeductible" | "partBMonthly" | "partBDeductible", Figure>;
+export type FigureKey = "partDOopCap" | "partDStandardDeductible" | "partBMonthly" | "partBDeductible";
+export type FiguresPayload = { coverageYear: number; figures: Record<FigureKey, Figure> };
+let FIG_YEAR = figures.coverageYear;
+export const FIGURES = JSON.parse(JSON.stringify(figures.figures)) as Record<FigureKey, Figure>;
 /** "2027 figure" or "2026 figure — 2027 not yet announced" */
-export const figureNote = (f: Figure) => (f.confirmed ? `${f.year} figure` : `${f.year} figure — ${figures.coverageYear} not yet announced`);
+export const figureNote = (f: Figure) => (f.confirmed ? `${f.year} figure` : `${f.year} figure — ${FIG_YEAR} not yet announced`);
 export const PLAN_COUNT = cms.plans.length;
 
 // Official CMS CY2027 Landscape (file 202609.1) — every Medicare Advantage plan sold in Michigan.
@@ -39,9 +43,9 @@ export function regionFromZip(zip: string): Region {
 }
 export const regionLabel = (r: Region) => (r ? `${r} County, Michigan` : "Outside Michigan — showing Original Medicare & Medigap only");
 
-export const PART_B_MONTHLY = FIGURES.partBMonthly.value;
-export const PART_D_OOP_CAP = FIGURES.partDOopCap.value;
-export const FIGURE_YEAR = FIGURES.partBMonthly.year;
+export let PART_B_MONTHLY = FIGURES.partBMonthly.value;
+export let PART_D_OOP_CAP = FIGURES.partDOopCap.value;
+export let FIGURE_YEAR = FIGURES.partBMonthly.year;
 const PDP_PREMIUM = Math.round(cms.pdpMedian); // median 2027 Michigan stand-alone Part D premium
 
 export interface Plan {
