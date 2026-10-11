@@ -2,7 +2,23 @@ import cms from "./cms2027-mi.json";
 import extrasData from "./cms2027-mi-extras.json";
 import zipCounty from "./mi-zip-county.json";
 import stars2026 from "./cms2026-stars.json";
+import stars2027 from "./cms2027-stars.json";
+import figures from "./medicare-figures.json";
 const STARS_2026 = stars2026 as Record<string, number>;
+const S27 = stars2027 as { ratings: Record<string, { stars: number }>; unavailable: Record<string, string> };
+/** 2027 CMS rating by contract ID; 2026 only for contracts CMS left out of the 2027 tables entirely. */
+function starFor(contract: string): { stars: number; year: number | null } {
+  const r = S27.ratings[contract];
+  if (r) return { stars: r.stars, year: 2027 };
+  if (S27.unavailable[contract]) return { stars: 0, year: null };
+  const old = STARS_2026[contract];
+  return old ? { stars: old, year: 2026 } : { stars: 0, year: null };
+}
+export type Figure = { value: number; year: number; confirmed: boolean; source: string; label: string };
+export const FIGURES = figures.figures as Record<"partDOopCap" | "partDStandardDeductible" | "partBMonthly" | "partBDeductible", Figure>;
+/** "2027 figure" or "2026 figure — 2027 not yet announced" */
+export const figureNote = (f: Figure) => (f.confirmed ? `${f.year} figure` : `${f.year} figure — ${figures.coverageYear} not yet announced`);
+export const PLAN_COUNT = cms.plans.length;
 
 // Official CMS CY2027 Landscape (file 202609.1) — every Medicare Advantage plan sold in Michigan.
 // Premiums, out-of-pocket limits, star ratings and county availability are real CMS figures.
@@ -23,9 +39,9 @@ export function regionFromZip(zip: string): Region {
 }
 export const regionLabel = (r: Region) => (r ? `${r} County, Michigan` : "Outside Michigan — showing Original Medicare & Medigap only");
 
-export const PART_B_MONTHLY = 202.9; // 2026 figure; update when CMS announces 2027 Part B
-export const PART_D_OOP_CAP = 2100; // 2026 figure; update when CMS confirms the 2027 cap
-export const FIGURE_YEAR = 2026;
+export const PART_B_MONTHLY = FIGURES.partBMonthly.value;
+export const PART_D_OOP_CAP = FIGURES.partDOopCap.value;
+export const FIGURE_YEAR = FIGURES.partBMonthly.year;
 const PDP_PREMIUM = Math.round(cms.pdpMedian); // median 2027 Michigan stand-alone Part D premium
 
 export interface Plan {
@@ -119,8 +135,8 @@ const cmsPlans: Plan[] = cms.plans.map((p) => {
     copays: x ? { pcp: x.pcp, spec: x.spec, er: x.er, stay: x.stay, medDed: x.medDed } : undefined,
     rxDeductible: p.rx ? (p.rxDed ?? 0) : undefined,
     deductible: x?.medDed ?? 0,
-    starRating: p.stars || STARS_2026[p.id.split("_")[0] ?? ""] || 0,
-    starYear: p.stars ? 2027 : STARS_2026[p.id.split("_")[0] ?? ""] ? 2026 : null,
+    starRating: starFor(p.id.split("_")[0] ?? "").stars,
+    starYear: starFor(p.id.split("_")[0] ?? "").year,
     hospitals: [],
     summary: `${net}${p.rx ? "" : " Does not include drug coverage."}${snpNote}`,
     real: true,
