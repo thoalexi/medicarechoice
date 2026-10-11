@@ -74,12 +74,18 @@
 - No redesign of other pages, no new pages, no accounts.
 - Places outside Michigan get "We only cover Michigan right now."
 
-## Decisions that need your approval
-1. **Blue Cross vs. Blue Care Network:** "Blue Cross" / "BCBS" will match only Blue Cross Blue Shield of Michigan. Blue Care Network (a separate Blue Cross–owned HMO company) is suggested in a note, not included automatically. OK?
-2. **Ranking weights:** should we replace the current fixed point bonuses (for example +2,500 for "keep any doctor") with simple ordered sort rules, as described above? This will change the order of some results.
-3. **Hospital answer:** OK to make it info only (it no longer affects order)?
-4. **Partial-county plans:** keep listing them county-wide with a "confirm your ZIP is covered" note? Getting exact ZIP-level coverage isn't possible with the current CMS files.
-5. **Cost labels:** OK to rename "True yearly cost" to "Example yearly cost" on Compare and the questionnaire results? (Your project notes currently use "True yearly cost.")
+## Approved decisions
+1. Blue Cross Blue Shield of Michigan and Blue Care Network stay separate, with a suggestion to add the related insurer.
+2. Replace the fixed point bonuses with clear, rule-based sorting.
+3. The hospital answer is info only (shown during that visit, never saved).
+4. Rename "True yearly cost" to "Example yearly cost." The project notes will be updated to match.
+
+## Build order
+1. Questionnaire transfer and shared filter state (web address + session storage).
+2. Connect the AI search to the shared filters.
+3. Keyword search and "Your Current Preferences."
+4. Section separation, sorting explanations, cost wording, and the partial-county flag.
+5. Full test suite, regression checks, and checks at 393px. Then a report of what changed, what was tested, and what's still limited. **Nothing is published until you review it.**
 
 ## Technical details
 - **One source of truth:** a `useCompareCriteria()` hook merges URL params (`validateSearch` + zod `fallback`: county, types[], cmsTypes[], carriers[], q, sort, must[]) with a sessionStorage-backed preference store (read in `useEffect` to avoid hydration mismatch). All writes go through one `setCriteria(patch, source)`; the newest write wins within each field, and each field records its source.
