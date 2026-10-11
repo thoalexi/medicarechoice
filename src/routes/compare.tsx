@@ -149,7 +149,7 @@ function Compare() {
             <label className="block font-bold">Expected health use<select className={sel} value={prefs.health} onChange={(e) => setPrefs({ health: e.target.value as Health }, "you")}>
               <option value="healthy">Low (healthy)</option><option value="some">Medium</option><option value="chronic">High (chronic)</option></select></label>
             <label className="block font-bold">Monthly drug costs<select className={sel} value={prefs.drugs} onChange={(e) => setPrefs({ drugs: Number(e.target.value) as DrugBand }, "you")}>
-              {DRUG_BANDS.map((d) => <option key={d.v} value={d.v}>{d.label}</option>)}</select></label>
+              {DRUG_BANDS.map((d) => <option key={d.v} value={d.v}>{d.v === 1500 ? "Over $500 (brand/specialty)" : d.label}</option>)}</select></label>
           </div>
           <fieldset><legend className="flex items-center gap-1 font-bold">Plan types <HelpPopover label="What do these plan types mean?">
             <h2 className="text-lg font-bold">Medicare plan types</h2>
