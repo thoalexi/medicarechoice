@@ -34,3 +34,4 @@
 - [ ] Confirm CMS 2027 MOOP limit from the official CMS document, then set limits2027.moopInNetworkMax (blocked: CMS memo not downloadable yet)
 - [ ] Decide whether to switch site Part D figures to CMS-confirmed 2027 ($700 deductible max, $2,400 cap) (waiting on owner)
 - [x] Compare plan cards: "Premium $0/mo" pill text sits too high in the pill — lower it so it reads centered
+- [x] Compare plan cards: make the "Medical max" pill the same height as the "Premium" pill
