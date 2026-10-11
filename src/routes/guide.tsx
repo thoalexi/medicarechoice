@@ -1,14 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { setPrefs, toBand } from "@/lib/comparePrefs";
 import { SiteHeader, Disclaimer } from "@/components/SiteHeader";
 import { DataAsOf } from "@/components/DataAsOf";
-import { plansFor, regionLabel, regionFromZip, scorePlan, rankPlans, money, PART_D_OOP_CAP, FIGURES, figureNote, type Answers } from "@/lib/plans";
+import { plansFor, regionLabel, regionFromZip, scorePlan, rankPlans, sortForPriority, explainOrder, money, PART_D_OOP_CAP, FIGURES, figureNote, type Answers } from "@/lib/plans";
 
 export const Route = createFileRoute("/guide")({
   head: () => ({
     meta: [
       { title: "Guided Medicare questions — PlainPlanGuide" },
-      { name: "description", content: "Seven plain-language questions that lead to clear Medicare plan recommendations with true yearly costs." },
+      { name: "description", content: "Seven plain-language questions that lead to clear Medicare plan recommendations with example yearly costs." },
       { property: "og:title", content: "Guided Medicare questions — PlainPlanGuide" },
       { property: "og:description", content: "Find your best-fit Medicare plan in about 3 minutes." },
       { property: "og:type", content: "website" },
@@ -97,7 +98,11 @@ function Guide() {
 
 function Results({ a, onEdit }: { a: Answers; onEdit: () => void }) {
   const region = regionFromZip(a.zip);
-  const ranked = rankPlans(plansFor(region).map((p) => scorePlan(p, a)));
+  const ranked = rankPlans(plansFor(region).map((p) => scorePlan(p, a)), sortForPriority(a.priority));
+  // Hand general choices to Compare for this browser tab only (no ZIP, hospital or medicine details).
+  useEffect(() => {
+    setPrefs({ health: a.health, drugs: toBand(a.drugsMonthly), keepAnyDoctor: a.doctorsFlex === "any", priority: a.priority, wants: a.extras, travels: a.travels }, "questionnaire");
+  }, [a]);
   return (
     <div className="min-h-screen"><SiteHeader />
       <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
@@ -105,15 +110,18 @@ function Results({ a, onEdit }: { a: Answers; onEdit: () => void }) {
         <p className="mt-2 text-lg text-muted-foreground">For {regionLabel(region)}. Plans and premiums from the official CMS 2027 list. Costs include your Part B premium and are estimated for a typical year given your answers. Prescription estimates assume your drugs are on the plan’s formulary (its list of covered drugs).</p>
         <button onClick={onEdit} className="mt-3 text-primary underline">Change my answers</button>
         {ranked.length > 1 && Math.abs(ranked[0]!.cost.total - ranked[1]!.cost.total) < 250 && (
-          <p className="mt-6 rounded-xl border-2 border-primary bg-primary/5 p-4 text-lg">These top plans cost about the same in a typical year, so we ranked the one with the lower worst case first. Compare their worst-case year, doctor and hospital copays, and extras to choose between them.</p>
+          <p className="mt-6 rounded-xl border-2 border-primary bg-primary/5 p-4 text-lg">These top plans cost about the same in a typical year, so we ranked the one with the lower high-cost scenario first. Compare their high-cost scenario, doctor and hospital copays, and extras to choose between them.</p>
         )}
+        <details className="mt-4"><summary className="min-h-12 cursor-pointer py-3 font-bold text-primary">How did we pick this order?</summary>
+          <ul className="list-disc space-y-1 pl-6">{explainOrder(a, sortForPriority(a.priority)).map((l) => <li key={l}>{l}</li>)}</ul>
+          <p className="mt-2 text-sm text-muted-foreground">Plans are never ordered by who offers them. Hospital choice isn't used for ranking because plan data doesn't list hospital networks.</p></details>
         <div className="mt-8 space-y-6">
           {ranked.slice(0, 4).map(({ plan, cost, reasons, cautions }, i) => (
             <article key={plan.id} className={`rounded-2xl border-2 bg-card p-6 ${i === 0 ? "border-primary shadow-lg" : ""}`}>
               {i === 0 && <div className="mb-2 inline-block rounded-full bg-accent px-3 py-1 text-sm font-bold text-accent-foreground">Best match</div>}
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div><h2 className="text-2xl font-bold">{plan.name}</h2><div className="text-muted-foreground">{plan.type} · {plan.carrier}{plan.starRating ? ` · ${plan.starRating}★${plan.starYear === 2026 ? " (2026 rating)" : ""}` : ""}</div></div>
-                <div className="text-right"><div className="text-sm text-muted-foreground">Estimated true yearly cost</div><div className="font-display text-4xl font-bold text-primary">{money(cost.total)}</div></div>
+                <div className="text-right"><div className="text-sm text-muted-foreground">Example yearly cost</div><div className="font-display text-4xl font-bold text-primary">{money(cost.total)}</div></div>
               </div>
               <p className="mt-3 text-lg">{plan.summary}</p>
               <div className="mt-4 grid grid-cols-3 gap-3 rounded-xl bg-muted p-4 text-center">
@@ -121,8 +129,8 @@ function Results({ a, onEdit }: { a: Answers; onEdit: () => void }) {
                 <div><div className="text-sm text-muted-foreground">Medical care</div><div className="text-xl font-bold">{money(cost.medical)}</div></div>
                 <div><div className="text-sm text-muted-foreground">Prescriptions</div><div className="text-xl font-bold">{money(cost.drugs)}</div></div>
               </div>
-              <p className="mt-2 text-sm text-muted-foreground">Worst-case year: {cost.worstCase ? money(cost.worstCase) : "no limit"}</p>
-              <p className="mt-1 text-sm text-muted-foreground">This worst case includes drug costs up to the Part D cap ({money(PART_D_OOP_CAP)}, {figureNote(FIGURES.partDOopCap)}) — something most plan ads leave out. An Advantage plan’s medical out-of-pocket limit does not include drugs. Check the plan’s formulary to confirm your exact medications are covered — <Link to="/formulary-check" className="font-bold text-primary underline">check my drugs</Link>.</p>
+              <p className="mt-2 text-sm text-muted-foreground">High-cost scenario (illustrative): {cost.worstCase ? money(cost.worstCase) : "no limit"}</p>
+              <p className="mt-1 text-sm text-muted-foreground">This scenario includes drug costs up to the Part D cap ({money(PART_D_OOP_CAP)}, {figureNote(FIGURES.partDOopCap)}) — something most plan ads leave out. An Advantage plan’s medical out-of-pocket limit does not include drugs. Check the plan’s formulary to confirm your exact medications are covered — <Link to="/formulary-check" className="font-bold text-primary underline">check my drugs</Link>.</p>
               <div className="mt-4 grid gap-4 md:grid-cols-2">
                 <ul className="space-y-1">{reasons.map((r) => <li key={r} className="text-success">✓ <span className="text-foreground">{r}</span></li>)}</ul>
                 <ul className="space-y-1">{cautions.map((r) => <li key={r} className="text-warning">⚠ <span className="text-foreground">{r}</span></li>)}</ul>

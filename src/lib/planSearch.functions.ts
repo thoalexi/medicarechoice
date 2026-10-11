@@ -1,8 +1,19 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { plansFor, scorePlan, COUNTIES } from "./plans";
+import { COUNTIES, type PlanType } from "./plans";
+import { resolveCarriers, DEFAULT_TYPES, type Structure } from "./planFilters";
 
-export type PlanMatch = { id: string; name: string; type: string; carrier: string; monthlyPremium: number; total: number; worstCase: number | null; reasons: string[]; cautions: string[] };
+/** Structured criteria the AI search hands to the shared Compare filters. It never ranks plans. */
+export type SearchCriteria = {
+  county: string;
+  carriers: string[];
+  related: string[];
+  unknownInsurers: string[];
+  structure: Structure | "";
+  types: PlanType[];
+  maxPremium: number | null;
+  prefs: { keepAnyDoctor: boolean; travels: boolean; priority: "low-premium" | "balanced" | "peace"; wants: { dental: boolean; vision: boolean; hearing: boolean } };
+};
 
 export const searchPlans = createServerFn({ method: "POST" })
   .validator((d) => z.object({ query: z.string().trim().min(3).max(500) }).parse(d))
@@ -11,33 +22,33 @@ export const searchPlans = createServerFn({ method: "POST" })
     try {
       const p = await extractPrefs(data.query);
       if (!p.onTopic) {
-        return { ok: false as const, error: "This search only helps you find Medicare plans. Try describing your doctors, medicines, budget, or the extras you want." };
+        return { ok: false as const, error: "This search only helps you find Medicare plans. Try describing your doctors, budget, insurer, or the extras you want." };
+      }
+      if (p.outsideMichigan) {
+        return { ok: false as const, error: "We only cover Michigan plans right now. For other states, use Medicare.gov's Plan Finder or call 1-800-MEDICARE." };
       }
       const county = p.county && COUNTIES.includes(p.county) ? p.county : "";
-      if (!county && !p.outsideMichigan) {
-        return { ok: true as const, followUp: "Which Michigan county, city, or ZIP code do you live in?", county: null, matches: [] as PlanMatch[] };
+      const carriers = new Set<string>();
+      const related = new Set<string>();
+      const unknownInsurers: string[] = [];
+      for (const w of p.insurerWords.slice(0, 5)) {
+        const r = resolveCarriers(w.slice(0, 60));
+        if (r.carriers.length === 0) unknownInsurers.push(w.slice(0, 40));
+        r.carriers.forEach((c) => carriers.add(c));
+        r.related.forEach((c) => related.add(c));
       }
-      const answers = {
-        zip: "", health: p.health, doctorsFlex: p.keepAnyDoctor ? "any" : "network-ok", hospital: p.hospital ?? "",
-        drugsMonthly: Math.max(0, Math.min(5000, p.drugsMonthly)), priority: p.priority,
-        extras: { dental: p.dental, vision: p.vision, hearing: p.hearing }, travels: p.travels,
-      } as const;
-      const matches = plansFor(county)
-        .filter((pl) => pl.type !== "Special Needs (SNP)")
-        .filter((pl) => p.maxMonthlyPremium === null || pl.monthlyPremium <= p.maxMonthlyPremium)
-        .filter((pl) => p.wantsAdvantage === null || (p.wantsAdvantage ? pl.type.startsWith("Advantage") || pl.type === "Other Advantage" : pl.type === "Original + Medigap" || pl.type === "Original only"))
-        .map((pl) => {
-          const s = scorePlan(pl, { ...answers });
-          let score = s.score;
-          const reasons = [...s.reasons];
-          if (p.fitness) { if (pl.fitness) { score += 400; reasons.push("Includes a gym/fitness benefit."); } }
-          if (pl.monthlyPremium === 0 && !reasons.includes("$0 plan premium.")) reasons.push("$0 plan premium.");
-          return { score, m: { id: pl.id, name: pl.name, type: pl.type, carrier: pl.carrier, monthlyPremium: pl.monthlyPremium, total: s.cost.total, worstCase: s.cost.worstCase, reasons: reasons.slice(0, 3), cautions: s.cautions.slice(0, 2) } };
-        })
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 3)
-        .map((x) => x.m);
-      return { ok: true as const, followUp: null, county: county || null, matches };
+      carriers.forEach((c) => related.delete(c));
+      const structure: Structure | "" = p.planType ?? "";
+      let types: PlanType[] = [...DEFAULT_TYPES];
+      if (p.wantsAdvantage === false && !structure) types = ["Original + Medigap", "Original only"];
+      else if (p.wantsAdvantage || structure || carriers.size) types = ["Advantage HMO", "Advantage PPO", "Other Advantage"];
+      if (p.includeSpecialNeeds) types = [...types, "Special Needs (SNP)"];
+      const maxPremium = p.maxMonthlyPremium === null ? null : Math.max(0, Math.min(1000, Math.round(p.maxMonthlyPremium)));
+      const criteria: SearchCriteria = {
+        county, carriers: [...carriers], related: [...related], unknownInsurers, structure, types, maxPremium,
+        prefs: { keepAnyDoctor: p.keepAnyDoctor, travels: p.travels, priority: p.priority, wants: { dental: p.dental, vision: p.vision, hearing: p.hearing } },
+      };
+      return { ok: true as const, needsLocation: !county, criteria };
     } catch (e) {
       return { ok: false as const, error: e instanceof GatewayError ? e.message : "Something went wrong. Please try again." };
     }

@@ -208,49 +208,89 @@ export function estimateAnnual(plan: Plan, health: Health, drugsMonthly: number)
   return { premiums: premiums + drugPrem, medical: Math.round(medical), drugs: Math.round(drugs), total: Math.round(premiums + drugPrem + medical + drugs), worstCase };
 }
 
+/** Lets you see doctors outside a network (PPO, HMO-POS, Original Medicare/Medigap). From plan type, not network lists. */
+const outOfNetworkOk = (p: Plan) => p.networkSize !== "Plan network";
+
+/**
+ * Rule-based fit: counts which stated preferences this plan meets, using only plan attributes
+ * from CMS data (plan type, benefit flags). No hidden point weights. Hospital is info only
+ * because plan data does not include hospital networks.
+ */
 export function scorePlan(plan: Plan, a: Answers) {
   const cost = estimateAnnual(plan, a.health, a.drugsMonthly);
-  let score = 10000 - cost.total;
+  let matched = 0;
   const reasons: string[] = [];
   const cautions: string[] = [];
-  if (plan.type === "Original only") { score -= 6000; cautions.push("No limit on what you could pay in a bad year."); }
+  if (plan.type === "Original only") cautions.push("No limit on what you could pay in a bad year.");
   if (a.doctorsFlex === "any") {
-    if (plan.networkSize === "Any Medicare doctor") { score += 2500; reasons.push("Lets you keep any doctor who takes Medicare."); }
-    else if (plan.type === "Advantage HMO") { score -= 2500; cautions.push("You'd need to use network doctors only."); }
+    if (plan.networkSize === "Any Medicare doctor") { matched++; reasons.push("Lets you keep any doctor who takes Medicare."); }
+    else if (outOfNetworkOk(plan)) { matched++; reasons.push("Can see out-of-network doctors (at a higher cost)."); }
+    else cautions.push("You'd need to use network doctors only.");
   }
   if (a.hospital && a.hospital !== "none") {
-    if (plan.networkSize === "Any Medicare doctor") reasons.push(`Includes ${a.hospital}.`);
-    else if (plan.referralsNeeded) { score -= 1500; cautions.push(`Confirm ${a.hospital} is in this plan's network before enrolling.`); }
-    else cautions.push(`Check that ${a.hospital} is in network (out-of-network costs more).`);
+    cautions.push(plan.networkSize === "Any Medicare doctor"
+      ? `${a.hospital}: any hospital that takes Medicare is covered — confirm it accepts Medicare.`
+      : `Confirm ${a.hospital} is in this plan's network before enrolling (we don't have network lists).`);
   }
-  if (a.priority === "peace" && plan.oopMax !== null && plan.oopMax < 1000) { score += 3000; reasons.push("Very predictable costs—almost no surprise bills."); }
-  if (a.priority === "low-premium" && plan.monthlyPremium === 0) { score += 1500; reasons.push("$0 plan premium."); }
-  if (plan.type === "Special Needs (SNP)") { score -= 4000; cautions.push("Only for people who qualify for this Special Needs Plan."); }
-  if (a.travels && plan.type === "Advantage HMO") { score -= 1500; cautions.push("Limited coverage when traveling outside the area."); }
-  if (a.travels && plan.networkSize === "Any Medicare doctor") reasons.push("Works anywhere in the U.S.");
+  if (a.travels) {
+    if (outOfNetworkOk(plan)) { matched++; reasons.push(plan.networkSize === "Any Medicare doctor" ? "Works anywhere in the U.S." : "Some coverage outside the network when traveling."); }
+    else cautions.push("Limited coverage when traveling outside the area.");
+  }
   (["dental", "vision", "hearing"] as const).forEach((x) => {
-    if (a.extras[x]) { if (plan[x] === null) cautions.push(`Check the plan's Summary of Benefits for ${x} coverage.`); else if (plan[x]) { score += 400; reasons.push(`Includes ${x}.`); } else cautions.push(`No ${x} coverage—you'd buy it separately.`); }
+    if (!a.extras[x]) return;
+    if (plan[x] === null) cautions.push(`Check the plan's Summary of Benefits for ${x} coverage.`);
+    else if (plan[x]) { matched++; reasons.push(`Includes ${x}.`); }
+    else cautions.push(`No ${x} coverage—you'd buy it separately.`);
   });
+  if (plan.monthlyPremium === 0 && plan.real) reasons.push("$0 plan premium.");
+  if (plan.type === "Special Needs (SNP)") cautions.push("Only for people who qualify for this Special Needs Plan.");
   if (plan.referralsNeeded) cautions.push("Referrals needed to see specialists.");
-  if (plan.oopMax && plan.oopMax > 6000) cautions.push(`In a bad year you could pay up to $${plan.oopMax.toLocaleString()} for medical care.`);
-  return { plan, cost, score, reasons, cautions };
+  if (plan.oopMax && plan.oopMax > 6000) cautions.push(`In a bad year you could pay up to $${plan.oopMax.toLocaleString()} for covered medical care, plus drugs.`);
+  return { plan, cost, score: matched, matched, reasons, cautions };
 }
 
+export type SortKey = "total" | "premium" | "oop";
+export const sortForPriority = (p: Answers["priority"]): SortKey => (p === "low-premium" ? "premium" : p === "peace" ? "oop" : "total");
+export const SORT_LABEL: Record<SortKey, string> = { total: "example yearly cost", premium: "monthly premium", oop: "illustrative high-cost scenario" };
+
 type Scored = ReturnType<typeof scorePlan>;
-/** Rank by score, then: when neighbors' typical costs are within $250, the lower worst case goes first; SNPs always last. */
-export function rankPlans(scored: Scored[]): Scored[] {
+const keyOf = (s: Scored, k: SortKey) => (k === "total" ? s.cost.total : k === "premium" ? s.plan.monthlyPremium : s.cost.worstCase ?? Infinity);
+/**
+ * Ordered, explainable rules:
+ * 1. Plans with a yearly limit first; Original Medicare alone (no limit) next; Special Needs Plans last.
+ * 2. Within each group, plans meeting more of your stated preferences first.
+ * 3. Then by the chosen sort (example yearly cost, premium, or high-cost scenario).
+ * 4. When sorting by example cost and neighbors are within $250, the lower high-cost scenario goes first.
+ */
+export function rankPlans(scored: Scored[], key: SortKey = "total"): Scored[] {
   const wc = (s: Scored) => s.cost.worstCase ?? Infinity;
   const sortGroup = (g: Scored[]) => {
-    g.sort((x, y) => y.score - x.score);
-    for (let pass = 0; pass < g.length; pass++)
-      for (let i = 0; i + 1 < g.length; i++) {
-        const a = g[i]!, b = g[i + 1]!;
-        if (Math.abs(a.cost.total - b.cost.total) <= 250 && wc(b) < wc(a)) { g[i] = b; g[i + 1] = a; }
-      }
+    g.sort((x, y) => y.matched - x.matched || keyOf(x, key) - keyOf(y, key));
+    if (key === "total")
+      for (let pass = 0; pass < g.length; pass++)
+        for (let i = 0; i + 1 < g.length; i++) {
+          const a = g[i]!, b = g[i + 1]!;
+          if (a.matched === b.matched && Math.abs(a.cost.total - b.cost.total) <= 250 && wc(b) < wc(a)) { g[i] = b; g[i + 1] = a; }
+        }
     return g;
   };
-  const snp = (s: Scored) => s.plan.type === "Special Needs (SNP)";
-  return [...sortGroup(scored.filter((s) => !snp(s))), ...sortGroup(scored.filter(snp))];
+  const grp = (s: Scored) => (s.plan.type === "Special Needs (SNP)" ? 2 : s.plan.type === "Original only" ? 1 : 0);
+  return [0, 1, 2].flatMap((n) => sortGroup(scored.filter((s) => grp(s) === n)));
+}
+
+/** Plain-language list of the ranking rules in use, for the "Why this order?" note. */
+export function explainOrder(a: Pick<Answers, "doctorsFlex" | "travels" | "extras">, key: SortKey): string[] {
+  const prefs = [
+    a.doctorsFlex === "any" && "seeing doctors outside a network",
+    a.travels && "coverage when traveling",
+    ...(["dental", "vision", "hearing"] as const).filter((x) => a.extras[x]),
+  ].filter(Boolean) as string[];
+  const out = [];
+  if (prefs.length) out.push(`Plans that meet more of what you asked for (${prefs.join(", ")}) are listed first. This uses each plan's type and CMS benefit data; unknown benefits don't count.`);
+  out.push(`Then plans are sorted by ${SORT_LABEL[key]}, lowest first.`);
+  if (key === "total") out.push("When two plans' example costs are within $250, the one with the lower high-cost scenario goes first.");
+  out.push("Original Medicare alone (no yearly limit) is listed after plans with a limit, and Special Needs Plans are listed last.");
+  return out;
 }
 
 export const money = (n: number) => "$" + Math.round(n).toLocaleString();
