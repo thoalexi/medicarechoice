@@ -20,7 +20,7 @@ const parts = [
   ["Part A", "Hospital stays. Usually free if you worked 10+ years."],
   ["Part B", "Doctor visits & outpatient care. About $203/month in 2026."],
   ["Part C", "Medicare Advantage—private plans that replace A & B, often with extras."],
-  ["Part D", "Prescription drugs. Your yearly drug costs are capped ($2,100 in 2026; 2027 cap not yet confirmed)."],
+  ["Part D", "Prescription drugs. Your yearly drug costs are capped ($2,400 in 2027, confirmed by CMS)."],
   ["Medigap", "Extra insurance that fills Original Medicare's 20% gap."],
 ];
 
