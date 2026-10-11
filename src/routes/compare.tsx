@@ -39,6 +39,7 @@ export const Route = createFileRoute("/compare")({
 const list = (v: string | undefined) => (v ? v.split("|").filter(Boolean) : []);
 const MUST_LABEL: Record<Must, string> = { dental: "Dental", vision: "Vision", hearing: "Hearing", noReferrals: "No referrals" };
 const SRC_LABEL: Record<Source, string> = { questionnaire: "from your questionnaire", search: "from your search", you: "you chose" };
+const DRUG_TEXT: Record<number, string> = { 0: "$0 / I don't take prescriptions", 50: "Under $100 (mostly generics)", 300: "$100 to $500", 1500: "Over $500 (brand or specialty)" };
 const NA = "Not available — check the plan's Summary of Benefits";
 const share = (v: Share | undefined) => v === undefined ? NA : typeof v === "number" ? money(v) : `${v.pct}% of the cost`;
 const ext = (v: boolean | null) => (v === null ? NA : v ? "Included" : "Not covered");
@@ -82,6 +83,10 @@ function Compare() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [area, JSON.stringify(c), JSON.stringify(prefs), sortKey]);
   const rows = ranked.map((r) => ({ p: r.plan, c: r.cost, matched: r.matched }));
+  const needs = (p: (typeof rows)[number]["p"]) => (["dental", "vision", "hearing"] as const).filter((m) => c.must.includes(m) && p[m] === null);
+  const grouping = c.must.some((m) => m === "dental" || m === "vision" || m === "hearing");
+  const shown = grouping ? [...rows.filter((r) => needs(r.p).length === 0), ...rows.filter((r) => needs(r.p).length > 0)] : rows;
+  const confirmedN = grouping ? shown.filter((r) => needs(r.p).length === 0).length : 0;
 
   // Which single filter is blocking results, so we can say so instead of silently loosening anything.
   const blockers = rows.length > 0 ? [] : ([
@@ -103,8 +108,8 @@ function Compare() {
   };
   const src = (k: string) => (prefs.sources[k] ? ` (${SRC_LABEL[prefs.sources[k]!]})` : "");
   const prefChips: { label: string; clear: () => void }[] = [
-    ...(["dental", "vision", "hearing"] as const).filter((w) => prefs.wants[w]).map((w) => ({ label: `Prefers ${w}${src(w)}`, clear: () => setPrefs({ wants: { ...prefs.wants, [w]: false } }, "you") })),
-    ...(prefs.keepAnyDoctor ? [{ label: `Doctors outside a network${src("keepAnyDoctor")}`, clear: () => setPrefs({ keepAnyDoctor: false }, "you") }] : []),
+    ...(["dental", "vision", "hearing"] as const).filter((w) => prefs.wants[w]).map((w) => ({ label: `Want ${w}${src(w)}`, clear: () => setPrefs({ wants: { ...prefs.wants, [w]: false } }, "you") })),
+    ...(prefs.keepAnyDoctor ? [{ label: `See doctors outside a network${src("keepAnyDoctor")}`, clear: () => setPrefs({ keepAnyDoctor: false }, "you") }] : []),
     ...(prefs.travels ? [{ label: `Travels${src("travels")}`, clear: () => setPrefs({ travels: false }, "you") }] : []),
     ...(prefs.priority !== "balanced" ? [{ label: `${prefs.priority === "peace" ? "Predictable costs" : "Low monthly cost"} first${src("priority")}`, clear: () => setPrefs({ priority: "balanced" }, "you") }] : []),
   ];
@@ -134,22 +139,22 @@ function Compare() {
           <form onSubmit={(e) => { e.preventDefault(); update({ q: qDraft.trim() }); }}>
             <label className="block font-bold" htmlFor="kw">Search by insurer or plan name</label>
             <div className="mt-1 flex gap-2"><input id="kw" type="search" maxLength={80} value={qDraft} onChange={(e) => setQDraft(e.target.value)} placeholder="e.g. Humana, BCBS, dental" className="min-h-12 w-full min-w-0 rounded-lg border-2 border-input bg-card p-2" />
-              <button type="submit" className="min-h-12 rounded-lg bg-primary px-3 font-bold text-primary-foreground">Go</button></div>
+              <button type="submit" className="min-h-12 rounded-lg bg-primary px-3 font-bold text-primary-foreground">Search</button></div>
           </form>
           <fieldset><legend className="font-bold">Insurer</legend>
             <div className="mt-1 max-h-56 overflow-y-auto rounded-lg border p-2">
               {CARRIERS.filter((x) => area.some((p) => p.carrier === x)).map((x) => <label key={x} className="flex min-h-10 items-center gap-2"><input type="checkbox" className="size-5 shrink-0" checked={c.carriers.includes(x)} onChange={() => update({ carriers: c.carriers.includes(x) ? c.carriers.filter((y) => y !== x) : [...c.carriers, x] })} />{x}</label>)}
             </div></fieldset>
-          <fieldset><legend className="font-bold">Advantage plan structure</legend>
-            {STRUCTURES.map((x) => <label key={x} className="mt-1 flex min-h-10 items-center gap-2"><input type="checkbox" className="size-5 shrink-0" checked={c.structures.includes(x)} onChange={() => update({ structures: c.structures.includes(x) ? c.structures.filter((y) => y !== x) : [...c.structures, x] })} />{x === "PPO" ? "PPO (incl. Regional PPO)" : x}</label>)}</fieldset>
+          <fieldset><legend className="font-bold">Medicare Advantage network type</legend>
+            {STRUCTURES.map((x) => <label key={x} className="mt-1 flex min-h-10 items-center gap-2"><input type="checkbox" className="size-5 shrink-0" checked={c.structures.includes(x)} onChange={() => update({ structures: c.structures.includes(x) ? c.structures.filter((y) => y !== x) : [...c.structures, x] })} />{x === "PPO" ? "PPO (including Regional PPO)" : x}</label>)}</fieldset>
           <label className="block font-bold">Highest monthly premium<select className={sel} value={c.maxPremium ?? ""} onChange={(e) => update({ maxPremium: e.target.value === "" ? null : Number(e.target.value) })}>
             <option value="">Any</option>{[0, 25, 50, 100, 200].map((v) => <option key={v} value={v}>{v === 0 ? "$0 only" : `Up to $${v}`}</option>)}</select></label>
           <div className="space-y-3 rounded-xl bg-secondary/50 p-3">
-            <p className="font-bold">For your cost estimate <span className="block text-sm font-normal text-muted-foreground">Kept only in this browser tab, never in the web address.</span></p>
-            <label className="block font-bold">Expected health use<select className={sel} value={prefs.health} onChange={(e) => setPrefs({ health: e.target.value as Health }, "you")}>
-              <option value="healthy">Low (healthy)</option><option value="some">Medium</option><option value="chronic">High (chronic)</option></select></label>
-            <label className="block font-bold">Monthly drug costs<select className={sel} value={prefs.drugs} onChange={(e) => setPrefs({ drugs: Number(e.target.value) as DrugBand }, "you")}>
-              {DRUG_BANDS.map((d) => <option key={d.v} value={d.v}>{d.v === 1500 ? "Over $500 (brand/specialty)" : d.label}</option>)}</select></label>
+            <div><p className="font-bold">Help us estimate your costs</p><p className="mt-1">Your answers help us show examples of what different plans might cost based on your needs.</p><p className="mt-1 text-sm text-muted-foreground">Your answers are only used to help estimate costs. We don't save them to an account.</p></div>
+            <label className="block font-bold">How much medical care do you expect to need?<span className="mt-1 block text-sm font-normal text-muted-foreground">We'll use your answer to show an example of what your medical costs could look like. Your actual costs may be different.</span><select className={sel} value={prefs.health} onChange={(e) => setPrefs({ health: e.target.value as Health }, "you")}>
+              <option value="healthy">A little — Mostly routine checkups</option><option value="some">Some — Regular appointments or ongoing health needs</option><option value="chronic">A lot — Frequent appointments or more complex care</option></select></label>
+            <label className="block font-bold">How much do you spend on prescriptions each month?<select className={sel} value={prefs.drugs} onChange={(e) => setPrefs({ drugs: Number(e.target.value) as DrugBand }, "you")}>
+              {DRUG_BANDS.map((d) => <option key={d.v} value={d.v}>{DRUG_TEXT[d.v]}</option>)}</select></label>
           </div>
           <fieldset><legend className="flex items-center gap-1 font-bold">Plan types <HelpPopover label="What do these plan types mean?">
             <h2 className="text-lg font-bold">Medicare plan types</h2>
@@ -165,7 +170,7 @@ function Compare() {
             {TYPES.map((t) => <label key={t} className="mt-1 flex items-center gap-2"><input type="checkbox" className="size-5" checked={c.types.includes(t)} onChange={() => update({ types: c.types.includes(t) ? c.types.filter((y) => y !== t) : [...c.types, t] })} />{t}</label>)}</fieldset>
           <fieldset><legend className="font-bold">Must include</legend>
             {MUSTS.map((k) => <label key={k} className="mt-1 flex items-center gap-2"><input type="checkbox" className="size-5" checked={c.must.includes(k)} onChange={() => update({ must: c.must.includes(k) ? c.must.filter((y) => y !== k) : [...c.must, k] })} />{MUST_LABEL[k]}</label>)}
-            <p className="mt-1 text-sm text-muted-foreground">Hides plans CMS lists as not covering it. Plans with unknown coverage stay listed.</p></fieldset>
+            <p className="mt-1 text-sm text-muted-foreground">When selected, we'll show plans with this benefit and point out any plans where coverage still needs to be confirmed.</p></fieldset>
           {(filterChips.length > 0 || prefChips.length > 0) && <button type="button" onClick={() => { resetPrefs(); setQDraft(""); update({ carriers: [], structures: [], q: "", must: [], maxPremium: null, types: DEFAULT_TYPES, sort: "" }); }} className="min-h-12 font-bold text-primary underline">Clear all filters and preferences</button>}
         </aside>
 
@@ -192,7 +197,7 @@ function Compare() {
                 <HelpPopover label="Why check my drugs before enrolling?">
                   <h2 className="text-lg font-bold">Check your medications</h2>
                   <p className="mt-3">Before you enroll, check the plan’s formulary to make sure your medications are covered and see what you’d pay.</p>
-                  <p className="mt-3">Our worst-case estimate includes the Part D drug out-of-pocket cap ({money(PART_D_OOP_CAP)}, {figureNote(FIGURES.partDOopCap)}), but only for drugs on the plan’s formulary. An expensive drug that isn’t covered could make your true cost higher.</p>
+                  <p className="mt-3">Our high-cost scenario includes the Part D drug out-of-pocket cap ({money(PART_D_OOP_CAP)}, {figureNote(FIGURES.partDOopCap)}), but only for drugs on the plan’s formulary. An expensive drug that isn’t covered could make your true cost higher.</p>
                   <p className="mt-3">An Advantage plan’s medical out-of-pocket limit does not include drugs.</p>
                 </HelpPopover>
               </div></div>
@@ -210,12 +215,12 @@ function Compare() {
           {(filterChips.length > 0 || prefChips.length > 0) && (
             <div className="mt-4 rounded-2xl border bg-card p-4" aria-label="Your active filters and preferences">
               {filterChips.length > 0 && <><p className="font-bold">Showing only</p><ul className="mt-1 flex flex-wrap gap-2">{filterChips.map((x) => <li key={x.label}><button type="button" onClick={x.clear} aria-label={`Remove ${x.label}`} className="min-h-12 rounded-full bg-primary/10 px-4 text-left">{x.label} <span aria-hidden>✕</span></button></li>)}</ul></>}
-              {prefChips.length > 0 && <><p className="mt-3 font-bold">Listed first if they match <span className="font-normal text-muted-foreground">(no plans are hidden)</span></p><ul className="mt-1 flex flex-wrap gap-2">{prefChips.map((x) => <li key={x.label}><button type="button" onClick={x.clear} aria-label={`Remove ${x.label}`} className="min-h-12 rounded-full bg-secondary px-4 text-left">{x.label} <span aria-hidden>✕</span></button></li>)}</ul></>}
+              {prefChips.length > 0 && <><p className="mt-3 font-bold">Plans that match these appear higher. <span className="font-normal text-muted-foreground">No plans are hidden.</span></p><ul className="mt-1 flex flex-wrap gap-2">{prefChips.map((x) => <li key={x.label}><button type="button" onClick={x.clear} aria-label={`Remove ${x.label}`} className="min-h-12 rounded-full bg-secondary px-4 text-left">{x.label} <span aria-hidden>✕</span></button></li>)}</ul></>}
             </div>
           )}
-          <details className="mt-3"><summary className="min-h-12 cursor-pointer py-3 font-bold text-primary">Why are plans in this order?</summary>
+          <details className="mt-3"><summary className="min-h-12 cursor-pointer py-3 font-bold text-primary">Why are these plans shown first?</summary>
             <ul className="list-disc space-y-1 pl-6">{explainOrder({ doctorsFlex: answers.doctorsFlex, travels: prefs.travels, extras: prefs.wants }, sortKey).map((l) => <li key={l}>{l}</li>)}</ul>
-            <p className="mt-2 text-sm text-muted-foreground">Plans are never ordered by who offers them. Plans are shown for your whole county; CMS doesn't publish ZIP-level service areas, so confirm a plan serves your address.</p></details>
+            <p className="mt-2 text-sm text-muted-foreground">We never put a plan higher because of which company offers it. We show plans for your whole county, so confirm a plan serves your address.</p></details>
 
           {cmp.length > 1 && (
             <div className="mt-6 overflow-x-auto rounded-2xl border-2 border-primary bg-card p-2 sm:p-4"><p className="mb-2 text-sm text-muted-foreground sm:hidden">Swipe sideways to see each plan →</p>
@@ -239,12 +244,12 @@ function Compare() {
                   ["Vision", (r) => r.p.extrasDetail?.vision ?? ext(r.p.vision)],
                   ["Hearing", (r) => r.p.extrasDetail?.hearing ?? ext(r.p.hearing)],
                   ["Fitness", (r) => r.p.extrasDetail?.fitness ?? ext(r.p.fitness)],
-                  ["Health-items allowance", (r) => r.p.extrasDetail?.otc ?? (r.p.real ? NA : "Not included")],
+                  ["Allowance for health items (like vitamins or bandages)", (r) => r.p.extrasDetail?.otc ?? (r.p.real ? NA : "Not included")],
                   ["Part B giveback", (r) => r.p.partBGiveback ? `${money(r.p.partBGiveback)}/mo off your Part B premium` : r.p.real ? "None listed" : "Not included"],
-                  ["CMS star rating", (r) => r.p.starRating ? `${r.p.starRating} out of 5 stars${r.p.starYear === 2026 ? " (2026 rating — 2027 not yet released)" : ""}` : r.p.real ? "New — no rating yet" : "Not rated (CMS rates only Advantage and Part D plans)"],
+                  ["Medicare star rating", (r) => r.p.starRating ? `${r.p.starRating} out of 5 stars${r.p.starYear === 2026 ? " (2026 rating — 2027 not yet released)" : ""}` : r.p.real ? "New — no rating yet" : "Not rated (CMS rates only Advantage and Part D plans)"],
                   ["Preventive care at $0", (r) => r.p.preventiveZero === null ? NA : r.p.preventiveZero ? "Yearly checkups, mammograms & screenings at $0" : "May have copays"],
-                  ["CMS plan type", (r) => r.p.cmsType ?? (r.p.real ? NA : "Original Medicare / Medigap")],
-                  ["CMS plan ID", (r) => r.p.real ? r.p.id : "None (not a CMS plan)"],
+                  ["Plan type (from Medicare)", (r) => r.p.cmsType ?? (r.p.real ? NA : "Original Medicare / Medigap")],
+                  ["Medicare plan ID", (r) => r.p.real ? r.p.id : "None (not a CMS plan)"],
                 ] as [string, (r: (typeof cmp)[number]) => string][]).map(([l, f]) => (
                   <tr key={l} className="border-t"><td className="sticky left-0 min-w-32 bg-card p-2 font-bold">{l}</td>{cmp.map((r) => <td key={r.p.id} className="min-w-40 p-2">{f(r)}</td>)}</tr>))}
               </tbody></table>
@@ -252,11 +257,14 @@ function Compare() {
           )}
 
           <div className="mt-6 space-y-4">
-            {rows.map(({ p, c }) => (
-              <div key={p.id} className={`grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-3 rounded-2xl border-2 bg-card p-4 sm:p-5 md:grid-cols-[auto_minmax(0,1fr)_auto] md:gap-4 ${picked.includes(p.id) ? "border-primary" : ""}`}>
+            {shown.map(({ p, c }, i) => (<Fragment key={p.id}>
+              {grouping && i === 0 && confirmedN > 0 && <h3 className="text-xl font-bold">Plans with confirmed coverage</h3>}
+              {grouping && i === confirmedN && <div className="pt-2"><h3 className="text-xl font-bold">Plans requiring confirmation</h3><p className="mt-1 rounded-xl bg-muted p-3">Some plans don't provide complete benefit details here. Contact the insurance company to confirm what's covered.</p></div>}
+              <div className={`grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-3 rounded-2xl border-2 bg-card p-4 sm:p-5 md:grid-cols-[auto_minmax(0,1fr)_auto] md:gap-4 ${picked.includes(p.id) ? "border-primary" : ""}`}>
                 <label className="-m-2 flex size-10 items-start justify-center p-2"><input type="checkbox" aria-label={`Compare ${p.name}`} className="size-6" checked={picked.includes(p.id)} onChange={() => toggle(p.id)} /></label>
                 <div className="min-w-0">
                   <h2 className="text-xl font-bold">{p.name}</h2>
+                  {grouping && needs(p).length > 0 && <p className="mt-1 text-sm font-semibold text-warning">Confirm with the insurer: {needs(p).join(", ")} coverage</p>}
                   <div className="mt-1 md:hidden"><span className="font-display text-2xl font-bold text-primary">{money(c.total)}</span> <span className="text-sm text-muted-foreground">estimated yearly cost · worst case {c.worstCase ? money(c.worstCase) : "unlimited"}</span></div>
                   <div className="text-muted-foreground">{p.cmsType && p.real ? p.cmsType : p.type} · {p.carrier}{p.starRating ? ` · ${p.starRating}★${p.starYear === 2026 ? " (2026)" : ""}` : ""}</div>
                   <p className="mt-2">{p.summary}</p>
@@ -282,8 +290,8 @@ function Compare() {
                 <div className="hidden text-right md:block"><div className="text-sm text-muted-foreground">Estimated yearly cost</div><div className="font-display text-3xl font-bold text-primary">{money(c.total)}</div>
                   <div className="text-sm text-muted-foreground">Worst case {c.worstCase ? money(c.worstCase) : "unlimited"}</div></div>
               </div>
-            ))}
-            {rows.length === 0 && <div role="status" className="rounded-xl bg-muted p-6 text-lg"><p>No plans in {c.county} County match all of these filters.</p>
+            </Fragment>))}
+            {rows.length === 0 && <div role="status" className="rounded-xl bg-muted p-6 text-lg"><p>No plans in {c.county} County match all of these choices. Try removing one:</p>
               {blockers.length > 0 && <ul className="mt-3 space-y-2">{blockers.map((b) => <li key={b.label}><button type="button" onClick={() => update(b.fix)} className="min-h-12 text-left font-bold text-primary underline">Remove "{b.label}" to see {b.n} plan{b.n === 1 ? "" : "s"}</button></li>)}</ul>}</div>}
           </div>
         </section>

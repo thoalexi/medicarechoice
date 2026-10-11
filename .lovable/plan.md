@@ -14,8 +14,8 @@ No changes to plan data, cost math, values sent to the estimate, or which plans 
 ## 2. Cost estimate box
 - Heading: "Help us estimate your costs"
 - Text: "Your answers help us show examples of what different plans might cost based on your needs."
-- Secondary line (true: answers are kept only in this browser tab, never sent to an account or saved by us): "Your answers stay private and aren't saved to an account."
-- "Expected health use" becomes "How often do you visit the doctor?" — Rarely / Sometimes / Often (for an ongoing health condition). Same three values underneath.
+- Secondary line (verified: answers are kept only in this browser tab, never saved to an account): "Your answers are only used to help estimate costs. We don't save them to an account."
+- "Expected health use" becomes "How much medical care do you expect to need?" — "A little — Mostly routine checkups", "Some — Regular appointments or ongoing health needs", "A lot — Frequent appointments or more complex care". Note: "We'll use your answer to show an example of what your medical costs could look like. Your actual costs may be different." Same three values underneath.
 - "Monthly drug costs" becomes "How much do you spend on prescriptions each month?" — "$0 / I don't take prescriptions", "Under $100 (mostly generics)", "$100 to $500", "Over $500 (brand or specialty)". Same values.
 
 ## 3. "Must include" benefits — two groups
@@ -39,3 +39,6 @@ Today, plans listed as not covering a benefit are already hidden; plans with unk
 ## Checks
 - Same plan counts before and after for each filter; group split matches the data.
 - Look at desktop and 393px phone width; clean build.
+
+## Status
+Most wording edits are already written; remaining step is one missing import, then testing at desktop and phone width.

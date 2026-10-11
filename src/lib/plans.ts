@@ -286,10 +286,10 @@ export function explainOrder(a: Pick<Answers, "doctorsFlex" | "travels" | "extra
     ...(["dental", "vision", "hearing"] as const).filter((x) => a.extras[x]),
   ].filter(Boolean) as string[];
   const out = [];
-  if (prefs.length) out.push(`Plans that meet more of what you asked for (${prefs.join(", ")}) are listed first. This uses each plan's type and CMS benefit data; unknown benefits don't count.`);
-  out.push(`Then plans are sorted by ${SORT_LABEL[key]}, lowest first.`);
-  if (key === "total") out.push("When two plans' estimated costs are within $250, the one with the lower high-cost scenario goes first.");
-  out.push("Original Medicare alone (no yearly limit) is listed after plans with a limit, and Special Needs Plans are listed last.");
+  if (prefs.length) out.push(`We show plans that best match what matters to you (${prefs.join(", ")}). For example, if you selected dental or hearing coverage, plans offering those benefits appear higher. If we can't confirm whether a plan includes a benefit, we won't assume it does. You can always check with the insurance company.`);
+  out.push(`After that, plans are sorted by ${SORT_LABEL[key]}, lowest first.`);
+  if (key === "total") out.push("If two plans cost within about $250 of each other, the one with the lower high-cost year goes first.");
+  out.push("Original Medicare alone (no yearly spending limit) comes after plans with a limit. Special Needs Plans, which have eligibility rules, are listed last.");
   return out;
 }
 
