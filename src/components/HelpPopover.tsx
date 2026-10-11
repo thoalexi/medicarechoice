@@ -15,7 +15,7 @@ export function HelpPopover({ label, children, compact = false }: { label: strin
   };
 
   return (
-    <span onMouseEnter={show} onMouseLeave={hide}>
+    <span className="inline-flex items-center" onMouseEnter={show} onMouseLeave={hide}>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
