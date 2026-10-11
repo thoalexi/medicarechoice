@@ -254,3 +254,29 @@ export function rankPlans(scored: Scored[]): Scored[] {
 }
 
 export const money = (n: number) => "$" + Math.round(n).toLocaleString();
+
+/** Owner-published data from the CMS Updates screen; null = use the built-in files. */
+export type LiveData = { stars?: StarsPayload | null; figures?: FiguresPayload | null; publishedAt?: Record<string, string> };
+let appliedKey = "";
+/** Apply live overrides once per distinct payload (same data on server and browser, so no hydration mismatch). */
+export function applyLiveData(live: LiveData | null | undefined) {
+  const key = JSON.stringify(live?.publishedAt ?? {});
+  if (key === appliedKey) return;
+  appliedKey = key;
+  S27 = live?.stars ?? (stars2027 as StarsPayload);
+  const f = live?.figures ?? (figures as FiguresPayload);
+  FIG_YEAR = f.coverageYear;
+  Object.assign(FIGURES, JSON.parse(JSON.stringify(f.figures)));
+  PART_B_MONTHLY = FIGURES.partBMonthly.value;
+  PART_D_OOP_CAP = FIGURES.partDOopCap.value;
+  FIGURE_YEAR = FIGURES.partBMonthly.year;
+  for (const p of PLANS) {
+    if (p.real) {
+      const s = starFor(p.id.split("_")[0] ?? "");
+      p.starRating = s.stars; p.starYear = s.year;
+    } else {
+      p.deductible = FIGURES.partBDeductible.value;
+      if (p.id === "medigap-g") p.oopMax = FIGURES.partBDeductible.value;
+    }
+  }
+}
