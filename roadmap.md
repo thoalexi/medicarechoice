@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Shorten Compare notices, keep explanations in help popovers, and refresh the P favicon.
+
 - [x] Add a donation button (Wikipedia-style "Like what we do? Please keep it going!" banner + donate page)
 - [x] Say "Donations support this women owned business!" on the donation banner and page
 - [x] Load official CMS 2027 Michigan plan list (all 83 counties, ZIP lookup)
