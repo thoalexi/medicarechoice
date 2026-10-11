@@ -13,6 +13,10 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { DonateBanner } from "../components/DonateBanner";
+import { getLiveData } from "../lib/cmsUpdates.functions";
+import { applyLiveData } from "../lib/plans";
+
+const liveQuery = { queryKey: ["live-cms-data"], queryFn: () => getLiveData(), staleTime: 10 * 60_000 };
 
 function NotFoundComponent() {
   return (
@@ -93,6 +97,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "apple-touch-icon", href: "/favicon.png?v=3" },
     ],
   }),
+  loader: ({ context }) => context.queryClient.ensureQueryData(liveQuery).catch(() => null),
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
@@ -115,6 +120,8 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  // Owner-published CMS updates override the built-in files before any page renders.
+  applyLiveData(Route.useLoaderData());
 
   return (
     <QueryClientProvider client={queryClient}>
