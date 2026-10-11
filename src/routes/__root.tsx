@@ -126,7 +126,7 @@ function RootComponent() {
   // Invite and password-reset email links can land on any page; send them to the password page.
   useEffect(() => {
     const h = window.location.hash;
-    if (/type=(invite|recovery)/.test(h) && window.location.pathname !== "/reset-password") {
+    if (/type=(invite|recovery)|error_code=/.test(h) && window.location.pathname !== "/reset-password") {
       window.location.replace(`/reset-password${h}`);
       return;
     }
