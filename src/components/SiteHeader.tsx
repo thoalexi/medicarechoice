@@ -15,14 +15,14 @@ export function SiteHeader() {
   return (
     <header className="border-b bg-card">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
-        <Link to="/" className="shrink-0 whitespace-nowrap font-display text-2xl font-bold text-primary">PlainPlanGuide</Link>
+        <Link to="/" className="min-w-0 whitespace-nowrap font-display text-[22px] font-bold text-primary sm:text-2xl">PlainPlanGuide</Link>
         <div className="flex shrink-0 items-center gap-2 sm:gap-4">
           <Link to="/feedback" className="hidden min-h-12 items-center gap-2 font-bold hover:text-primary sm:inline-flex">
             <MessageSquareHeart className="size-4" aria-hidden />
             Feedback
           </Link>
-          <Link to="/donate" className="inline-flex min-h-12 items-center gap-2 rounded-full border-2 border-primary px-4 font-bold text-primary transition hover:bg-primary/10">
-            <Heart className="size-4" aria-hidden />
+          <Link to="/donate" className="inline-flex min-h-12 items-center gap-2 rounded-full border-2 border-primary px-3 font-bold text-primary transition sm:px-4 hover:bg-primary/10">
+            <Heart className="hidden size-4 sm:block" aria-hidden />
             Donate
           </Link>
           <button
