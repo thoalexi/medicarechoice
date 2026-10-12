@@ -71,7 +71,7 @@ function Privacy() {
 
         <Section title="Cookies, browser storage and site statistics">
           <p>We don't set any cookies of our own. We save one setting in your browser: whether you closed the donation banner. Clearing your browser data removes it.</p>
-          <p>Our hosting provider, Lovable, keeps basic visit statistics (pages viewed, the website you came from and rough device type). If a page breaks, an error report goes to Lovable so the problem can be fixed. When the AI or search service fails, our servers note the error code only, not what you typed. We don't use Google Analytics, Facebook pixels or mailing lists.</p>
+          <p>Our hosting provider, Lovable, keeps basic visit statistics (pages viewed, the website you came from and rough device type). If a page breaks, an error report goes to Lovable so the problem can be fixed. When the AI or search service fails, our servers note the error code only, not what you typed. We also use Google Analytics to count visits, which pages are viewed, which main buttons are clicked, whether the guided questions are finished, and which ad or website brought you here. Google Analytics sets its own cookies for this. It never receives your ZIP code, answers, medicines or anything you type. We don't use Facebook pixels or mailing lists.</p>
         </Section>
 
         <Section title="Who else sees information">
