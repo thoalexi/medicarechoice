@@ -196,7 +196,7 @@ function Compare() {
   };
   const tag = (k: string) => prefs.sources[k];
   const openPanel = () => { setShowFilters(true); setTimeout(() => document.getElementById("filters")?.scrollIntoView({ behavior: "smooth" }), 30); };
-  type Chip = { key: string; label: string; src?: Source; clear?: () => void };
+  type Chip = { key: string; label: string; src?: Source | undefined; clear?: () => void };
   const narrowChips: Chip[] = [
     { key: "county", label: `${c.county} County`, src: tag("county") },
     ...(c.cov !== "all" ? [{ key: "cov", label: COV_LABEL[c.cov], src: tag("cov"), clear: () => update({ cov: "all" }) }] : []),

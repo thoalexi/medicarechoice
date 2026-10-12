@@ -61,7 +61,7 @@ function load() {
         keepAnyDoctor: !!p.keepAnyDoctor,
         priority: p.priority === "low-premium" || p.priority === "peace" || p.priority === "flex" ? p.priority : "balanced",
         preferred: { dental: !!pref.dental, vision: !!pref.vision, hearing: !!pref.hearing, fitness: !!pref.fitness },
-        travels: p.travels === "yes" || p.travels === true ? "yes" : p.travels === "no" ? "no" : "unsure",
+        travels: p.travels === "yes" || (p.travels as unknown) === true ? "yes" : p.travels === "no" ? "no" : "unsure",
         sources: typeof p.sources === "object" && p.sources ? p.sources : {},
       };
     }
