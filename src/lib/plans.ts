@@ -116,7 +116,9 @@ const cmsPlans: Plan[] = cms.plans.map((p) => {
   const pos = p.cmsType.includes("POS");
   const x = EXTRAS[p.id];
   const snpNote = p.snp ? " Special Needs Plan — only for people who qualify (e.g. Medicare + Medicaid, certain chronic conditions, or nursing-home care)." : "";
-  const net = hmo ? (pos ? "HMO with some out-of-network coverage (POS)." : "Must use network doctors, except emergencies.") : "PPO: see out-of-network doctors at higher cost.";
+  const net = hmo ? (pos ? "HMO-POS: a network plan that may cover some care outside the network, usually at a higher cost." : "Must use network doctors, except emergencies.")
+    : p.cmsType.startsWith("PFFS") ? "PFFS: you can see doctors who agree to the plan's payment terms. Each doctor can decide visit by visit, so always ask first."
+    : "PPO: see out-of-network doctors at higher cost.";
   return {
     id: p.id,
     name: p.name,
