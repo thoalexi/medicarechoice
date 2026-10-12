@@ -1,70 +1,95 @@
-# Compare Plans: simpler filter panel
+# Compare Plans filter redesign + two new Guided Questions
 
-## What's confusing today (Phase 1 findings)
-- **HMO/PPO in two places:** a "Plan type" checkbox list (Advantage HMO, Advantage PPO, Other Advantage, Original + Medigap, Original only, Special Needs) and a separate "Advantage plan structure" checkbox list (HMO, HMO-POS, PPO, PFFS).
-- **Two controls per benefit:** "Want dental/vision/hearing" (affects order) and "Must include dental/vision/hearing" (narrows the list). Fitness has neither.
-- **Travel and doctor choice are hidden:** they come from the questionnaire or AI search but can't be seen or changed in the panel.
-- **Two insurer controls:** an insurer checkbox list and the keyword box, which also matches insurer names.
-- **"No referrals" sits with the benefits**, though it's about network rules.
-- **Preferences strip** can show near-duplicates ("Want dental" and "Must include dental").
+## What's confusing today
+- HMO/PPO can be picked in two places: the "Plan type" list and the "Advantage plan structure" list.
+- Each benefit has two controls: "Want dental" (changes the order) and "Must include dental" (narrows the list). Fitness has neither.
+- Travel and "keep my doctors" come from the questionnaire, but you can't see or change them in the panel.
+- There are two ways to pick an insurer: an insurer checkbox list and the keyword box.
+- "No referrals" sits with the benefits, even though it's a network rule.
+- The preferences strip can show near-duplicate chips.
 
-## New panel (five short sections, then Advanced)
+## 1. Two new Guided Questions
+Both use the existing large cards. Each card is fully clickable, has its explanation always visible (no tooltips), shows a clear selected state, works with keyboard and screen reader, and stacks on phones.
 
+**Q1 "Do you have a type of Medicare coverage in mind?"** (asked right after ZIP)
+- Medicare Advantage
+- Original Medicare
+- Original Medicare + Medigap
+- I'm not sure
+
+Each card uses your wording. The Medigap card adds: "Medigap does not include drug coverage. Eligibility, enrollment rules and prices vary. We show typical examples, not individual policies."
+
+**Q2 "Do you prefer a particular kind of Medicare Advantage plan?"**
+- Shown only if Q1 is Medicare Advantage or I'm not sure.
+- Choices: PPO / HMO / Other (HMO-POS, Private Fee-for-Service) / I'm not sure, with your wording.
+- Regional PPOs count as PPO. HMO-POS stays separate from HMO, and PFFS from PPO.
+- A choice only appears if that plan type is offered in the person's county.
+
+**Follow-up (only after PPO/HMO/Other): "Is this the only type of plan you want to see?"**
+- "Yes, only show me this type" makes it a requirement.
+- "I prefer this type, but I'm open to others" makes it a preference.
+
+Skipping either question, or answering I'm not sure, sets no restriction. Nothing is picked automatically. Back, Next, Skip and the progress bar keep working, and the question count adjusts to the questions actually shown.
+
+## 2. New Compare filter panel
 ```text
-A  Where do you need coverage?        [County v]
-B  What type of coverage?             ( ) All  ( ) Medicare Advantage  ( ) Original Medicare + Medigap
-     (only if Advantage) Network type ( ) Any  ( ) HMO  ( ) PPO  ( ) Other
-C  What's important to you?           Dental   [Not important | Preferred | Required]
-                                      Vision   [ ... ]   Hearing [ ... ]   Fitness [ ... ]
-D  Cost and flexibility               ( ) Lower monthly payments
-                                      ( ) Lower costs when I need care
-                                      ( ) Flexibility to choose doctors
-                                      ( ) A balance of all three
-     Do you travel often?             [Yes | No | No preference]
-E  Find a specific plan               [Search insurance companies or plans...  x]
-     Insurer suggestions appear as you type; tapping one adds an insurer chip.
->  Advanced filters (collapsed)       Exact CMS plan type (HMO-POS, PFFS, Regional PPO...)
-                                      Include Special Needs Plans (with eligibility note)
-                                      Maximum monthly premium
-                                      No referrals needed
+A  Where do you need coverage?   [County v]
+B  What type of coverage?        All | Medicare Advantage | Original Medicare | Original Medicare + Medigap
+     (Advantage only) Network    Any | HMO | PPO | Other
+                                 then: ( ) Only this type  ( ) Show it first, others after
+C  What's important to you?      Dental / Vision / Hearing / Fitness: Not important | Preferred | Required
+D  Cost and flexibility          Lower monthly premiums | Lower potential medical expenses |
+                                 More freedom to choose doctors | A balance of cost and flexibility
+     Keep my current doctors?    Yes | No   (separate from the priority above)
+     Do you travel often or spend time away from home?   Yes | No | Not sure
+       "Some plans offer more flexibility when you're away from home. Always
+        confirm coverage with the insurance company before traveling."
+E  Find a specific plan          [Search insurance companies or plans...]
+>  Advanced filters (collapsed)  Exact CMS plan type, Special Needs Plans (with eligibility note),
+                                 maximum monthly premium, no referrals needed
 ```
+- **One place for HMO/PPO** (section B). Advanced offers only exact CMS types such as HMO-POS, PFFS and Regional PPO, and never repeats HMO or PPO.
+- **Network "Only this type":** only matching plans appear. If none match, it says: "We couldn't find PPO plans that match all your choices in this county. You can change your preferences to see more options." There's a button to change it. A banner reads: "Showing PPO Medicare Advantage plans because you selected PPO only."
+- **Network "Show it first":** matching plans come first. Other types appear under "Other plan types (alternatives)" and are never labeled as the preferred type.
+- **Benefits:**
+  - Preferred moves confirmed plans up and hides nothing.
+  - Required puts confirmed plans first, puts unknowns under "Coverage needs confirmation," and leaves out plans confirmed not to cover it.
+- **Priority and doctors:**
+  - Priority uses today's sort rules: premium, high-cost scenario, estimated yearly cost, and estimated yearly cost with flexible plans moved up.
+  - "Keep my current doctors" is its own single control, so lower premiums plus keeping your doctors both stay set. Choosing "More freedom" turns it on but never turns it off.
+- **Travel:** Yes uses today's out-of-network rule. No and Not sure have no effect. No travel coverage claims are made.
+- **Search:**
+  - One box for keywords, insurer names and nicknames, and plan names.
+  - Picking a suggested insurer turns it into an insurer chip and removes that text from the box.
+  - Blue Cross Blue Shield of Michigan and Blue Care Network stay separate.
+  - The insurer checkbox list is removed.
+- **Original Medicare / Medigap selected:** network controls are hidden and no HMO/PPO rule applies. The note about typical Medigap examples stays.
 
-- **HMO/PPO appear only in section B.** "Other" covers HMO-POS and PFFS together; Advanced lets someone pick one exactly. Advanced does not repeat HMO or PPO.
-- **Benefits:** one three-way control each.
-  - Preferred: plans with confirmed coverage move up. No plan is hidden.
-  - Required: confirmed plans first, then a "Coverage needs confirmation" group for unknown ones. Plans confirmed not to cover it are left out. This keeps today's confirmed-vs-unknown rules.
-- **Priority:** "Lower monthly payments" sorts by premium. "Lower costs when I need care" sorts by the high-cost scenario. "Balance" sorts by estimated yearly cost. "Flexibility to choose doctors" sorts by estimated yearly cost but moves plans that let you see any or out-of-network doctors up. That uses the same rule as today's "keep any doctor" answer, with no new weights.
-- **Travel:** Yes moves plans with out-of-network or any-doctor coverage up, using today's rule. The panel explains: "We can only tell whether a plan covers out-of-network care. A PPO doesn't guarantee coverage while you travel; check with the plan." No and No preference have no effect.
-- **Insurers:** one keyword box. Typing "Blue Cross" offers the exact insurer (and suggests Blue Care Network separately, never merged). The insurer checkbox list is removed.
-- **Mobile:** same order, using the existing "Filters" show/hide button. Large tap targets, nothing sideways.
+## 3. Current Preferences
+Two labeled rows with one chip per choice. Every chip can be removed or tapped to edit, and a small tag shows where it came from (Guided Questions, AI-assisted search, or you).
+- **Narrowing your list:** Genesee County, Medicare Advantage, PPO only, Blue Cross Blue Shield of Michigan, required benefits, Advanced filters.
+- **Changing the order:** Dental: Preferred, Travel: Yes, Lower monthly premiums, Keep my doctors, PPO preferred.
 
-## Your Current Preferences (simplified)
-- One chip per question, for example: Genesee County · PPO · Blue Cross · Dental: Preferred · Travel: Yes.
-- Chips are in two labeled rows: "Narrowing your list" (county, coverage, network, insurer, keyword, required benefits, advanced) and "Changing the order" (preferred benefits, priority, travel). Each chip can be removed. A small note shows where it came from (questionnaire / search / you). "Clear all" stays.
-
-## Questionnaire and AI search
-- Questionnaire: County goes to Location. "Want dental" becomes Dental: **Preferred**, never Required. Travel yes becomes Travel: Yes. Budget style becomes the matching priority. Keep any doctor becomes Flexibility. Everything can be changed afterwards.
-- AI search fills the same controls. "Blue Cross PPO" sets the insurer and Network: PPO. "PPO **with** dental" sets Dental: Preferred. Only clear words like "must have" or "has to include" set Required. "Here's what we understood" says which one was chosen.
-- There is still one shared filter state, and no second filtering system.
+## 4. One shared state everywhere
+- Guided Questions, Compare, AI-assisted search and Current Preferences all read and write the same settings. The newest explicit choice wins: switching PPO only to HMO replaces it, with no conflicting leftovers.
+- AI-assisted search: "Blue Cross PPO" sets the insurer and PPO as a preference. Clear wording like "only" or "must" makes it a requirement, and benefits work the same way. "Here's what we understood" says which.
+- Choices persist across navigation and refresh. Shareable choices go in the web address. Personal answers stay in this browser tab only, as today.
+- The same labels are used on every page.
 
 ## Unchanged
-Plan data, cost formulas, plan counts per county, how Special Needs Plans are handled and labeled, the disclaimers, and the rest of the Compare page.
+2027 CMS plan data, cost formulas, plan counts, Special Needs handling and labels, disclosures, design system, and the rest of the page. Nothing is published until you review it.
 
-## Testing (before you review; nothing published)
-All 14 items in your spec, including:
-- questionnaire transfer and the AI search examples
-- one HMO/PPO control and one control per benefit
-- Preferred doesn't hide plans; Required groups confirmed vs. unknown
-- travel persists; insurer + other filters together
-- Advanced doesn't duplicate anything; Clear all works
-- plan counts match before and after; yearly cost numbers identical before and after
-- desktop and 393px checks
+## Testing
+- All previously approved tests.
+- Your tests 1–10 and the final acceptance scenario (ZIP → Advantage → PPO only → Dental Preferred → Travel Yes → switch to HMO).
+- Plan counts match before and after, cost figures are identical before and after, and no plans are invented.
+- Desktop and 393px checks, plus the existing automated tests.
 
 ## Technical details
-- Session prefs: `wants` becomes `benefits: Record<"dental"|"vision"|"hearing"|"fitness", "off"|"preferred"|"required">`. `travels` becomes `"yes"|"no"|"any"`. `priority` adds `"flex"`. `keepAnyDoctor` derives from `priority==="flex"` (the questionnaire still sets it). Old stored values migrate on load.
-- URL: `cov=all|ma|orig`, `net=any|hmo|ppo|other`, `cms[]` (advanced exact types), `snp=1`, `carriers[]`, `q`, `max`, `noref=1`, `req[]` (required benefits). Old `types`/`structure`/`must` params are read once and translated, so shared links keep working.
-- `applyFilters` maps cov/net/cms/snp to the existing `types` + `structureOf` checks. Required benefits use `p[x] !== false`. Fitness is added to the same check.
-- `scorePlan` reads `benefits[x] !== "off"` in place of `extras[x]` and adds fitness to that loop. The travel/flex branches are unchanged. No new weights or cost changes.
-- AI schema: `dental/vision/hearing/fitness: "none"|"preferred"|"required"`, `priority` adds `"flex"`, `travels` stays boolean. `planType` maps to `net`.
-- Compare panel rewritten as small section components in compare.tsx. The insurer checkbox list and the structure fieldset are removed.
-- Tests: extend the existing vitest files to cover the filter mapping, URL migration and cost snapshot equality.
+- Session prefs: `benefits: Record<dental|vision|hearing|fitness, off|preferred|required>`, `travels: yes|no|unsure`, `priority` adds `flex`, `keepAnyDoctor` stays an independent boolean. Old stored values migrate on load.
+- URL: `cov=all|ma|orig|medigap`, `net=any|hmo|ppo|other`, `netMode=only|prefer`, `cms[]`, `snp`, `carriers[]`, `q`, `max`, `noref`, `req[]`. Old `types`/`structure`/`must` links are translated once.
+- `applyFilters` maps cov/net(only)/cms/snp onto the existing `types` + `structureOf`. `net` prefer is a stable partition after ranking (matches, then alternatives). Required benefits use `p[x] !== false`, with fitness added.
+- `scorePlan` reads `benefits[x] !== "off"` and adds fitness to the existing loop. The travel and doctor branches are unchanged. No new weights or cost changes.
+- Guide: Q1/Q2/follow-up are added to `steps` with conditional inclusion. Available network types come from the county's plans. Answers are written to the Compare link (cov/net/netMode) and to session prefs.
+- AI schema: benefits use `none|preferred|required`, `planTypeMode: only|prefer`, `priority` adds `flex`.
+- Tests: extend vitest for the mappings, URL migration and a cost snapshot. Use Playwright for the flows.
