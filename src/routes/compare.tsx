@@ -43,7 +43,7 @@ export const Route = createFileRoute("/compare")({
 });
 
 const list = (v: string | undefined) => (v ? v.split("|").filter(Boolean) : []);
-const SRC_LABEL: Record<Source, string> = { questionnaire: "Guided Questions", search: "AI-assisted search", you: "you" };
+const SRC_LABEL: Record<Source, string> = { questionnaire: "Guided Questions", search: "AI-assisted search", you: "Selected in Filter" };
 const DRUG_TEXT: Record<number, string> = { 0: "$0 / I don't take prescriptions", 50: "Under $100 (mostly generics)", 300: "$100 to $500", 1500: "Over $500 (brand/specialty)" };
 const NA = "Not available — check the plan's Summary of Benefits";
 const share = (v: Share | undefined) => v === undefined ? NA : typeof v === "number" ? money(v) : `${v.pct}% of the cost`;
