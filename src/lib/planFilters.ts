@@ -92,7 +92,7 @@ export function carrierSuggestions(draft: string, available: string[]): { carrie
     if (n.includes(t) || n.split(" ").some((w) => w.length >= 3 && w.startsWith(t))) out.set(c, "");
     else {
       const first = n.split(" ")[0]!;
-      if (first.length >= 4 && ` ${t} `.includes(` ${first} `)) out.set(c, norm(` ${t} `.replace(` ${first} `, " ")));
+      if (first.length >= 4 && !ALIAS_GROUPS.some((g) => g.carrier === c) && ` ${t} `.includes(` ${first} `)) out.set(c, norm(` ${t} `.replace(` ${first} `, " ")));
     }
   }
   return [...out].slice(0, 5).map(([carrier, rest]) => ({ carrier, rest }));
