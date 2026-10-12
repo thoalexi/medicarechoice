@@ -116,7 +116,9 @@ const cmsPlans: Plan[] = cms.plans.map((p) => {
   const pos = p.cmsType.includes("POS");
   const x = EXTRAS[p.id];
   const snpNote = p.snp ? " Special Needs Plan — only for people who qualify (e.g. Medicare + Medicaid, certain chronic conditions, or nursing-home care)." : "";
-  const net = hmo ? (pos ? "HMO with some out-of-network coverage (POS)." : "Must use network doctors, except emergencies.") : "PPO: see out-of-network doctors at higher cost.";
+  const net = hmo ? (pos ? "HMO-POS: a network plan that may cover some care outside the network, usually at a higher cost." : "Must use network doctors, except emergencies.")
+    : p.cmsType.startsWith("PFFS") ? "PFFS: you can see doctors who agree to the plan's payment terms. Each doctor can decide visit by visit, so always ask first."
+    : "PPO: see out-of-network doctors at higher cost.";
   return {
     id: p.id,
     name: p.name,
@@ -165,8 +167,8 @@ export interface Answers {
   doctorsFlex: "any" | "network-ok";
   hospital: string;
   drugsMonthly: number; // retail monthly cost of prescriptions
-  priority: "low-premium" | "balanced" | "peace";
-  extras: { dental: boolean; vision: boolean; hearing: boolean };
+  priority: "low-premium" | "balanced" | "peace" | "flex";
+  extras: { dental: boolean; vision: boolean; hearing: boolean; fitness?: boolean };
   travels: boolean;
 }
 
@@ -236,7 +238,7 @@ export function scorePlan(plan: Plan, a: Answers) {
     if (outOfNetworkOk(plan)) { matched++; reasons.push(plan.networkSize === "Any Medicare doctor" ? "Works anywhere in the U.S." : "Some coverage outside the network when traveling."); }
     else cautions.push("Limited coverage when traveling outside the area.");
   }
-  (["dental", "vision", "hearing"] as const).forEach((x) => {
+  (["dental", "vision", "hearing", "fitness"] as const).forEach((x) => {
     if (!a.extras[x]) return;
     if (plan[x] === null) cautions.push(`Check the plan's Summary of Benefits for ${x} coverage.`);
     else if (plan[x]) { matched++; reasons.push(`Includes ${x}.`); }
@@ -283,7 +285,7 @@ export function explainOrder(a: Pick<Answers, "doctorsFlex" | "travels" | "extra
   const prefs = [
     a.doctorsFlex === "any" && "seeing doctors outside a network",
     a.travels && "coverage when traveling",
-    ...(["dental", "vision", "hearing"] as const).filter((x) => a.extras[x]),
+    ...(["dental", "vision", "hearing", "fitness"] as const).filter((x) => a.extras[x]),
   ].filter(Boolean) as string[];
   const out = [];
   if (prefs.length) out.push(`We show plans that best match what matters to you (${prefs.join(", ")}). For example, if you selected dental or hearing coverage, plans offering those benefits appear higher. If we can't confirm whether a plan includes a benefit, we won't assume it does. You can always check with the insurance company.`);

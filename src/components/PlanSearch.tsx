@@ -1,21 +1,22 @@
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { searchPlans, type SearchCriteria } from "@/lib/planSearch.functions";
+import { BENEFITS, BENEFIT_LABEL, COV_LABEL, NET_LABEL } from "@/lib/planFilters";
+import { PRIORITY_LABEL } from "@/lib/comparePrefs";
 
 /** Lines describing what the search understood — built from validated criteria only, never model text. */
 export function understoodLines(c: SearchCriteria): string[] {
   const out: string[] = [];
   if (c.county) out.push(`Location: ${c.county} County`);
+  if (c.cov) out.push(`Coverage: ${COV_LABEL[c.cov]}`);
+  if (c.net !== "any") out.push(`${c.cms.length ? c.cms.join(", ") : NET_LABEL[c.net]} ${c.netMode === "only" ? "only" : "preferred (other types still shown)"}`);
   if (c.carriers.length) out.push(`Insurer: ${c.carriers.join(" or ")}`);
-  if (c.structure) out.push(`Plan type: ${c.structure}${c.structure === "HMO" ? " (not HMO-POS)" : c.structure === "PPO" ? " (includes Regional PPO)" : ""}`);
-  if (!c.structure && c.types.every((t) => t.startsWith("Original"))) out.push("Original Medicare / Medigap");
-  if (!c.structure && c.types.length && c.types.every((t) => t !== "Original + Medigap") && !c.carriers.length) out.push("Medicare Advantage");
+  if (c.snp) out.push("Including Special Needs Plans");
   if (c.maxPremium !== null) out.push(`Monthly premium up to $${c.maxPremium}`);
-  (["dental", "vision", "hearing"] as const).forEach((w) => c.prefs.wants[w] && out.push(`Wants ${w}`));
-  if (c.prefs.keepAnyDoctor) out.push("Wants to see doctors outside a network");
-  if (c.prefs.travels) out.push("Travels out of the area");
-  if (c.prefs.priority === "low-premium") out.push("Low monthly cost matters most");
-  if (c.prefs.priority === "peace") out.push("Predictable costs matter most");
+  BENEFITS.forEach((b) => { if (c.req.includes(b)) out.push(`${BENEFIT_LABEL[b]}: Required`); else if (c.prefs.preferred[b]) out.push(`${BENEFIT_LABEL[b]}: Preferred`); });
+  if (c.prefs.keepAnyDoctor) out.push("Keeping your current doctors matters");
+  if (c.prefs.travels) out.push("Travel: Yes");
+  if (c.prefs.priority !== "balanced") out.push(PRIORITY_LABEL[c.prefs.priority]);
   return out;
 }
 
@@ -38,7 +39,7 @@ export function PlanSearch({ onApply }: { onApply: (c: SearchCriteria) => void }
         const c = r.criteria;
         const n: string[] = [];
         if (r.needsLocation) n.push("You didn't mention where you live, so we kept the county already selected below. Add your city, county or ZIP to change it.");
-        if (c.related.length) n.push(`${c.related.join(" and ")} ${c.related.length > 1 ? "are" : "is"} a related but separate insurer — you can add it in the insurer filter below.`);
+        if (c.related.length) n.push(`${c.related.join(" and ")} ${c.related.length > 1 ? "are" : "is"} a related but separate insurer — you can search for it in the filters below.`);
         if (c.unknownInsurers.length) n.push(`We couldn't find an insurer called "${c.unknownInsurers.join('", "')}" in Michigan's 2027 plans, so we didn't filter by it.`);
         setNotes(n);
         setUnderstood(understoodLines(c));
