@@ -76,6 +76,11 @@ Two labeled rows with one chip per choice. Every chip can be removed or tapped t
 - Choices persist across navigation and refresh. Shareable choices go in the web address. Personal answers stay in this browser tab only, as today.
 - The same labels are used on every page.
 
+## Final clarifications (approved)
+- **Other plan types:** "Other" groups HMO-POS and PFFS for filtering only. Each plan card still shows its exact type and its own short rule ("HMO-POS: network plan with some out-of-network options" / "PFFS: rules differ by doctor"). They are never described as the same.
+- **Doctors:** the control reads "Is being able to keep your current doctors important to you?" with the choices "Yes, very important" and "No preference," plus: "We can help you compare plans that offer more flexibility in choosing doctors, but you'll need to confirm whether your doctors accept a specific plan." It stays independent of the priority and is never shown as a guarantee.
+- **"I'm not sure" coverage:** the HMO/PPO question is optional and explains that these are Medicare Advantage plan types. Picking PPO or HMO shows: "This will focus your results on Medicare Advantage plans. Original Medicare options will be hidden until you change this." Only then does the restriction apply. Skipping keeps Original Medicare options.
+
 ## Unchanged
 2027 CMS plan data, cost formulas, plan counts, Special Needs handling and labels, disclosures, design system, and the rest of the page. Nothing is published until you review it.
 
