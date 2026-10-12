@@ -122,7 +122,7 @@ function Guide() {
         <div className="mt-10 flex flex-wrap items-center justify-between gap-3">
           <button disabled={step === 0} onClick={() => setStep(step - 1)} className="rounded-xl border-2 px-6 py-3 text-lg font-bold disabled:opacity-30">← Back</button>
           {s.optional && <button type="button" onClick={() => { if (s.q.startsWith("Do you have a type")) setGuided({ cov: null, net: null, netMode: null }); else if (s.q.startsWith("Do you prefer")) setGuided({ net: null, netMode: null }); else setGuided({ netMode: null }); setStep(step + 1); }} className="min-h-12 px-3 text-lg font-bold text-primary underline">Skip this question</button>}
-          <button disabled={s.valid === false} onClick={() => setStep(step + 1)} className="rounded-xl bg-primary px-8 py-3 text-lg font-bold text-primary-foreground disabled:opacity-40">{step === steps.length - 1 ? "See my plans" : "Next →"}</button>
+          <button disabled={s.valid === false} onClick={() => { if (step === steps.length - 1) void import("@/lib/analytics").then((m) => m.track("questionnaire_complete")); setStep(step + 1); }} className="rounded-xl bg-primary px-8 py-3 text-lg font-bold text-primary-foreground disabled:opacity-40">{step === steps.length - 1 ? "See my plans" : "Next →"}</button>
         </div>
         <p className="mt-10 text-center"><Link to="/compare" search={regionFromZip(a.zip) ? { county: regionFromZip(a.zip) } : {}} className="text-primary underline">Skip questions — go to the comparison dashboard</Link></p>
       </main>

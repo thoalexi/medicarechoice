@@ -139,6 +139,18 @@ function RootComponent() {
     return () => sub?.unsubscribe();
   }, [router]);
 
+  // Google Analytics 4: load once, then count every in-site page change.
+  useEffect(() => {
+    let unsub: (() => void) | undefined;
+    void Promise.all([import("../lib/analytics.functions"), import("../lib/analytics")]).then(async ([f, a]) => {
+      const id = await f.getGaId().catch(() => null);
+      if (!id) return;
+      a.initGa(id);
+      unsub = router.subscribe("onResolved", () => setTimeout(a.pageView, 0));
+    });
+    return () => unsub?.();
+  }, [router]);
+
 
   return (
     <QueryClientProvider client={queryClient}>
