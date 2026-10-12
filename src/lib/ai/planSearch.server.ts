@@ -10,14 +10,16 @@ export const prefsSchema = z.object({
   outsideMichigan: z.boolean(),
   insurerWords: z.array(z.string()),
   planType: z.enum(["HMO", "HMO-POS", "PPO", "PFFS"]).nullable(),
-  wantsAdvantage: z.boolean().nullable(),
+  planTypeMode: z.enum(["only", "prefer"]),
+  coverage: z.enum(["ma", "orig", "medigap"]).nullable(),
   includeSpecialNeeds: z.boolean(),
   keepAnyDoctor: z.boolean(),
   travels: z.boolean(),
-  priority: z.enum(["low-premium", "balanced", "peace"]),
-  dental: z.boolean(),
-  vision: z.boolean(),
-  hearing: z.boolean(),
+  priority: z.enum(["low-premium", "balanced", "peace", "flex"]),
+  dental: z.enum(["none", "preferred", "required"]),
+  vision: z.enum(["none", "preferred", "required"]),
+  hearing: z.enum(["none", "preferred", "required"]),
+  fitness: z.enum(["none", "preferred", "required"]),
   maxMonthlyPremium: z.number().nullable(),
 });
 export type SearchPrefs = z.infer<typeof prefsSchema>;
@@ -29,12 +31,13 @@ You turn a Medicare shopper's plain-language description into structured search 
 - outsideMichigan: true only if they clearly live outside Michigan (e.g. a county or city in another state).
 - insurerWords: each insurance company or nickname they named, copied as written (e.g. "Blue Cross", "BCBS", "Humana", "UHC"). Empty if none.
 - planType: "PPO", "HMO", "HMO-POS" or "PFFS" only if they explicitly name that type; otherwise null. "HMO with point of service" = "HMO-POS".
-- wantsAdvantage: true if they ask for Medicare Advantage, false if they ask for Medigap/supplement/Original Medicare, else null. If planType is set, true.
+- planTypeMode: "only" only if they clearly limit themselves to that type ("only", "must be", "nothing but"); otherwise "prefer".
+- coverage: "ma" if they ask for Medicare Advantage (or name a plan type), "medigap" if they ask for Medigap / a supplement, "orig" if they ask for Original Medicare without a supplement, else null.
 - includeSpecialNeeds: true only if they say they have Medicaid / are dual eligible, live in a nursing home, or ask for a Special Needs Plan.
 - keepAnyDoctor: true if they insist on keeping a specific doctor or freedom to see any doctor.
 - travels: true if they travel or spend time out of state.
-- priority: "low-premium" if they stress low monthly cost, "peace" if they stress predictability / no surprise bills, else "balanced".
-- dental/vision/hearing: true if they ask for it.
+- priority: "low-premium" if they stress low monthly cost, "peace" if they stress low costs when they need care / no surprise bills, "flex" if freedom to choose doctors is their main concern, else "balanced".
+- dental/vision/hearing/fitness: "required" only if they clearly say it must be included ("must have", "has to include", "need"); "preferred" if they just mention wanting it ("with dental", "would like"); otherwise "none".
 - maxMonthlyPremium: a dollar limit only if they state a number (e.g. "under $50 a month"); "$0 premium" = 0; otherwise null.`;
 
 export class GatewayError extends Error {

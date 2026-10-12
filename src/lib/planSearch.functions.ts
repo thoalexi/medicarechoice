@@ -1,18 +1,23 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { COUNTIES, type PlanType } from "./plans";
-import { resolveCarriers, DEFAULT_TYPES, type Structure } from "./planFilters";
+import { COUNTIES } from "./plans";
+import { resolveCarriers, BENEFITS, type Benefit, type Cov, type Net, type NetMode } from "./planFilters";
+import type { Priority } from "./comparePrefs";
 
-/** Structured criteria the AI search hands to the shared Compare filters. It never ranks plans. */
+/** Structured criteria the AI-assisted search hands to the shared Compare filters. It never ranks plans. */
 export type SearchCriteria = {
   county: string;
   carriers: string[];
   related: string[];
   unknownInsurers: string[];
-  structure: Structure | "";
-  types: PlanType[];
+  cov: Cov | null;
+  net: Net;
+  netMode: NetMode;
+  cms: string[];
+  snp: boolean;
   maxPremium: number | null;
-  prefs: { keepAnyDoctor: boolean; travels: boolean; priority: "low-premium" | "balanced" | "peace"; wants: { dental: boolean; vision: boolean; hearing: boolean } };
+  req: Benefit[];
+  prefs: { keepAnyDoctor: boolean; travels: boolean; priority: Priority; preferred: Record<Benefit, boolean> };
 };
 
 export const searchPlans = createServerFn({ method: "POST" })
@@ -38,15 +43,19 @@ export const searchPlans = createServerFn({ method: "POST" })
         r.related.forEach((c) => related.add(c));
       }
       carriers.forEach((c) => related.delete(c));
-      const structure: Structure | "" = p.planType ?? "";
-      let types: PlanType[] = [...DEFAULT_TYPES];
-      if (p.wantsAdvantage === false && !structure) types = ["Original + Medigap", "Original only"];
-      else if (p.wantsAdvantage || structure || carriers.size) types = ["Advantage HMO", "Advantage PPO", "Other Advantage"];
-      if (p.includeSpecialNeeds) types = [...types, "Special Needs (SNP)"];
+      const net: Net = p.planType === "HMO" ? "hmo" : p.planType === "PPO" ? "ppo" : p.planType ? "other" : "any";
+      const cms = p.planType === "HMO-POS" || p.planType === "PFFS" ? [p.planType] : [];
+      const cov: Cov | null = net !== "any" || carriers.size ? "ma" : p.coverage;
       const maxPremium = p.maxMonthlyPremium === null ? null : Math.max(0, Math.min(1000, Math.round(p.maxMonthlyPremium)));
+      const level = (b: Benefit) => p[b];
       const criteria: SearchCriteria = {
-        county, carriers: [...carriers], related: [...related], unknownInsurers, structure, types, maxPremium,
-        prefs: { keepAnyDoctor: p.keepAnyDoctor, travels: p.travels, priority: p.priority, wants: { dental: p.dental, vision: p.vision, hearing: p.hearing } },
+        county, carriers: [...carriers], related: [...related], unknownInsurers, cov, net, netMode: p.planTypeMode, cms,
+        snp: p.includeSpecialNeeds, maxPremium,
+        req: BENEFITS.filter((b) => level(b) === "required"),
+        prefs: {
+          keepAnyDoctor: p.keepAnyDoctor || p.priority === "flex", travels: p.travels, priority: p.priority,
+          preferred: Object.fromEntries(BENEFITS.map((b) => [b, level(b) === "preferred"])) as Record<Benefit, boolean>,
+        },
       };
       return { ok: true as const, needsLocation: !county, criteria };
     } catch (e) {
