@@ -22,7 +22,7 @@ export const Route = createFileRoute("/guide")({
 
 import { HospitalPicker } from "@/components/HospitalPicker";
 
-function Choice({ selected, onClick, title, desc }: { selected: boolean; onClick: () => void; title: string; desc?: string }) {
+function Choice({ selected, onClick, title, desc }: { selected: boolean; onClick: () => void; title: string; desc?: string | undefined }) {
   return (
     <button type="button" onClick={onClick} aria-pressed={selected}
       className={`w-full rounded-xl border-2 p-5 text-left transition focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${selected ? "border-primary bg-primary/10" : "bg-card hover:border-primary/50"}`}>
