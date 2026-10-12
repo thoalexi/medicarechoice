@@ -4,7 +4,7 @@ import { setPrefs, markSources, toBand, PRIORITY_LABEL, type Priority, type Trav
 import { applyFilters, netMatches, BENEFITS, BENEFIT_LABEL, EMPTY_CRITERIA, NET_LABEL, type Benefit, type Cov, type Net, type NetMode } from "@/lib/planFilters";
 import { SiteHeader, Disclaimer } from "@/components/SiteHeader";
 import { DataAsOf } from "@/components/DataAsOf";
-import { plansFor, regionLabel, regionFromZip, scorePlan, rankPlans, sortForPriority, explainOrder, money, PART_D_OOP_CAP, FIGURES, figureNote, type Answers } from "@/lib/plans";
+import { plansFor, regionLabel, regionFromZip, scorePlan, rankPlans, sortForPriority, explainOrder, money, PART_D_OOP_CAP, FIGURES, figureNote, type Answers, type Plan } from "@/lib/plans";
 
 export const Route = createFileRoute("/guide")({
   head: () => ({
@@ -146,7 +146,7 @@ function Results({ a, g, onEdit }: { a: Answers; g: Guided; onEdit: () => void }
   const crit = { ...EMPTY_CRITERIA, county: region, ...gc };
   const preferNet = gc.net !== "any" && gc.netMode === "prefer";
   const ranked0 = rankPlans(applyFilters(plansFor(region), crit).map((p) => scorePlan(p, a)), sortForPriority(a.priority));
-  const isAlt = (p: Answers extends never ? never : (typeof ranked0)[number]["plan"]) => preferNet && !netMatches(p, gc.net);
+  const isAlt = (p: Plan) => preferNet && !netMatches(p, gc.net);
   const ranked = preferNet ? [...ranked0.filter((r) => !isAlt(r.plan)), ...ranked0.filter((r) => isAlt(r.plan))] : ranked0;
   const netName = NET_LABEL[gc.net];
   const link = { ...(region ? { county: region } : {}), ...(gc.cov !== "all" ? { cov: gc.cov } : {}), ...(gc.net !== "any" ? { net: gc.net, netMode: gc.netMode } : {}) };
