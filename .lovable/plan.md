@@ -41,3 +41,13 @@ Update the "Cookies" and "Who else sees information" sections: name Meta, say it
 - Because `fbevents.js` always reads `location.href` for `dl`, PageView is sent via Meta's documented image endpoint `facebook.com/tr?id=ID&ev=PageView&dl=<origin+pathname>&rl=<referrer origin>` instead of `fbq('track','PageView')`. Cookie `_fbp` is still set by the loaded script.
 - Dedupe: track by `pathname` on router `onResolved`, skipping only when pathname equals the last sent pathname AND the trigger is the first resolve after initial load.
 - Region lookup cached for the page visit.
+
+## Final privacy and reliability checks
+- **Page paths audited:** every page path is generic (/, /guide, /compare, /formulary-check, /what-does-medicare-cover, /michigan-medicare-2027, /about, /donate, /feedback, /privacy, /methodology, /how-we-compare). None contains health details. Admin, sign-in and password pages are excluded from the Pixel entirely.
+- **Referrer-Policy:** add a site-wide `strict-origin-when-cross-origin` referrer rule, plus `referrerpolicy="no-referrer"` on the Pixel script and every request we build. Outside sites then see at most `https://plainplanguide.com`, never `?` details. Google Analytics reads the address itself, not this header, so it is unaffected.
+- **All Meta requests inspected:** Playwright records every request to facebook.com / facebook.net / connect.facebook.net (script, PageView, any beacon). Test fails if any request URL, Referer header or body contains `?`, `#`, a test search phrase, a test medicine name, a ZIP or a questionnaire answer.
+- **Automatic events off:** `autoConfig` disabled and no `fbq('track')` calls, so the script sends nothing on its own. If testing shows the script still sends anything automatically, that is a failure.
+- **Attribution kept:** our PageView includes Meta's browser ID (`_fbp`) and ad-click ID (`_fbc`, created from `fbclid` when someone arrives from an ad), so Meta can still match visits to ads. The `fbclid` value itself is never sent in a page address.
+- **Events Manager recognition:** can only be proven against the live site. Plan: publish with the Pixel switched off, then you open Events Manager > Test Events and I switch it on for test codes only to confirm PageViews appear with path-only addresses. The Pixel is switched on for real visitors only after that check passes.
+- **If any check cannot be verified, the Pixel stays off** and I will explain exactly what could not be confirmed.
+
