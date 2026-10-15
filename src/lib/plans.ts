@@ -43,6 +43,8 @@ export function regionFromZip(zip: string): Region {
 }
 export const regionLabel = (r: Region) => (r ? `${r} County, Michigan` : "Outside Michigan — showing Original Medicare & Medigap only");
 
+/** Label shown beside estimates while Part B uses a prior-year fallback; null once confirmed for the coverage year. */
+export const partBFallbackLabel = () => (FIGURES.partBMonthly.confirmed && FIGURES.partBMonthly.year === FIG_YEAR ? null : `Uses ${FIGURES.partBMonthly.year} Part B amount — ${FIG_YEAR} not announced yet`);
 export let PART_B_MONTHLY = FIGURES.partBMonthly.value;
 export let PART_D_OOP_CAP = FIGURES.partDOopCap.value;
 export let FIGURE_YEAR = FIGURES.partBMonthly.year;

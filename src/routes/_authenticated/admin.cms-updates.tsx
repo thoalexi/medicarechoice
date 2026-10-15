@@ -156,7 +156,8 @@ function CmsUpdates() {
                   <p className="font-bold">{v.coverage_year} · {v.status === "live" ? "LIVE" : v.status} · imported {when(v.imported_at)}{v.published_at ? ` · published ${when(v.published_at)}` : ""}</p>
                   <p className="break-all text-muted-foreground">Source: {v.source_url ?? "Typed from CMS"}{v.source_published ? ` (CMS release ${v.source_published})` : ""} · checksum {v.sha256.slice(0, 12)}…</p>
                   <ReportView r={v.report as unknown as Report} />
-                  {v.status === "staged" && <button disabled={busy} className={`${btn} mt-2 bg-success text-primary-foreground`} onClick={() => confirm("Publish this to the public site?") && run(() => publish({ data: { id: v.id } }), "Published. The site now uses this version.")}>Publish checked update</button>}
+                  {v.status === "staged" && (v.report as { validatedSha256?: string })?.validatedSha256 !== v.sha256 && <p className="mt-2 text-destructive">This check result does not match this exact file. Preview it again before publishing.</p>}
+                  {v.status === "staged" && (v.report as { validatedSha256?: string })?.validatedSha256 === v.sha256 && <button disabled={busy} className={`${btn} mt-2 bg-success text-primary-foreground`} onClick={() => confirm("Publish this to the public site?") && run(() => publish({ data: { id: v.id } }), "Published. The site now uses this version.")}>Publish checked update</button>}
                 </li>
               ))}
             </ul>

@@ -4,7 +4,7 @@ import { setPrefs, markSources, toBand, PRIORITY_LABEL, type Priority, type Trav
 import { applyFilters, netMatches, BENEFITS, BENEFIT_LABEL, EMPTY_CRITERIA, NET_LABEL, type Benefit, type Cov, type Net, type NetMode } from "@/lib/planFilters";
 import { SiteHeader, Disclaimer } from "@/components/SiteHeader";
 import { DataAsOf } from "@/components/DataAsOf";
-import { plansFor, regionLabel, regionFromZip, scorePlan, rankPlans, sortForPriority, explainOrder, money, PART_D_OOP_CAP, FIGURES, figureNote, type Answers, type Plan } from "@/lib/plans";
+import { plansFor, regionLabel, regionFromZip, scorePlan, rankPlans, sortForPriority, explainOrder, money, PART_D_OOP_CAP, FIGURES, figureNote, partBFallbackLabel, type Answers, type Plan } from "@/lib/plans";
 
 export const Route = createFileRoute("/guide")({
   head: () => ({
@@ -181,7 +181,7 @@ function Results({ a, g, onEdit }: { a: Answers; g: Guided; onEdit: () => void }
               {isAlt(plan) && <div className="mb-2 inline-block rounded-full bg-muted px-3 py-1 text-sm font-bold">Alternative — not a {netName} plan</div>}
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div><h2 className="text-2xl font-bold">{plan.name}</h2><div className="text-muted-foreground">{plan.cmsType && plan.real ? plan.cmsType : plan.type} · {plan.carrier}{plan.starRating ? ` · ${plan.starRating}★${plan.starYear === 2026 ? " (2026 rating)" : ""}` : ""}</div></div>
-                <div className="text-right"><div className="text-sm text-muted-foreground">Estimated yearly cost</div><div className="font-display text-4xl font-bold text-primary">{money(cost.total)}</div></div>
+                <div className="text-right"><div className="text-sm text-muted-foreground">Estimated yearly cost</div><div className="font-display text-4xl font-bold text-primary">{money(cost.total)}</div>{partBFallbackLabel() && <div className="text-sm text-muted-foreground">{partBFallbackLabel()}</div>}</div>
               </div>
               <p className="mt-3 text-lg">{plan.summary}</p>
               <div className="mt-4 grid grid-cols-3 gap-3 rounded-xl bg-muted p-4 text-center">
