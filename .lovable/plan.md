@@ -1,52 +1,71 @@
-# Keep every data source verifiably current
+# Keep every data source verifiably current (revised)
 
-## Short answer
+## Principle
 
-Today you press **Check CMS now** on the CMS Updates screen and it reads the CMS pages for newer files. That works — but it only covers 3 of your 6 sources, the weekly automatic check it promises doesn't exist, and the public "sources and dates" list still describes the 2026 star file even though the site now shows 2027 ratings. The plan below closes those three gaps so the screen can be trusted as the single answer to "is anything out of date?".
+"Checked" never means "the website is current." The screen only says a source is fine when a check **succeeded**, found **nothing newer** than what the **live website is actually using**. Anything else gets an honest status.
 
 ## What you'll get
 
-1. **Every source gets checked, not just three.**
-   - Plan list, copays/benefits and star ratings are checked today.
-   - Service-level figures (imaging, therapy, labs) share the same CMS file as copays, so they will now flag together — when the benefits file is superseded, both are marked needing a re-import.
-   - The Michigan hospital list gets its own check against the CMS provider-data page.
-   - Drug lists stay as they are: looked up live when someone uses "Check my drugs", so there is no file date to watch.
+1. **Three separate facts per source**, shown side by side:
+   - Last check: when it was attempted, and whether it succeeded or failed (with the reason).
+   - Newest release found at CMS: release date, file name, and checksum when available.
+   - Serving the website: which version the public site uses right now — built-in file or a published version — with its release date and checksum.
 
-2. **The screen checks itself when you open it.** Anything not checked in the past 7 days is checked automatically as the page loads, and the results appear the same way as the button's results. The button stays for when you want an immediate answer. The line "Also runs automatically every Monday" is removed — it is not true — and replaced with what actually happens.
+2. **Comparison is against live data, not paperwork.** "Newer or not" is decided against the version actually serving the site (published version if one is live, otherwise the built-in file). Editing the source list alone can never make old live data look current.
 
-3. **A plain summary at the top** of the screen, for example:
-   ```text
-   All 6 sources checked today — CMS has nothing newer.
-   ```
-   or
-   ```text
-   2 need attention: hospital list (last checked 12 days ago),
-   benefits file (newer CMS file posted Oct 21).
-   ```
-   Each source keeps its own "last checked" and "last successfully updated" dates, with a warning colour when a check is more than a week old.
+3. **Honest statuses only:**
+   - No newer release found — successful check within 7 days, newest found matches live.
+   - Update available — a newer release was found but not published. Stays this way until you publish it, however recent the check.
+   - Check failed — the last attempt failed. Never green, even if an earlier check succeeded.
+   - Check overdue — no successful check in 7 days.
+   - Manual verification required — the source can't be checked automatically (drug lists, the medical out-of-pocket ceiling, Part B figures until CMS announces them).
 
-4. **The public source list tells the truth about star ratings.** The Methodology page and the hidden validation report still say the site shows 2026 ratings, from a file imported Oct 8. The site actually shows CMS 2027 ratings (605 contracts rated, 130 with no rating, from the Oct 8 2026 CMS file). Those two pages get regenerated from the real data. The "Plan data as of" line itself stays as it is.
+   The top summary counts these statuses exactly, for example "3 no newer release · 1 update available · 2 need manual verification". It never says "all sources checked" when some weren't. Data categories that share one CMS file (copays, extras and service-level figures all come from the benefits file) are shown grouped under that file, so one check isn't counted as three.
 
-5. **The two open figures are handled openly.**
-   - **Part B premium and deductible.** CMS has not announced 2027 amounts; the trustees project $209.50 monthly and a $292 deductible, and CMS is expected to announce the real figures in November. You chose to show the projection as well. It appears clearly labelled as a projection, never as a fact, and **cost estimates keep using the confirmed 2026 amounts** ($202.90 and $283) so no estimate rests on a guess. The update screen will also watch for the CMS announcement so you are told when the real numbers land.
-   - **Medical out-of-pocket maximum.** The check still reads "Limit not confirmed" because the official CMS document setting the 2027 ceiling has not been read directly. The number lives in the *Final CY 2027 Part C Bid Review Memorandum* (April 22, 2026), which CMS distributes through its contractor mailbox and does not link from its own 2027 rate pages. Until that document is read and its figure recorded, the check stays "not confirmed" — nothing is guessed. Once recorded, the check turns to pass or fail by itself.
+4. **The screen checks itself when opened** for any source with no successful check in 7 days. The button stays. The false "runs every Monday" line is removed.
 
-6. **Nothing publishes on its own, ever.** Checks only flag. Preview, publish and restore stay exactly as they are, and a failed preview still can't replace live data.
+5. **Hospital list and other downloads** are compared by CMS release/version metadata **and** a checksum of the downloaded file, where CMS allows the download. If only a webpage date is available, the status says so ("release date only, file not compared") rather than claiming the data is unchanged. A changed file with the same name is caught by the checksum.
 
-## Things to note
+6. **Drug lists (Check my drugs) — verified, not assumed.**
+   - Each cached document records: plan ID (contract–plan–segment), coverage year, official document URL, when it was retrieved, and the document's version text or checksum when available.
+   - Cache rule: an entry is reused only if its coverage year is 2027 and it was retrieved within 30 days; otherwise it's re-looked-up. A document whose year can't be confirmed as 2027 is never shown as current — the visitor sees the existing "couldn't confirm" message with the insurer link and upload option.
+   - The update screen shows drug lists as "Manual verification required", with counts of cached documents, how many are older than 30 days, and how many lack a confirmed year. Nothing about users is stored — only public document details.
 
-- **Nothing has been published through the screen yet** — no versions exist, so the site runs entirely on its built-in data files. That is fine and is the safer state; the screen's "Restore previous version" only becomes meaningful after a first publish.
-- **The hospital list is the oldest source** (CMS release July 22, 2026) and has never been checked automatically. It is the most likely of the six to be behind.
-- **One snapshot exists so far** (Oct 10), so the "plans changed since last import" comparison has no second point yet; it starts working at the next import.
-- I could not download the bid review memorandum automatically — that server refused the request twice. Getting its out-of-pocket figure may need you to download the file and paste the number in.
+7. **Part B figures labelled where they're used.** Cost estimates keep using the confirmed 2026 Part B amounts ($202.90/month, $283 deductible). Every results page and plan card that shows a yearly estimate says, right beside the number: "Uses 2026 Part B amounts — 2027 not announced yet." Projected 2027 figures ($209.50 / $292, trustees' projection) are stored separately, marked projected, and can never feed the cost math. Confirmed, projected and prior-year values are kept as three distinct kinds.
+
+8. **Medical out-of-pocket ceiling needs real proof.** It stays "not confirmed" until you enter, together: the amount, the official document title, a verifiable link or uploaded copy, the page/table, the coverage year, and the limit category (e.g. in-network mandatory maximum). A number without these is rejected.
+
+9. **Public Methodology and validation pages describe the live version only.** They're generated from whatever is serving the site. A check or a preview never changes them; only publishing does. The stale 2026 star wording is fixed by regenerating from the current live data (2027 ratings).
+
+10. **Preview, publish and restore stay exactly as they are.** Checks only flag; nothing publishes on its own.
+
+## Tests that must pass
+
+- A failed download shows "Check failed", never green.
+- Same file name, different contents → "Update available" (checksum).
+- No successful check in 7+ days → "Check overdue".
+- A newer file found but unpublished stays "Update available" after re-checks.
+- Cached formulary older than 30 days or with a non-2027 or missing year is never treated as current.
+- Built-in vs published data: comparison uses whichever is live.
+- An incomplete or failed preview can't replace live data or change public provenance.
+- A projected figure can never reach cost math or be marked confirmed.
+- An out-of-pocket entry missing any proof field is rejected.
+
+## What still needs you
+
+- **Out-of-pocket ceiling:** the CMS memorandum couldn't be downloaded automatically (their server refused). You'll need to get the document and enter the figure with its proof details.
+- **Part B 2027:** when CMS announces it (expected November), the screen will flag it; you review and confirm.
+- **Drug lists:** spot-check a few plans' documents occasionally; the screen tells you which are stale or unconfirmed.
+- **Publishing:** every update still needs your review before it goes live.
 
 ## Technical details
 
-- `src/lib/cmsImport.ts`: extend `WATCHED` to cover `services` (tied to the PBP file) and `hospitals` (CMS provider-data dataset page, compared by release date). Replace the hard-coded `current` baseline strings with the dates and file names already in `data/sources.json`, so a re-import only needs one file updated.
-- `src/lib/cmsUpdates.functions.ts` / `admin.cms-updates.tsx`: on load, run `runCmsCheck` for any dataset whose `last_checked_at` is older than 7 days (owner-only, same server function as the button); render the summary line and the over-week warning. Delete the false "every Monday" sentence.
-- `scripts/validate-data.py`: the star-rating check's wording is hard-coded to 2026; make it read the bundled star file's year and counts so the report and `src/lib/data-provenance.json` describe the 2027 file. Re-run it to regenerate `validation-report.json`, `data-provenance.json` and a new `data/snapshots/` entry.
-- `src/lib/medicare-figures.json`: add projected Part B premium and deductible with an explicit `projected` status, the trustees-report source, and a note that CMS announcement is expected in November. `figureNote` and the pages that quote Part B gain a projection wording; the cost math (`PART_B_MONTHLY`, deductibles used in `estimateAnnual`) keeps reading the confirmed values. Add a `WATCHED` entry for the CMS Part B announcement page.
-- `data/sources.json`: record `moopInNetworkMax` and its source once the memorandum is read; `validate-data.py` already branches on it, so the check flips from "unconfirmed" to pass/fail with no code change.
-- `src/routes/api/public/cms-check.ts` and `src/integrations/supabase/cron-auth.ts` stay in place and unused for now; the weekly schedule is not being pursued since you chose the open-the-screen check.
-- Tests (`src/lib/cmsImport.test.ts`, new cases): every dataset with a CMS page is in `WATCHED`; the auto-check triggers only past 7 days; a projected figure can never be marked confirmed or reach the cost math; the provenance star entry matches the bundled star file's year.
-- `README.md`: replace the update section with the short routine — open `/admin/cms-updates`, read the summary line, then preview and publish only what you have reviewed.
+- `dataset_checks`: add columns `last_attempt_at`, `last_attempt_ok`, `last_error`, `last_success_at`, `found_release`, `found_file`, `found_checksum` (additive migration).
+- `src/lib/cmsImport.ts`: `WATCHED` covers landscape, pbp (grouping extras/copays/services), stars, hospitals, Part B announcement page. Compute SHA-256 of downloads where feasible (size-capped, streamed on the Worker). Baseline = live version from `dataset_versions` (live row) else bundled metadata in `data/sources.json` + bundled checksum.
+- Status derivation is a pure function `deriveStatus(check, live, now)` with unit tests for every case above.
+- `admin.cms-updates.tsx`: three-column per-source layout, grouped by source file; summary counts; auto-check on load for overdue sources.
+- `formulary_documents`: add `plan_id`, `coverage_year`, `retrieved_at`, `doc_version`, `checksum` (nullable, additive); lookup enforces the 2027 + 30-day reuse rule.
+- `medicare-figures.json`: `status: confirmed | projected | prior_year`; `PART_B_*` cost constants read only confirmed/prior_year values; an inline label component is shown next to yearly estimates.
+- MOOP entry: owner form with required proof fields stored in a staged `figures` version; `validate-data.py` reads it only from the live version.
+- `scripts/validate-data.py`: read star year/counts from the data; provenance and methodology rendered from the live dataset version, not from check results.
+- `README.md`: short weekly routine.
