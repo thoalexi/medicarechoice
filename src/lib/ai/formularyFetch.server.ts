@@ -7,6 +7,7 @@ const FC = "https://connector-gateway.lovable.dev/firecrawl/v2";
 const MAX_BYTES = 20 * 1024 * 1024;
 
 type Candidate = { url: string; title: string; description: string };
+import { COVERAGE_YEAR, formularyYear } from "../formularyYear";
 export type FoundFormulary = { url: string; title: string; pdfBase64: string; fileName: string };
 
 function keys() {
@@ -90,8 +91,8 @@ async function download(url: string): Promise<string | null> {
 
 export async function findFormulary(plan: { id: string; name: string; carrierUrl?: string | undefined }): Promise<FoundFormulary | null> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data: cached } = await supabaseAdmin.from("formulary_documents").select("url,title,fetched_at").eq("plan_id", plan.id).maybeSingle();
-  if (cached && Date.now() - new Date(cached.fetched_at).getTime() < 30 * 864e5) {
+  const { data: cached } = await supabaseAdmin.from("formulary_documents").select("url,title,fetched_at,coverage_year").eq("plan_id", plan.id).maybeSingle();
+  if (cached && cached.coverage_year === COVERAGE_YEAR && Date.now() - new Date(cached.fetched_at).getTime() < 30 * 864e5) {
     const b64 = await download(cached.url);
     if (b64) return { url: cached.url, title: cached.title ?? "Plan formulary", pdfBase64: b64, fileName: "formulary.pdf" };
   }
@@ -100,8 +101,10 @@ export async function findFormulary(plan: { id: string; name: string; carrierUrl
   const idx = await pickDocument(plan.name, plan.id, cands);
   if (idx === null) return null;
   const c = cands[idx]!;
+  // Coverage year must be stated in the document's title or address; otherwise we can't confirm it.
+  if (formularyYear(c.url, c.title) !== COVERAGE_YEAR) return null;
   const b64 = await download(c.url);
   if (!b64) return null;
-  await supabaseAdmin.from("formulary_documents").upsert({ plan_id: plan.id, url: c.url, title: c.title, fetched_at: new Date().toISOString() });
+  await supabaseAdmin.from("formulary_documents").upsert({ plan_id: plan.id, url: c.url, title: c.title, coverage_year: COVERAGE_YEAR, fetched_at: new Date().toISOString() });
   return { url: c.url, title: c.title || "Plan formulary", pdfBase64: b64, fileName: "formulary.pdf" };
 }

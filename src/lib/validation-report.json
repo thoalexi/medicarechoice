@@ -41,7 +41,7 @@
   {
    "name": "Star rating, plan type and counties match CMS",
    "status": "pass",
-   "detail": "CMS 2027 star ratings are blank in the landscape file; the site shows 2026 ratings, labeled, from a separate CMS file.",
+   "detail": "Star ratings in this check come from the landscape file. The site shows CMS 2027 ratings from the separate Star Ratings file (605 contracts rated, 130 unavailable).",
    "items": [],
    "count": 0
   },

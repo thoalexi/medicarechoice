@@ -15,7 +15,7 @@ import { PlanSearch } from "@/components/PlanSearch";
 import { HelpPopover } from "@/components/HelpPopover";
 import { BenefitSearchPanel } from "@/components/BenefitSearch";
 import type { ServiceChip } from "@/lib/benefitSearch.functions";
-import { COUNTIES, DATA_SOURCE, PART_B_MONTHLY, PART_D_OOP_CAP, FIGURES, figureNote, plansFor, scorePlan, rankPlans, explainOrder, sortForPriority, money, type Health, type Share, type SortKey } from "@/lib/plans";
+import { COUNTIES, DATA_SOURCE, PART_B_MONTHLY, PART_D_OOP_CAP, FIGURES, figureNote, partBFallbackLabel, plansFor, scorePlan, rankPlans, explainOrder, sortForPriority, money, type Health, type Share, type SortKey } from "@/lib/plans";
 
 const KEYS = ["county", "cov", "net", "netMode", "cms", "snp", "carriers", "q", "req", "noref", "max", "sort", "types", "structure", "must"] as const;
 
@@ -440,7 +440,7 @@ function Compare() {
                     {openSearch === p.id ? "Hide benefit search" : "🔍 Search this plan's benefits"}</button>
                   {openSearch === p.id && <BenefitSearchPanel plan={p} areaPlans={rows.map((r) => r.p)} chips={chips} setChips={setChips} />}
                 </div>
-                <div className="hidden text-right md:block"><div className="text-sm text-muted-foreground">Estimated yearly cost</div><div className="font-display text-3xl font-bold text-primary">{money(c.total)}</div>
+                <div className="hidden text-right md:block"><div className="text-sm text-muted-foreground">Estimated yearly cost</div><div className="font-display text-3xl font-bold text-primary">{money(c.total)}</div>{partBFallbackLabel() && <div className="text-sm text-muted-foreground">{partBFallbackLabel()}</div>}
                   <div className="text-sm text-muted-foreground">Worst case {c.worstCase ? money(c.worstCase) : "unlimited"}</div></div>
               </div>
             </Fragment>))}

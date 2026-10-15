@@ -34,13 +34,13 @@
   },
   {
    "key": "stars",
-   "label": "Star ratings (2026 ratings, shown until CMS releases 2027)",
-   "file": "CMS 2026 Star Ratings Data Tables (Summary Ratings)",
-   "url": "https://www.cms.gov/medicare/health-drug-plans/part-c-d-performance-data",
-   "released": null,
-   "importedAt": "2026-10-08",
-   "output": "src/lib/cms2026-stars.json",
-   "script": "scripts/build-star-fallback.py"
+   "label": "Star ratings (CMS 2027 ratings)",
+   "file": "2027 Star Ratings Data Table - Summary Ratings (Oct 8 2026).csv",
+   "url": "https://www.cms.gov/files/zip/2027-star-ratings-data-tables-oct-8-2026.zip",
+   "released": "2026-10-08",
+   "importedAt": "2026-10-11",
+   "output": "src/lib/cms2027-stars.json",
+   "script": "scripts/build-stars-2027.py"
   },
   {
    "key": "hospitals",

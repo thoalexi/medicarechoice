@@ -10,6 +10,10 @@ Run after any import script. Writes:
 import csv, datetime, glob, json, os, re, sys
 from collections import Counter, defaultdict
 
+def _stars_meta():
+    d = json.load(open("src/lib/cms2027-stars.json"))
+    return d.get("year"), len(d.get("ratings", {})), len(d.get("unavailable", {}))
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 P = lambda *a: os.path.join(ROOT, *a)
 
@@ -91,7 +95,7 @@ def main(src):
         if (r["Special Needs Plan (SNP) Indicator"] == "Yes") != p["snp"]: bad.append(f"{p['id']}: SNP flag differs")
         if sorted(x["County Name"] for x in rs) != sorted(p["counties"]): bad.append(f"{p['id']}: county list differs")
     checks.append(check("Star rating, plan type and counties match CMS", "fail" if bad else "pass",
-        "CMS 2027 star ratings are blank in the landscape file; the site shows 2026 ratings, labeled, from a separate CMS file.", bad))
+        "Star ratings in this check come from the landscape file. The site shows CMS {} ratings from the separate Star Ratings file ({} contracts rated, {} unavailable).".format(*_stars_meta()), bad))
 
     # 6. Changes since previous import
     snap = {p["id"]: {**{k: p[k] for k in ("name", "cmsType", "premium", "moop", "rxDed", "stars")},

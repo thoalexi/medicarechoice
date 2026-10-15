@@ -48,10 +48,10 @@ export const getUpdateStatus = owner.handler(async ({ context }) => {
   return { isOwner: true as const, checks: checks.data ?? [], versions: versions.data ?? [], builtInFigures: figures as FiguresPayload };
 });
 
-export const checkForUpdates = owner.handler(async ({ context }) => {
+export const checkForUpdates = owner.inputValidator((d: { full?: boolean } | undefined) => ({ full: d?.full === true })).handler(async ({ data, context }) => {
   await assertOwner(context);
   const { runCmsCheck } = await import("./cmsCheck.server");
-  return runCmsCheck(context.supabase as any, figures.coverageYear);
+  return runCmsCheck(context.supabase as any, figures.coverageYear, data.full);
 });
 
 async function currentLive(ctx: { supabase: any }, key: string) {
@@ -62,6 +62,8 @@ async function currentLive(ctx: { supabase: any }, key: string) {
 async function stage(ctx: { supabase: any }, row: { dataset_key: "stars" | "figures"; coverage_year: number; source_url: string | null; source_published: string | null; sha256: string; payload: unknown; report: unknown }) {
   const { data: existing } = await ctx.supabase.from("dataset_versions").select("id,status").eq("dataset_key", row.dataset_key).eq("sha256", row.sha256).maybeSingle();
   if (existing) return { id: existing.id as string, duplicate: true, status: existing.status as string };
+  // The validation result names the exact version it tested; publish refuses any mismatch.
+  row = { ...row, report: { ...(row.report as object), validatedSha256: row.sha256 } };
   const { data, error } = await ctx.supabase.from("dataset_versions").insert({ ...row, status: (row.report as { ok: boolean }).ok ? "staged" : "rejected" }).select("id,status").single();
   if (error) throw new Error("Could not save the preview. Nothing live was changed.");
   return { id: data.id as string, duplicate: false, status: data.status as string };

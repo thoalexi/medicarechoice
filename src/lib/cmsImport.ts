@@ -96,12 +96,45 @@ export function validateFigures(next: FiguresPayload, current: FiguresPayload): 
   return { ok: errors.length === 0, errors, warnings, changes, summary: { figures: FIG_KEYS.length } };
 }
 
-/** Datasets whose newest file is found by scanning official CMS pages. */
-export const WATCHED = [
-  { key: "landscape", page: "https://www.cms.gov/medicare/coverage/prescription-drug-coverage", pattern: /\/files\/zip\/cy(\d{4})-landscape-[\w-]+\.zip/gi, current: "/files/zip/cy2027-landscape-202609-1.zip" },
-  { key: "pbp", page: "https://www.cms.gov/data-research/statistics-trends-and-reports/medicare-advantagepart-d-contract-and-enrollment-data/benefits-data", pattern: /benefits-data\/(?:pbp-benefits-\d{4}(?:-q\d)?|\d{4}-pbp-benefits(?:-q\d)?)(?=")/gi, current: "benefits-data/pbp-benefits-2027" },
-  { key: "stars", page: "https://www.cms.gov/medicare/health-drug-plans/part-c-d-performance-data", pattern: /\/files\/zip\/(\d{4})-star-ratings-data-tables[\w-]*\.zip/gi, current: "/files/zip/2027-star-ratings-data-tables-oct-8-2026.zip" },
-] as const;
+/** One entry per distinct CMS source. Copays, extras and service-level figures share the PBP file, so they share one check. */
+export type Watched =
+  | { key: string; kind: "link"; page: string; pattern: RegExp; covers: string[] }
+  | { key: string; kind: "metastore"; api: string; covers: string[] }
+  | { key: string; kind: "announcement"; page: string; covers: string[] };
+export const WATCHED: Watched[] = [
+  { key: "landscape", kind: "link", covers: ["landscape"], page: "https://www.cms.gov/medicare/coverage/prescription-drug-coverage", pattern: /\/files\/zip\/cy(\d{4})-landscape-[\w-]+\.zip/gi },
+  { key: "pbp", kind: "link", covers: ["pbp", "services"], page: "https://www.cms.gov/data-research/statistics-trends-and-reports/medicare-advantagepart-d-contract-and-enrollment-data/benefits-data", pattern: /benefits-data\/(?:pbp-benefits-\d{4}(?:-q\d)?|\d{4}-pbp-benefits(?:-q\d)?)(?=")/gi },
+  { key: "stars", kind: "link", covers: ["stars"], page: "https://www.cms.gov/medicare/health-drug-plans/part-c-d-performance-data", pattern: /\/files\/zip\/(\d{4})-star-ratings-data-tables[\w-]*\.zip/gi },
+  { key: "hospitals", kind: "metastore", covers: ["hospitals"], api: "https://data.cms.gov/provider-data/api/1/metastore/schemas/dataset/items/xubh-q36u" },
+  { key: "partb", kind: "announcement", covers: ["figures"], page: "https://www.cms.gov/newsroom/fact-sheets/2027-medicare-parts-b-premiums-and-deductibles" },
+];
+
+export type CheckRow = { last_checked_at: string | null; last_success_at: string | null; last_error: string | null; update_available: boolean; contents_compared: boolean } | null | undefined;
+export type Status = "no-newer" | "no-newer-metadata" | "update" | "failed" | "never" | "manual";
+export const STATUS_TEXT: Record<Status, string> = {
+  "no-newer": "No newer release found — file contents compared",
+  "no-newer-metadata": "No newer release found — metadata only",
+  update: "Update available",
+  failed: "Check failed",
+  never: "Not checked yet",
+  manual: "Manual verification required",
+};
+/** Honest status: a known unpublished update always wins; a failed latest attempt is never green. */
+export function deriveStatus(c: CheckRow, manual = false): Status {
+  if (manual) return "manual";
+  if (!c || !c.last_checked_at) return "never";
+  if (c.update_available) return "update";
+  if (c.last_error) return "failed";
+  return c.contents_compared ? "no-newer" : "no-newer-metadata";
+}
+
+/** Compare a found release with the baseline serving the site. */
+export function compareRelease(found: string | null, baseline: string | null, prev?: { checksum: string | null }, foundChecksum?: string | null): { update: boolean; compared: boolean } {
+  if (!found) return { update: false, compared: false };
+  if (baseline && found !== baseline) return { update: true, compared: !!foundChecksum };
+  if (foundChecksum && prev?.checksum && foundChecksum !== prev.checksum) return { update: true, compared: true };
+  return { update: false, compared: !!foundChecksum && !!prev?.checksum };
+}
 
 /** Pick the link for the highest year >= the current year; deterministic (sorted). */
 export function newestLink(html: string, pattern: RegExp, minYear: number): string | null {
