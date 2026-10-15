@@ -16,25 +16,43 @@ export type Database = {
     Tables: {
       dataset_checks: {
         Row: {
+          contents_compared: boolean
           dataset_key: string
+          found_checksum: string | null
+          found_file: string | null
+          found_release: string | null
           found_url: string | null
           last_checked_at: string | null
+          last_error: string | null
+          last_success_at: string | null
           last_updated_at: string | null
           note: string | null
           update_available: boolean
         }
         Insert: {
+          contents_compared?: boolean
           dataset_key: string
+          found_checksum?: string | null
+          found_file?: string | null
+          found_release?: string | null
           found_url?: string | null
           last_checked_at?: string | null
+          last_error?: string | null
+          last_success_at?: string | null
           last_updated_at?: string | null
           note?: string | null
           update_available?: boolean
         }
         Update: {
+          contents_compared?: boolean
           dataset_key?: string
+          found_checksum?: string | null
+          found_file?: string | null
+          found_release?: string | null
           found_url?: string | null
           last_checked_at?: string | null
+          last_error?: string | null
+          last_success_at?: string | null
           last_updated_at?: string | null
           note?: string | null
           update_available?: boolean
@@ -112,18 +130,21 @@ export type Database = {
       }
       formulary_documents: {
         Row: {
+          coverage_year: number | null
           fetched_at: string
           plan_id: string
           title: string | null
           url: string
         }
         Insert: {
+          coverage_year?: number | null
           fetched_at?: string
           plan_id: string
           title?: string | null
           url: string
         }
         Update: {
+          coverage_year?: number | null
           fetched_at?: string
           plan_id?: string
           title?: string | null
