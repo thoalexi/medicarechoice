@@ -27,7 +27,6 @@ import { Route as WhatDoesMedicareCoverRouteImport } from './routes/what-does-me
 import { Route as AdminValidationRouteImport } from './routes/admin.validation'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout/return'
 import { Route as AuthenticatedAdminCmsUpdatesRouteImport } from './routes/_authenticated/admin.cms-updates'
-import { Route as ApiPublicCmsCheckRouteImport } from './routes/api/public/cms-check'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -119,11 +118,6 @@ const AuthenticatedAdminCmsUpdatesRoute =
     path: '/admin/cms-updates',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const ApiPublicCmsCheckRoute = ApiPublicCmsCheckRouteImport.update({
-  id: '/api/public/cms-check',
-  path: '/api/public/cms-check',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -143,7 +137,6 @@ export interface FileRoutesByFullPath {
   '/admin/validation': typeof AdminValidationRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/admin/cms-updates': typeof AuthenticatedAdminCmsUpdatesRoute
-  '/api/public/cms-check': typeof ApiPublicCmsCheckRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -163,7 +156,6 @@ export interface FileRoutesByTo {
   '/admin/validation': typeof AdminValidationRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/admin/cms-updates': typeof AuthenticatedAdminCmsUpdatesRoute
-  '/api/public/cms-check': typeof ApiPublicCmsCheckRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -185,7 +177,6 @@ export interface FileRoutesById {
   '/admin/validation': typeof AdminValidationRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/_authenticated/admin/cms-updates': typeof AuthenticatedAdminCmsUpdatesRoute
-  '/api/public/cms-check': typeof ApiPublicCmsCheckRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -207,7 +198,6 @@ export interface FileRouteTypes {
     | '/admin/validation'
     | '/checkout/return'
     | '/admin/cms-updates'
-    | '/api/public/cms-check'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -227,7 +217,6 @@ export interface FileRouteTypes {
     | '/admin/validation'
     | '/checkout/return'
     | '/admin/cms-updates'
-    | '/api/public/cms-check'
   id:
     | '__root__'
     | '/'
@@ -248,7 +237,6 @@ export interface FileRouteTypes {
     | '/admin/validation'
     | '/checkout/return'
     | '/_authenticated/admin/cms-updates'
-    | '/api/public/cms-check'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -269,7 +257,6 @@ export interface RootRouteChildren {
   WhatDoesMedicareCoverRoute: typeof WhatDoesMedicareCoverRoute
   AdminValidationRoute: typeof AdminValidationRoute
   CheckoutReturnRoute: typeof CheckoutReturnRoute
-  ApiPublicCmsCheckRoute: typeof ApiPublicCmsCheckRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -400,13 +387,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCmsUpdatesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/api/public/cms-check': {
-      id: '/api/public/cms-check'
-      path: '/api/public/cms-check'
-      fullPath: '/api/public/cms-check'
-      preLoaderRoute: typeof ApiPublicCmsCheckRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -439,7 +419,6 @@ const rootRouteChildren: RootRouteChildren = {
   WhatDoesMedicareCoverRoute: WhatDoesMedicareCoverRoute,
   AdminValidationRoute: AdminValidationRoute,
   CheckoutReturnRoute: CheckoutReturnRoute,
-  ApiPublicCmsCheckRoute: ApiPublicCmsCheckRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
