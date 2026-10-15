@@ -60,3 +60,8 @@
 - `medicare-figures.json`: per figure `year` + `confirmed`; fallback label component driven by `figureNote` beside yearly estimates.
 - `publishVersion`: require passing validation result.
 - `scripts/validate-data.py`: read star year/counts from data; regenerate provenance/report.
+
+## Two added safeguards
+
+- **Metadata-only wording.** When only the release date and file name were checked, the status reads "No newer release found — metadata only." Nothing is ever labelled "verified current."
+- **Validation tied to the exact staged version.** Each validation result stores the checksum and ID of the staged version it tested. Publish is allowed only if that version's own passing result matches its checksum. A pass from an older version or from the live data never counts. Enforced inside the publish function in the database, not just on screen. Tests cover both cases.
