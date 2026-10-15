@@ -58,11 +58,11 @@ describe("Part B 2026 fallback", () => {
     const plan = PLANS.find((p) => p.real)!;
     expect(FIGURES.partBMonthly.year).toBe(2026);
     expect(partBFallbackLabel()).toMatch(/2026 Part B/);
-    const before = estimateAnnual(plan, "some").total;
+    const before = estimateAnnual(plan, "some", 0).total;
     const next = JSON.parse(JSON.stringify(figures)) as FiguresPayload;
     next.figures.partBMonthly = { ...next.figures.partBMonthly, value: 300, year: 2027, confirmed: true };
     applyLiveData({ figures: next, publishedAt: {} });
     expect(partBFallbackLabel()).toBeNull();
-    expect(estimateAnnual(plan, "some").total).toBeCloseTo(before + (300 - 202.9) * 12, 0);
+    expect(estimateAnnual(plan, "some", 0).total).toBeCloseTo(before + (300 - 202.9) * 12, 0);
   });
 });
