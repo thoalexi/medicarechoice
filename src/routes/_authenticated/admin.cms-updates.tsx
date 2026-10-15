@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { checkForUpdates, getUpdateStatus, publishVersion, restorePrevious, stageFigures, stageStars } from "@/lib/cmsUpdates.functions";
 import type { FigureKey, FiguresPayload } from "@/lib/plans";
 import sources from "../../../data/sources.json";
+import { WATCHED, STATUS_TEXT, deriveStatus } from "@/lib/cmsImport";
 
 export const Route = createFileRoute("/_authenticated/admin/cms-updates")({
   head: () => ({
@@ -67,21 +68,40 @@ function CmsUpdates() {
 
       <section className="mt-8">
         <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-2xl font-bold">1. Check for updates</h2>
-          <button disabled={busy} className={`${btn} bg-primary text-primary-foreground`} onClick={() => run(() => check(), "Check finished.")}>Check CMS now</button></div>
-        <p className="mt-1 text-sm text-muted-foreground">Also runs automatically every Monday. It only flags updates — it never publishes.</p>
+          <div className="flex flex-wrap gap-2">
+            <button disabled={busy} className={`${btn} bg-primary text-primary-foreground`} onClick={() => run(() => check({ data: {} }), "Check finished.")}>Check CMS now</button>
+            <button disabled={busy} className={`${btn} border border-border bg-card`} onClick={() => run(() => check({ data: { full: true } }), "Full comparison finished.")}>Full comparison</button>
+          </div></div>
+        <p className="mt-1 text-sm text-muted-foreground">Runs only when you press a button. "Check CMS now" reads release dates and file names; it downloads a file only when a change is suggested. "Full comparison" also downloads files to compare their contents. Checks only flag — they never publish.</p>
+        {(() => {
+          const rows = [...WATCHED.map((w) => ({ key: w.key, st: deriveStatus(checkOf(w.key)) })), { key: "formulary", st: deriveStatus(null, true) }];
+          const counts = rows.reduce<Record<string, number>>((a, r) => ({ ...a, [STATUS_TEXT[r.st]]: (a[STATUS_TEXT[r.st]] ?? 0) + 1 }), {});
+          return <p className="mt-3 rounded-md bg-card p-3 font-bold">{rows.length} distinct sources: {Object.entries(counts).map(([t, n]) => `${n} ${t.toLowerCase()}`).join(" · ")}</p>;
+        })()}
         <div className="mt-3 space-y-3">
-          {sources.datasets.filter((s) => s.url).map((s) => {
-            const c = checkOf(s.key); const live = liveOf(s.key);
+          {WATCHED.map((w) => {
+            const c = checkOf(w.key); const st = deriveStatus(c);
+            const used = w.covers.map((k) => sources.datasets.find((s) => s.key === k)).filter(Boolean) as typeof sources.datasets;
+            const live = w.covers.map((k) => liveOf(k)).find(Boolean);
+            const tone = st === "update" || st === "failed" ? "text-destructive" : st === "never" ? "text-warning" : "text-foreground";
             return (
-              <div key={s.key} className="rounded-md border border-border bg-card p-3 text-sm">
-                <p className="font-bold">{s.label} {c?.update_available && <span className="ml-2 rounded bg-warning px-2 py-0.5 text-primary-foreground">Update available</span>}</p>
-                <p>In use: {s.file} · CMS release {s.released ?? "not stated"} · imported {s.importedAt}</p>
-                <p>Last checked: {when(c?.last_checked_at)} · Last successfully updated: {c?.last_updated_at || live?.published_at ? when(c?.last_updated_at ?? live?.published_at) : s.importedAt}</p>
-                {c?.note && <p className="text-muted-foreground">{c.note}{c.found_url && <> — <a className="text-primary underline" href={c.found_url} target="_blank" rel="noreferrer">CMS file</a></>}</p>}
-                {(s.key === "landscape" || s.key === "pbp" || s.key === "services") && <p className="text-muted-foreground">Plan list and benefit files are imported with the project's import scripts (see "How to run the next update" in the README).</p>}
+              <div key={w.key} className="rounded-md border border-border bg-card p-3 text-sm">
+                <p className="font-bold">{w.key === "partb" ? "Part B 2027 premium and deductible announcement" : used.map((s) => s.label).join(" + ")}</p>
+                <p className={`font-bold ${tone}`}>{STATUS_TEXT[st]}</p>
+                <p>Last successful check: {when(c?.last_success_at)}</p>
+                {c?.last_error && <p className="text-destructive">Last check failed {when(c.last_checked_at)}: {c.last_error}</p>}
+                <p>Newest release found at CMS: {c?.found_release ? <>{c.found_file ?? c.found_release}{c.found_url && <> — <a className="text-primary underline" href={c.found_url} target="_blank" rel="noreferrer">CMS link</a></>}</> : "—"}</p>
+                <p>Serving the website: {w.key === "partb" ? (d.builtInFigures.figures.partBMonthly.confirmed ? "2027 amounts" : "2026 amounts (2027 not confirmed)") : live ? `published version from ${when(live.published_at)}` : used.map((s) => `built-in ${s.file} (CMS release ${s.released ?? "not stated"})`).join("; ")}</p>
+                {c && !c.contents_compared && c.last_success_at && <p className="text-muted-foreground">File contents not compared.</p>}
+                {c?.note && <p className="text-muted-foreground">{c.note}</p>}
               </div>
             );
           })}
+          <div className="rounded-md border border-border bg-card p-3 text-sm">
+            <p className="font-bold">Drug lists (formularies)</p>
+            <p className="font-bold">{STATUS_TEXT.manual}</p>
+            <p className="text-muted-foreground">Looked up per plan when a visitor uses Check my drugs. A saved document is reused for 30 days, and only if its title or address states 2027; otherwise visitors see "couldn't confirm" with the insurer link and upload option.</p>
+          </div>
         </div>
       </section>
 
